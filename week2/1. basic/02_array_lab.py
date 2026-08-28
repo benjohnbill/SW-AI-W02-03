@@ -30,6 +30,26 @@
 - 회전 후 위치: (i, j) -> (j, n-1-i)
 - 새로운 배열을 만들어 값을 채워넣으세요
 """
+def rotate_matrix(matrix):
+
+    n = len(matrix)
+    new_matrix = []
+    for i in range(n):
+        hidden_matrix = matrix
+        new_matrix.append(hidden_matrix)
+        for j in range(n):
+            hidden_matrix[i][j] = matrix[j][n-i-1]
+    return new_matrix
+
+def rotate_matrix_test(matrix):
+
+    matrix = [[1, 2], [3, 4]]
+    hidden_matrix = matrix
+    for i in range(n):
+        new_matrix.append(hidden_matrix)
+        for j in range(n):
+            hidden_matrix[i][j] = matrix[j][n-i-1]
+        return new_matrix
 
 def rotate_matrix_90(matrix):
     """
@@ -89,3 +109,6 @@ if __name__ == "__main__":
     print("\n회전 후:")
     rotated2 = rotate_matrix_90(matrix2)
     print_matrix(rotated2)
+
+    print("\n 테스트: ")
+    print_matrix(rotate_matrix(matrix2))

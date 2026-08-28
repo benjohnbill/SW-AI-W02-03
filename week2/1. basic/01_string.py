@@ -27,23 +27,32 @@
 def is_palindrome(s):
     """
     문자열이 회문인지 판별하는 함수
-    
+
     Args:
         s: 판별할 문자열
-    
+
     Returns:
         bool: 회문이면 True, 아니면 False
     """
     # TODO: 알파벳과 숫자만 남기고 소문자로 변환하세요
     # 힌트: isalnum() 메서드와 lower() 메서드 사용
-    pass
-    
+
     # TODO: 정제된 문자열이 회문인지 확인하세요
     # 방법1: 문자열을 뒤집어서 비교 ([::-1] 사용)
     # 방법2: 양 끝 인덱스를 이용한 투 포인터 방식
-    pass
-    
-    #return False
+
+    buffer_list = []
+    for i in range(len(s)):
+        i = s[i]
+        if i.isalnum() == True:
+            buffer_list.append(i)
+    buffer_items = "".join(buffer_list)
+    items = buffer_items.lower()
+
+    for i in range(len(items) // 2):
+        if items[i] != items[len(items)-(i+1)]:
+            return False
+    return True
 
 # 테스트 케이스
 if __name__ == "__main__":
@@ -53,25 +62,23 @@ if __name__ == "__main__":
     print(f"입력: \"{test1}\"")
     print(f"회문 여부: {result1}")
     print()
-    
+
     # 테스트 케이스 2
     test2 = "race a car"
     result2 = is_palindrome(test2)
     print(f"입력: \"{test2}\"")
     print(f"회문 여부: {result2}")
     print()
-    
+
     # 테스트 케이스 3
     test3 = "Was it a car or a cat I saw?"
     result3 = is_palindrome(test3)
     print(f"입력: \"{test3}\"")
     print(f"회문 여부: {result3}")
     print()
-    
+
     # 테스트 케이스 4
     test4 = "Madam"
     result4 = is_palindrome(test4)
     print(f"입력: \"{test4}\"")
     print(f"회문 여부: {result4}")
-
-
