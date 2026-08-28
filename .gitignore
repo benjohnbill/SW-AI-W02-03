@@ -1,0 +1,8 @@
+# function_visualizer: 도구 원본은 ~/dev/krafton-jungle/function_visualizer/
+function_visualizer.py
+*.png
+*.svg
+
+__pycache__/
+*.pyc
+.venv/
