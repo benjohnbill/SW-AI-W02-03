@@ -93,16 +93,19 @@ combinations(n, k) -> list[list[int]]
 ▣ 단계별 가이드 (Level 1, 2, 3)
 ==============================================================================
 [Level 1] 종료 조건만 채워보기
-  - current_combination 의 길이가 k 가 되면 결과(result)에 복사본을 추가하고
-    이번 가지(branch) 의 탐색을 끝내야 합니다(return).
+  - current_combination 이 이미 k 개를 다 채운 상태라면, 그 조합을 결과(result)
+    에 기록하고, 이번 가지(branch) 의 탐색을 여기서 끝내야 합니다.
 
 [Level 2] 가지치기 반복문 채워보기
-  - start 부터 n 까지 숫자를 하나씩 시도합니다(`for num in range(start, n + 1)`).
+  - 이번에 시도할 수 있는 숫자는 start 부터 n 까지입니다. 그 범위를 하나씩
+    순서대로 시도하는 반복문이 필요합니다.
 
 [Level 3] 백트래킹 3단계 채워보기
-  - 선택 : current_combination 에 num 을 추가 (.append)
-  - 탐색 : backtrack(num + 1, current_combination) 로 더 깊이 들어감
-  - 취소 : 방금 추가했던 num 을 다시 제거 (.pop)
+  - 선택 : 지금 시도 중인 숫자를 current_combination 에 더합니다.
+  - 탐색 : 방금 고른 숫자보다 큰 수부터 다시 시도하도록, 더 깊은 재귀 호출로
+    들어갑니다.
+  - 취소 : 더 깊이 들어갔던 탐색이 끝나면, 방금 골랐던 숫자를 다시 빼내어
+    다음 후보를 시도할 수 있는 상태로 되돌립니다.
 
 ==============================================================================
 """
@@ -119,6 +122,8 @@ def combinations(n: int, k: int) -> list:
     Returns:
         모든 조합을 담은 리스트(예: [[1,2], [1,3], ...])
     """
+
+
     result = []  # 완성된 조합을 모아 둘 곳
 
     def backtrack(start: int, current_combination: list) -> None:
@@ -130,48 +135,58 @@ def combinations(n: int, k: int) -> list:
             current_combination: 지금까지 골라 둔 숫자들 (탐색 중)
         """
 
+
+        for num in range(start, n+1):
+
+            current_combination.append(num)
+            if len(current_combination) == k:
+                result.append(current_combination.copy())
+            else :
+                backtrack(num+1, current_combination)
+            current_combination.pop()
+
+    backtrack(1, [])
+    return result
+
         # ──────────────────────────────────────────────────────────────────
         # [Level 1] 종료 조건 (Base Case)
         # ──────────────────────────────────────────────────────────────────
         # 힌트:
-        # - current_combination 의 길이가 k 와 같다면 조합이 완성된 것입니다.
-        # - 그러면 그 조합의 "복사본" 을 result 에 넣고 return 합니다.
-        # - 왜 복사본?  current_combination 은 이후 .append/.pop 으로 계속 변하기
-        #   때문에 그대로 넣으면 모든 조합이 같은 객체를 가리키게 됩니다.
-        # - 복사본 만드는 방법: list(current_combination)  또는 current_combination[:]
+        # - 지금까지 고른 숫자의 개수가 k 개와 같아졌는지 확인해 보세요.
+        # - 그렇다면 조합이 완성된 것이니, result 에 기록하고 이 가지의 탐색을
+        #   끝내야 합니다.
+        # - 단, current_combination 을 그대로 넣으면 안 됩니다. 이 리스트는
+        #   이후에도 .append/.pop 으로 계속 바뀌기 때문에, 그대로 넣으면 나중에
+        #   result 안의 값까지 같이 바뀌어 버립니다. "복사본"을 넣어야 합니다.
         #
-        # TODO(Level 1): 아래 두 줄을 직접 작성하세요.
-        # if len(current_combination) == ...:
-        #     result.append(...)
-        #     return
-        pass  
+        # TODO(Level 1): 종료 조건을 확인하고, 조건이 맞으면 결과를 기록한 뒤
+        # 탐색을 끝내세요.
 
         # ──────────────────────────────────────────────────────────────────
         # [Level 2] 가지치기 반복문
         # ──────────────────────────────────────────────────────────────────
         # 힌트:
-        # - 이번에는 start 부터 n 까지 숫자를 하나씩 시도해 봅니다.
-        # - 반복문 변수 이름은 num 으로 추천 (의미: "이번에 고를 숫자").
+        # - 이번에 시도할 수 있는 숫자의 범위는 start 부터 n 까지입니다.
+        # - 그 범위를 하나씩 순서대로 훑는 반복문이 필요합니다. 반복문 변수
+        #   이름은 num 으로 추천 (의미: "이번에 고를 숫자").
         #
-        # TODO(Level 2): 아래 한 줄을 작성하세요.
-        pass
+        # TODO(Level 2): start 부터 n 까지의 숫자를 하나씩 시도하는 반복문을
+        # 작성하세요.
 
             # ──────────────────────────────────────────────────────────────
             # [Level 3] 백트래킹 3단계
             # ──────────────────────────────────────────────────────────────
             # 힌트:
-            #   1) 선택(Choose)  : current_combination 에 num 추가
-            #   2) 탐색(Explore) : backtrack(num + 1, current_combination)
-            #   3) 취소(Unchoose): current_combination 의 마지막 요소를 제거
+            #   1) 선택(Choose)  : 지금 시도 중인 숫자를 current_combination
+            #      에 추가합니다.
+            #   2) 탐색(Explore) : 방금 고른 숫자보다 큰 수부터 다시 시도하도록
+            #      더 깊은 재귀 호출로 들어갑니다.
+            #   3) 취소(Unchoose): 더 깊이 들어갔던 탐색이 끝나면, 방금 골랐던
+            #      숫자를 다시 빼내어 다음 후보를 시도할 수 있게 되돌립니다.
             #
-            # TODO(Level 3): 아래 세 줄을 작성하세요.
-            # current_combination.append(...)
-            # backtrack(..., current_combination)
-            # current_combination.pop()
+            # TODO(Level 3): 선택 → 탐색 → 취소, 세 단계를 순서대로 작성하세요.
 
     # 처음 호출: 시작 숫자는 1, 지금까지 고른 숫자는 비어 있음
-    backtrack(1, [])
-    return result
 
 
 # ============================================================================
