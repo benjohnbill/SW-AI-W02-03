@@ -101,13 +101,13 @@ def extended_gcd(a, b):
 
 
     # a(x1 - y2) + b(y1 - x2 + y2 * a // b) = 0
-    # y2 = x1
-    # x2 = y1 + y2(a // b)
+    # x1 = y2
+    # y1 = x2 - y2(a // b)
 
-    gcd, past_x, past_y = extended_gcd(b, a%b)
-    new_x = past_y
-    new_y = past_x - (a // b) * past_y
-    return (gcd, new_x, new_y)
+    gcd, child_x, child_y = extended_gcd(b, a%b)
+    parent_x = child_y
+    parent_y = child_x - (a // b) * child_y
+    return (gcd, parent_x, parent_y)
 
 def is_prime(n: int) -> bool:
     """

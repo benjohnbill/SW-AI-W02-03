@@ -33,12 +33,11 @@
 def rotate_matrix(matrix):
 
     n = len(matrix)
-    new_matrix = []
+    hidden_matrix = [row[:] for row in matrix]
     for i in range(n):
-        hidden_matrix = matrix
-        new_matrix.append(hidden_matrix)
         for j in range(n):
             hidden_matrix[i][j] = matrix[j][n-i-1]
+    new_matrix = hidden_matrix
     return new_matrix
 
 def rotate_matrix_test(matrix):
