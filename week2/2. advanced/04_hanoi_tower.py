@@ -49,11 +49,11 @@
 - 0 <= N <= 20  (hanoi_moves 는 이 범위에서만 실제 시퀀스를 반환)
 
 ▣ 힌트 (재귀 아이디어)
-    move(k, src, via, dst):
+    move(k, start, rest, end):
         if k == 0: return
-        move(k-1, src, dst, via)        # 위쪽 k-1개를 via 로
-        결과 리스트에 (src, dst) 추가   # 가장 큰 원반을 dst 로
-        move(k-1, via, src, dst)        # via 의 k-1개를 dst 로
+        move(k-1, start, end, rest)        # 위쪽 k-1개를 rest 로
+        결과 리스트에 (start, end) 추가   # 가장 큰 원반을 end 로
+        move(k-1, rest, start, end)        # rest 의 k-1개를 end 로
 """
 
 
@@ -78,11 +78,15 @@ def hanoi_moves(n: int) -> list:
     # TODO: N > 20 또는 N == 0 인 경우 [] 를 반환하세요.
     # TODO: 그 외에는 재귀로 이동 순서를 만들어 반환하세요.
 
-    def hanoi_pattern(n, src, dst):
+    def hanoi_pattern(n, start, end):
         if n == 1:
-            return[(src, dst)]
-        via = 6 - src - dst
-        return hanoi_pattern(n-1, src, via) + [(src, dst)] + hanoi_pattern(n-1, via, dst)
+            return[(start, end)]
+        rest = 6 - start - end
+        return (
+            hanoi_pattern(n-1, start, rest)
+            + [(start, end)]
+            + hanoi_pattern(n-1, rest, end)
+                )
     return hanoi_pattern(n, 1, 3)
 
 if __name__ == "__main__":

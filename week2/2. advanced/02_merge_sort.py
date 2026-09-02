@@ -34,7 +34,7 @@ Args:
 
 def merge(arr):
     result = []
-    if len(arr) == 1:
+    if len(arr) <= 1:
         return [arr[0]]
     mid = len(arr) // 2
     left = merge(arr[:mid])
