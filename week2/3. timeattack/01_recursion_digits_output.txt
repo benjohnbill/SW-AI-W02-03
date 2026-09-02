@@ -1,0 +1,13 @@
+=== 자릿수의 합 ===
+sum_of_digits(12345) = 15
+sum_of_digits(0) = 0
+sum_of_digits(9) = 9
+sum_of_digits(1000) = 1
+sum_of_digits(98765) = 35
+
+=== 거듭제곱 ===
+power(2, 10) = 1024
+power(5, 0) = 1
+power(3, 4) = 81
+power(7, 1) = 7
+power(10, 3) = 1000
