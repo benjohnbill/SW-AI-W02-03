@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>분할 함수 재작성 기록</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#EDF0F4; --sunken:#E7EBF0;
+  --ink:#161A21; --ink-2:#48515F; --muted:#78828F; --line:#DCE1E8;
+  --i:#1560C4; --i-soft:#E3EDFB;
+  --j:#B85607; --j-soft:#FAEBDD;
+  --pivot:#6A4E00;
+  --del-bg:#FBEAE8; --del-ink:#A32319; --del-rail:#D4544A;
+  --add-bg:#E6F4EC; --add-ink:#0F6A46; --add-rail:#3E9E74;
+  --warn:#A32319; --ok:#0F6A46;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1217; --surface:#161A21; --surface-2:#1C222B; --sunken:#111519;
+    --ink:#E5E9F0; --ink-2:#ADB6C3; --muted:#848E9C; --line:#29313C;
+    --i:#74ABF5; --i-soft:#16263D;
+    --j:#EDA05C; --j-soft:#33230F;
+    --pivot:#D6BA64;
+    --del-bg:#2E1718; --del-ink:#F09B93; --del-rail:#8E3B34;
+    --add-bg:#122A20; --add-ink:#7DD3A7; --add-rail:#2E7355;
+    --warn:#F09B93; --ok:#7DD3A7;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1217; --surface:#161A21; --surface-2:#1C222B; --sunken:#111519;
+  --ink:#E5E9F0; --ink-2:#ADB6C3; --muted:#848E9C; --line:#29313C;
+  --i:#74ABF5; --i-soft:#16263D;
+  --j:#EDA05C; --j-soft:#33230F;
+  --pivot:#D6BA64;
+  --del-bg:#2E1718; --del-ink:#F09B93; --del-rail:#8E3B34;
+  --add-bg:#122A20; --add-ink:#7DD3A7; --add-rail:#2E7355;
+  --warn:#F09B93; --ok:#7DD3A7;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.75; letter-spacing:-0.005em;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:48px 24px 96px; display:flex; flex-direction:column; gap:56px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace}
+code{font-size:0.88em; background:var(--surface-2); padding:0.1em 0.36em; border-radius:3px}
+
+/* header */
+header{display:flex; flex-direction:column; gap:14px; padding-bottom:28px; border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted)}
+h1{margin:0; font-size:clamp(30px,4.6vw,46px); font-weight:600; line-height:1.18; letter-spacing:-0.03em; text-wrap:balance}
+.lede{margin:0; max-width:62ch; color:var(--ink-2); font-size:17px}
+.meta{display:flex; flex-wrap:wrap; gap:8px 20px; font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted)}
+
+section{display:flex; flex-direction:column; gap:20px}
+h2{margin:0; font-size:22px; font-weight:600; letter-spacing:-0.02em; display:flex; align-items:baseline; gap:12px}
+h2 .num{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); font-weight:500}
+h3{margin:0; font-size:15px; font-weight:600; letter-spacing:-0.01em}
+p{margin:0; max-width:66ch; color:var(--ink-2)}
+p strong{color:var(--ink); font-weight:600}
+.note{font-size:14px; color:var(--muted); max-width:66ch}
+
+/* stat tiles */
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:2px; background:var(--line); border:1px solid var(--line)}
+.tile{background:var(--surface); padding:22px 20px; display:flex; flex-direction:column; gap:8px}
+.tile .k{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted)}
+.tile .v{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.tile .before{font-size:20px; color:var(--warn); text-decoration:line-through; text-decoration-thickness:1px}
+.tile .arrow{color:var(--muted); font-size:14px}
+.tile .after{font-size:30px; font-weight:600; color:var(--ok); letter-spacing:-0.02em}
+.tile .cap{font-size:13px; color:var(--ink-2); line-height:1.5}
+
+/* diff */
+.diff{border:1px solid var(--line); background:var(--surface); overflow:hidden}
+.diff-head{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:10px 16px; background:var(--surface-2); border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2)}
+.diff-head .legend{display:flex; gap:14px}
+.legend b{font-weight:500}
+.legend .m{color:var(--del-ink)} .legend .p{color:var(--add-ink)}
+.diff-body{overflow-x:auto}
+.diff-body pre{margin:0; font-family:"IBM Plex Mono",monospace; font-size:13px; line-height:1.62; min-width:max-content}
+.dl{display:block; padding:0 16px 0 12px; border-left:3px solid transparent; white-space:pre}
+.dl.hunk{background:var(--sunken); color:var(--muted); border-left-color:var(--line)}
+.dl.del{background:var(--del-bg); color:var(--del-ink); border-left-color:var(--del-rail)}
+.dl.add{background:var(--add-bg); color:var(--add-ink); border-left-color:var(--add-rail)}
+.dl .tag{display:inline-block; width:1.2em; opacity:0.65}
+
+/* change list */
+.changes{display:flex; flex-direction:column; border-top:1px solid var(--line)}
+.change{display:grid; grid-template-columns:auto 1fr; gap:6px 18px; padding:20px 0; border-bottom:1px solid var(--line)}
+.change .badge{grid-row:span 2; font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+  width:30px; height:30px; display:grid; place-items:center; border:1px solid var(--line);
+  background:var(--surface-2); color:var(--ink-2); border-radius:50%}
+.change .why{font-size:14.5px; color:var(--ink-2); max-width:64ch}
+.change .why em{font-style:normal; color:var(--ink); font-weight:500}
+
+/* trace */
+.trace-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:2px; background:var(--line); border:1px solid var(--line)}
+.panel{background:var(--surface); padding:20px 18px 22px; display:flex; flex-direction:column; gap:14px}
+.panel-head{display:flex; flex-direction:column; gap:4px}
+.panel-head .tagline{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase}
+.tag-old{color:var(--warn)} .tag-new{color:var(--ok)}
+.panel-head .sub{font-size:13px; color:var(--muted)}
+.steps{display:flex; flex-direction:column; gap:9px}
+.step{display:grid; grid-template-columns:44px 1fr; align-items:center; gap:12px}
+.step .lbl{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); text-align:right; font-variant-numeric:tabular-nums}
+.cells{display:grid; grid-template-columns:repeat(8,1fr); gap:3px}
+.cell{position:relative; height:30px; display:grid; place-items:center;
+  font-family:"IBM Plex Mono",monospace; font-size:13px; background:var(--surface-2);
+  border:1px solid var(--line); color:var(--ink-2)}
+.cell.hi-i{background:var(--i-soft); border-color:var(--i); color:var(--i); font-weight:600}
+.cell.hi-j{background:var(--j-soft); border-color:var(--j); color:var(--j); font-weight:600}
+.cell.hi-both{background:linear-gradient(105deg,var(--i-soft) 0 50%,var(--j-soft) 50% 100%); border-color:var(--ink-2); color:var(--ink); font-weight:600}
+.cell .pin{position:absolute; top:-1px; right:2px; font-family:"IBM Plex Mono",monospace; font-size:9.5px; line-height:1; letter-spacing:-0.02em}
+.pin-i{color:var(--i)} .pin-j{color:var(--j)}
+.ruler{display:grid; grid-template-columns:repeat(8,1fr); gap:3px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted); text-align:center}
+.verdict{display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--line); background:var(--surface-2); font-size:14px}
+.verdict .split{font-family:"IBM Plex Mono",monospace; font-weight:600}
+.verdict.bad{border-color:var(--del-rail); background:var(--del-bg); color:var(--del-ink)}
+.verdict.good{border-color:var(--add-rail); background:var(--add-bg); color:var(--add-ink)}
+
+/* depth chart */
+.chart{border:1px solid var(--line); background:var(--surface); padding:22px 20px; display:flex; flex-direction:column; gap:16px; overflow-x:auto}
+.chart-legend{display:flex; gap:18px; font-size:13px; color:var(--ink-2); flex-wrap:wrap}
+.swatch{display:inline-block; width:11px; height:11px; margin-right:6px; vertical-align:-1px}
+.sw-old{background:var(--del-rail)} .sw-new{background:var(--add-rail)}
+table{border-collapse:collapse; width:100%; min-width:520px; font-variant-numeric:tabular-nums}
+caption{text-align:left; font-size:13px; color:var(--muted); padding-bottom:10px}
+th,td{text-align:right; padding:9px 12px; border-bottom:1px solid var(--line); font-size:14px}
+th{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); font-weight:500}
+th:first-child,td:first-child{text-align:left}
+td.mono{font-family:"IBM Plex Mono",monospace}
+td.old{color:var(--warn); font-weight:600}
+td.new{color:var(--ok); font-weight:600}
+.flag{display:inline-block; font-size:11.5px; font-family:"IBM Plex Mono",monospace; padding:2px 7px; border:1px solid currentColor}
+.flag.dead{color:var(--warn)} .flag.alive{color:var(--ok)}
+.bar-row{display:grid; grid-template-columns:58px 1fr; align-items:center; gap:12px}
+.bar-row .n{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted); text-align:right}
+.bars{display:flex; flex-direction:column; gap:3px}
+.bar{height:11px; display:flex; align-items:center; gap:7px}
+.bar .fill{height:11px}
+.bar .fill.old{background:var(--del-rail)} .bar .fill.new{background:var(--add-rail)}
+.bar .val{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-2)}
+.scale{position:relative; height:22px; border-top:1px solid var(--line); margin-top:4px}
+.tick{position:absolute; top:0; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted); transform:translateX(-50%); padding-top:3px}
+.tick::before{content:""; position:absolute; top:0; left:50%; width:1px; height:4px; background:var(--line)}
+.limit{position:absolute; top:-4px; bottom:0; width:0; border-left:1px dashed var(--warn)}
+.limit span{position:absolute; top:-18px; left:4px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--warn); white-space:nowrap}
+
+.final{border:1px solid var(--line); background:var(--surface); overflow:hidden}
+.final-head{padding:10px 16px; background:var(--surface-2); border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2)}
+.final pre{margin:0; padding:16px; overflow-x:auto; font-family:"IBM Plex Mono",monospace; font-size:13px; line-height:1.62}
+
+footer{border-top:1px solid var(--line); padding-top:20px; font-size:13.5px; color:var(--muted); max-width:66ch}
+@media (max-width:640px){ .wrap{padding:32px 16px 64px; gap:44px} .step{grid-template-columns:36px 1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">quick sort · partition</div>
+  <h1>분할 함수 재작성 기록</h1>
+  <p class="lede">처음 작성한 퀵 정렬과 지금의 퀵 정렬 사이에서 무엇이 달라졌는지, 그 변화가 실제 실행에서 어떤 차이를 만드는지 측정값과 함께 정리했습니다.</p>
+  <div class="meta">
+    <span>CPython 3 · 재귀 한도 1000</span>
+    <span>무작위 검증 배열 7,000개</span>
+    <span>2026-09-06</span>
+  </div>
+</header>
+
+<section>
+  <h2><span class="num">01</span>한눈에</h2>
+  <div class="tiles">
+    <div class="tile">
+      <div class="k">정렬 실패율</div>
+      <div class="v"><span class="before">702 / 2000</span><span class="arrow">→</span><span class="after">0 / 5000</span></div>
+      <div class="cap">길이 0~9, 값 0~5인 무작위 배열. 이전 판은 순서 오류 487건과 <code>IndexError</code> 215건을 냈습니다.</div>
+    </div>
+    <div class="tile">
+      <div class="k">재귀 깊이 · 중복 5000개</div>
+      <div class="v"><span class="before">2500</span><span class="arrow">→</span><span class="after">16</span></div>
+      <div class="cap">값이 두 종류뿐인 배열에서. 이전 방식은 한도 1000을 넘겨 <code>RecursionError</code>로 죽습니다.</div>
+    </div>
+    <div class="tile">
+      <div class="k">빈 배열</div>
+      <div class="v"><span class="before">IndexError</span><span class="arrow">→</span><span class="after">통과</span></div>
+      <div class="cap">이전에는 <code>end</code>가 -1이 되어 <code>arr[-1]</code>을 읽으려다 터졌습니다.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">02</span>diff</h2>
+  <p><code>diff -u</code> 결과입니다. 바깥 <code>quick_sort</code>는 이름만 남고, 실질적인 변화는 전부 <code>quick_sort_helper</code> 안에서 일어났습니다.</p>
+  <div class="diff">
+    <div class="diff-head">
+      <span>quick_sort.py</span>
+      <span class="legend"><b class="m">− 처음 판</b><b class="p">+ 지금 판</b></span>
+    </div>
+    <div class="diff-body"><pre><span class="dl hunk">@@ -3,23 +3,24 @@</span>
+<span class="dl"><span class="tag"> </span>    end = len(arr) - 1</span>
+<span class="dl"><span class="tag"> </span></span>
+<span class="dl"><span class="tag"> </span>    def quick_sort_helper(arr, start, end):</span>
+<span class="dl del"><span class="tag">−</span>        i = start</span>
+<span class="dl del"><span class="tag">−</span>        j = end</span>
+<span class="dl add"><span class="tag">+</span>        if start &gt;= end:</span>
+<span class="dl add"><span class="tag">+</span>            return</span>
+<span class="dl add"><span class="tag">+</span>        i = start - 1</span>
+<span class="dl add"><span class="tag">+</span>        j = end + 1</span>
+<span class="dl"><span class="tag"> </span>        n = (start + end) // 2</span>
+<span class="dl"><span class="tag"> </span>        pivot = arr[n]</span>
+<span class="dl del"><span class="tag">−</span>        while i &lt; j:</span>
+<span class="dl add"><span class="tag">+</span>        while True:</span>
+<span class="dl add"><span class="tag">+</span>            i += 1</span>
+<span class="dl"><span class="tag"> </span>            while arr[i] &lt; pivot:</span>
+<span class="dl"><span class="tag"> </span>                i += 1</span>
+<span class="dl add"><span class="tag">+</span>            j -= 1</span>
+<span class="dl"><span class="tag"> </span>            while arr[j] &gt; pivot:</span>
+<span class="dl"><span class="tag"> </span>                j -= 1</span>
+<span class="dl del"><span class="tag">−</span>            if arr[i] == arr[j] and i != j:</span>
+<span class="dl del"><span class="tag">−</span>                j -= 1</span>
+<span class="dl add"><span class="tag">+</span>            if i &gt;= j:</span>
+<span class="dl add"><span class="tag">+</span>                break</span>
+<span class="dl"><span class="tag"> </span>            arr[i], arr[j] = arr[j], arr[i]</span>
+<span class="dl del"><span class="tag">−</span>        return j</span>
+<span class="dl add"><span class="tag">+</span>        quick_sort_helper(arr, start, j)</span>
+<span class="dl add"><span class="tag">+</span>        quick_sort_helper(arr, j + 1, end)</span>
+<span class="dl"><span class="tag"> </span></span>
+<span class="dl del"><span class="tag">−</span>    mid = quick_sort_helper(arr, start, end)</span>
+<span class="dl del"><span class="tag">−</span>    if start &lt; mid:</span>
+<span class="dl del"><span class="tag">−</span>        quick_sort_helper(arr, start, mid)</span>
+<span class="dl del"><span class="tag">−</span>    if mid &lt; end:</span>
+<span class="dl del"><span class="tag">−</span>        quick_sort_helper(arr, mid + 1, end)</span>
+<span class="dl add"><span class="tag">+</span>    quick_sort_helper(arr, start, end)</span>
+<span class="dl"><span class="tag"> </span>    return arr</span></pre></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">03</span>다섯 가지 변화</h2>
+  <p>diff의 조각들은 서로 얽혀 있습니다. 의미 단위로 묶으면 다섯 가지이고, 아래 순서는 서로가 서로를 가능하게 만든 순서입니다.</p>
+  <div class="changes">
+    <div class="change">
+      <div class="badge">1</div>
+      <h3>재귀가 함수 <em>안으로</em> 들어왔다</h3>
+      <div class="why">처음 판은 바깥에서 <code>quick_sort_helper</code>를 세 번 부르는 게 전부였습니다. 분할 트리가 깊이 2에서 멈추니, 원소가 다섯 개만 되어도 손이 닿지 않는 구간이 남습니다. <code>[0, 0, 0, 1, 0]</code>이 그대로 반환되던 이유입니다. 함수가 자기 자신을 부르면 트리가 바닥까지 저절로 뻗습니다.</div>
+    </div>
+    <div class="change">
+      <div class="badge">2</div>
+      <h3>종료 조건이 함수 <em>첫 줄에</em> 생겼다</h3>
+      <div class="why">재귀에는 멈출 자리가 필요합니다. <code>start &gt;= end</code>면 즉시 반환하는 한 줄이 그 역할을 합니다. 덤으로 빈 배열도 여기서 걸립니다. 이전에는 검사보다 <code>pivot = arr[n]</code>이 먼저 실행돼서, 검사할 기회 자체가 없었습니다.</div>
+    </div>
+    <div class="change">
+      <div class="badge">3</div>
+      <h3>두 지수가 한 칸 <em>바깥에서</em> 출발한다</h3>
+      <div class="why"><code>i</code>는 <code>start - 1</code>, <code>j</code>는 <code>end + 1</code>. 회전마다 <code>i += 1</code>과 <code>j -= 1</code>을 먼저 실행하기 때문에, 첫 전진이 정확히 양 끝을 짚도록 한 칸 물러선 자리에서 시작합니다.</div>
+    </div>
+    <div class="change">
+      <div class="badge">4</div>
+      <h3>무조건 전진이 <em>반창고를 대체했다</em></h3>
+      <div class="why">사라진 <code>if arr[i] == arr[j] and i != j: j -= 1</code>은 무한 루프를 막으려고 붙인 줄이었습니다. 값이 피벗과 같으면 두 스캔이 한 발짝도 못 움직이니까요. 이제는 회전마다 두 지수가 강제로 한 칸씩 움직이므로, 막아야 할 무한 루프 자체가 생기지 않습니다. 아래 04가 이 차이를 보여 줍니다.</div>
+    </div>
+    <div class="change">
+      <div class="badge">5</div>
+      <h3>종료 검사가 <em>교환보다 앞으로</em> 왔다</h3>
+      <div class="why"><code>while i &lt; j</code>는 회전이 <em>시작될 때</em> 검사합니다. 교환은 회전 끝에 있으니, 스캔 도중 지수가 교차하면 교환이 먼저 일어나고 검사는 그 뒤에 옵니다. 이미 엉뚱한 자리를 바꿔치기한 뒤죠. 검사를 스캔과 교환 사이로 옮기면서 바깥 루프는 조건을 잃고 <code>while True</code>가 되었고, 탈출은 <code>break</code>가 맡습니다.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">04</span>같은 값만 있는 구간에서</h2>
+  <p><code>[5, 5, 5, 5, 5, 5, 5, 5]</code>을 한 번 분할할 때 두 지수가 어떻게 움직이는지 추적했습니다. 값이 모두 같으니 교환은 아무것도 바꾸지 못하고, <strong>순수하게 지수의 움직임만 남습니다.</strong> 중복이 많은 입력에서는 이런 구간이 반드시 생깁니다.</p>
+  <div class="trace-grid">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="tagline tag-old">처음 판 · while i &lt; j</div>
+        <div class="sub"><code>i</code>가 0에 얼어붙고 <code>j</code>만 반창고 줄에 밀려 내려옵니다.</div>
+      </div>
+      <div class="ruler"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      <div class="steps">
+        <div class="step"><div class="lbl">1회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">2회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">3회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">4회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">5회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">6회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">7회전</div><div class="cells">
+          <div class="cell hi-both"><span class="pin pin-i">ij</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+      </div>
+      <div class="verdict bad">분할점 <span class="split">j = 0</span> → 왼쪽 <span class="split">1개</span> · 오른쪽 <span class="split">7개</span></div>
+      <p class="note">한 회전에 원소 하나씩만 떨어져 나갑니다. 절반씩 쪼개져야 할 트리가 일자 사다리가 됩니다.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="tagline tag-new">지금 판 · while True</div>
+        <div class="sub">두 지수가 회전마다 한 칸씩 서로를 향해 다가옵니다.</div>
+      </div>
+      <div class="ruler"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      <div class="steps">
+        <div class="step"><div class="lbl">1회전</div><div class="cells">
+          <div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div></div></div>
+        <div class="step"><div class="lbl">2회전</div><div class="cells">
+          <div class="cell">5</div><div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">3회전</div><div class="cells">
+          <div class="cell">5</div><div class="cell">5</div><div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">4회전</div><div class="cells">
+          <div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+        <div class="step"><div class="lbl">5회전</div><div class="cells">
+          <div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell hi-j"><span class="pin pin-j">j</span>5</div><div class="cell hi-i"><span class="pin pin-i">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div></div>
+      </div>
+      <div class="verdict good">교차 감지 → <code>break</code> · 분할점 <span class="split">j = 3</span> → 왼쪽 <span class="split">4개</span> · 오른쪽 <span class="split">4개</span></div>
+      <p class="note">5회전에서 <code>i</code>가 <code>j</code>를 지나칩니다. 교환 직전의 검사가 이를 잡아내고, 직전 위치인 3이 분할점으로 확정됩니다.</p>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">05</span>그 차이가 쌓이면</h2>
+  <p>위의 <span style="color:var(--warn);font-weight:600">1 대 7</span> 분할이 층마다 반복되면 재귀 깊이가 배열 길이에 비례합니다. <code>[0,1,0,1,…]</code> 형태의 배열을 길이별로 돌려 실제 깊이를 측정했습니다.</p>
+  <div class="chart">
+    <div class="chart-legend">
+      <span><i class="swatch sw-old"></i>처음 판의 분할 방식</span>
+      <span><i class="swatch sw-new"></i>지금 판의 분할 방식</span>
+      <span style="color:var(--warn)">┆ 파이썬 기본 재귀 한도 1000</span>
+    </div>
+    <div class="bars" style="position:relative">
+      <div class="bar-row"><span class="n">n=100</span><div>
+        <div class="bar"><span class="fill old" style="width:42.5%"></span><span class="val">50</span></div>
+        <div class="bar"><span class="fill new" style="width:22.6%"></span><span class="val">8</span></div></div></div>
+      <div class="bar-row"><span class="n">n=500</span><div>
+        <div class="bar"><span class="fill old" style="width:59.9%"></span><span class="val">250</span></div>
+        <div class="bar"><span class="fill new" style="width:26.0%"></span><span class="val">11</span></div></div></div>
+      <div class="bar-row"><span class="n">n=1000</span><div>
+        <div class="bar"><span class="fill old" style="width:67.5%"></span><span class="val">500</span></div>
+        <div class="bar"><span class="fill new" style="width:27.9%"></span><span class="val">13</span></div></div></div>
+      <div class="bar-row"><span class="n">n=2000</span><div>
+        <div class="bar"><span class="fill old" style="width:75.0%"></span><span class="val">1000</span></div>
+        <div class="bar"><span class="fill new" style="width:28.7%"></span><span class="val">14</span></div></div></div>
+      <div class="bar-row"><span class="n">n=5000</span><div>
+        <div class="bar"><span class="fill old" style="width:85.0%"></span><span class="val">2500</span></div>
+        <div class="bar"><span class="fill new" style="width:30.1%"></span><span class="val">16</span></div></div></div>
+      <div class="bar-row"><span class="n">n=10000</span><div>
+        <div class="bar"><span class="fill old" style="width:92.5%"></span><span class="val">5000</span></div>
+        <div class="bar"><span class="fill new" style="width:30.8%"></span><span class="val">17</span></div></div></div>
+      <div class="limit" style="left:calc(70px + (100% - 70px) * 0.75)"><span>한도 1000</span></div>
+    </div>
+    <div class="scale" style="margin-left:70px">
+      <span class="tick" style="left:0%">1</span>
+      <span class="tick" style="left:25%">10</span>
+      <span class="tick" style="left:50%">100</span>
+      <span class="tick" style="left:75%">1000</span>
+      <span class="tick" style="left:100%">10000</span>
+    </div>
+    <p class="note">가로축은 로그 눈금입니다. 선형 눈금으로 그리면 지금 판의 막대가 보이지 않을 만큼 차이가 큽니다.</p>
+  </div>
+
+  <table>
+    <caption>같은 측정을 숫자로. 깊이가 1000을 넘으면 <code>RecursionError</code>로 실행 자체가 실패합니다.</caption>
+    <thead><tr><th>배열 길이</th><th>처음 판</th><th>지금 판</th><th>처음 판의 결과</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">100</td><td class="mono old">50</td><td class="mono new">8</td><td><span class="flag alive">정상</span></td></tr>
+      <tr><td class="mono">500</td><td class="mono old">250</td><td class="mono new">11</td><td><span class="flag alive">정상</span></td></tr>
+      <tr><td class="mono">1000</td><td class="mono old">500</td><td class="mono new">13</td><td><span class="flag alive">정상</span></td></tr>
+      <tr><td class="mono">2000</td><td class="mono old">1000</td><td class="mono new">14</td><td><span class="flag dead">한도 도달</span></td></tr>
+      <tr><td class="mono">5000</td><td class="mono old">2500</td><td class="mono new">16</td><td><span class="flag dead">RecursionError</span></td></tr>
+      <tr><td class="mono">10000</td><td class="mono old">5000</td><td class="mono new">17</td><td><span class="flag dead">RecursionError</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note">깊이 측정을 위해 재귀 한도를 임시로 올려서 잰 값입니다. 기본 설정에서는 2000개 이상에서 예외로 끝납니다.</p>
+</section>
+
+<section>
+  <h2><span class="num">06</span>지금 판에 남아 있는 것</h2>
+  <p>고쳐진 것과 고쳐지지 않은 것을 구분해 둘 필요가 있습니다. <strong>피벗을 구간의 가운데 원소로 고정하는 선택은 그대로입니다.</strong> 그래서 <code>[0,1,2,…,2499,2500,…,2,1]</code> 같은 산 모양 배열에서는 지금 판도 깊이 2499가 나옵니다.</p>
+  <p>다만 이것은 이번 수정과 무관한, 결정론적 피벗 선택 자체의 성질입니다. 무작위 피벗이나 세 값의 중앙값을 쓰면 완화되지만, 분할 로직을 다시 건드릴 필요는 없습니다.</p>
+  <div class="verdict good" style="max-width:66ch">중복 값으로 인한 최악 분할은 해결됨 · 특정 배치로 인한 최악 분할은 피벗 선택의 영역</div>
+</section>
+
+<section>
+  <h2><span class="num">07</span>최종본</h2>
+  <div class="final">
+    <div class="final-head">quick_sort.py · 검증 통과</div>
+    <pre>def quick_sort(arr):
+    start = 0
+    end = len(arr) - 1
+
+    def quick_sort_helper(arr, start, end):
+        if start &gt;= end:
+            return
+        i = start - 1
+        j = end + 1
+        n = (start + end) // 2
+        pivot = arr[n]
+        while True:
+            i += 1
+            while arr[i] &lt; pivot:
+                i += 1
+            j -= 1
+            while arr[j] &gt; pivot:
+                j -= 1
+            if i &gt;= j:
+                break
+            arr[i], arr[j] = arr[j], arr[i]
+        quick_sort_helper(arr, start, j)
+        quick_sort_helper(arr, j + 1, end)
+
+    quick_sort_helper(arr, start, end)
+    return arr</pre>
+  </div>
+</section>
+
+<footer>
+  검증 조건 — 무작위 배열 5,000개(길이 0~9, 값 0~5) 전량 통과. 길이 5,000의 빈 배열·정렬된 배열·역순 배열·전부 같은 값·두 값 교대·완전 무작위 각각 통과, 최대 재귀 깊이 12~28.
+</footer>
+
+</div>
+</body>
+</html>

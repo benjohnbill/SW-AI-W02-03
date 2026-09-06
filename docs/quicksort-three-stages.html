@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>퀵 정렬 세 단계</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EFF3F3; --surface:#FFFFFF; --surface-2:#E6ECEC; --sunken:#DBE3E3;
+  --ink:#12201F; --ink-2:#3D4E4D; --muted:#6D7D7C; --line:#CDD8D8;
+  --s1:#AF4227; --s1-soft:#F9E6E1; --s1-rail:#D9917E;
+  --s2:#0A7165; --s2-soft:#DDF0EC; --s2-rail:#6FBBB0;
+  --s3:#453AA6; --s3-soft:#E5E3F7; --s3-rail:#9A92DC;
+  --s4:#7E6416; --s4-soft:#F5EEDA; --s4-rail:#C3A85C;
+  --bad:#AF4227; --good:#0A7165;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0B1413; --surface:#121C1B; --surface-2:#182322; --sunken:#0E1817;
+  --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
+  --s1:#F09479; --s1-soft:#2B1712; --s1-rail:#7E4030;
+  --s2:#4FC5B3; --s2-soft:#0D2A26; --s2-rail:#2C6B61;
+  --s3:#A398F3; --s3-soft:#1B1836; --s3-rail:#4E4696;
+  --s4:#D8B65E; --s4-soft:#2A2312; --s4-rail:#7A6631;
+  --bad:#F09479; --good:#4FC5B3;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1413; --surface:#121C1B; --surface-2:#182322; --sunken:#0E1817;
+  --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
+  --s1:#F09479; --s1-soft:#2B1712; --s1-rail:#7E4030;
+  --s2:#4FC5B3; --s2-soft:#0D2A26; --s2-rail:#2C6B61;
+  --s3:#A398F3; --s3-soft:#1B1836; --s3-rail:#4E4696;
+  --s4:#D8B65E; --s4-soft:#2A2312; --s4-rail:#7A6631;
+  --bad:#F09479; --good:#4FC5B3;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink);
+  font-family:"Gowun Dodum",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.85;}
+.wrap{max-width:1000px; margin:0 auto; padding:44px 22px 90px; display:flex; flex-direction:column; gap:12px}
+.mono,code,pre{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+code{font-size:0.85em; background:var(--surface-2); padding:0.1em 0.38em; border-radius:3px}
+.dh{font-family:"Do Hyeon","Gowun Dodum",sans-serif; font-weight:400}
+
+/* header */
+header{display:flex; flex-direction:column; gap:16px; padding-bottom:34px; margin-bottom:22px; border-bottom:3px solid var(--ink)}
+h1{margin:0; font-size:clamp(38px,7vw,64px); line-height:1.1; letter-spacing:-0.02em}
+.sub{margin:0; font-size:18px; color:var(--ink-2); max-width:58ch}
+.roadmap{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:6px}
+.rm{padding:16px 16px 18px; border-top:4px solid; background:var(--surface); display:flex; flex-direction:column; gap:5px}
+.rm.a{border-color:var(--s1)} .rm.b{border-color:var(--s2)} .rm.c{border-color:var(--s3)}
+.rm .n{font-size:26px; line-height:1}
+.rm.a .n{color:var(--s1)} .rm.b .n{color:var(--s2)} .rm.c .n{color:var(--s3)}
+.rm .t{font-size:17px}
+.rm .d{font-size:14px; color:var(--muted); line-height:1.6}
+
+/* stage */
+.stage{display:flex; flex-direction:column; gap:22px; padding:38px 0 12px}
+.stage-head{display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap}
+.bignum{font-size:76px; line-height:0.85; letter-spacing:-0.04em}
+.s1 .bignum{color:var(--s1)} .s2 .bignum{color:var(--s2)} .s3 .bignum{color:var(--s3)}
+.stage-title{display:flex; flex-direction:column; gap:5px; flex:1; min-width:260px}
+.stage-title h2{margin:0; font-size:clamp(26px,4vw,36px); line-height:1.2; letter-spacing:-0.02em}
+.file{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted)}
+.oneline{font-size:18px; color:var(--ink-2)}
+
+.block{display:flex; flex-direction:column; gap:12px}
+h3{margin:0; font-size:21px; letter-spacing:-0.01em}
+p{margin:0; max-width:64ch; color:var(--ink-2)}
+p strong{color:var(--ink)}
+.lead{font-size:19px; color:var(--ink)}
+
+/* figure */
+figure{margin:0; background:var(--surface); border:1px solid var(--line); padding:26px 22px 20px; display:flex; flex-direction:column; gap:18px; overflow-x:auto}
+figcaption{font-size:15px; color:var(--ink-2); border-top:1px solid var(--line); padding-top:14px; max-width:70ch}
+.fig-title{font-size:19px}
+.s1 .fig-title{color:var(--s1)} .s2 .fig-title{color:var(--s2)} .s3 .fig-title{color:var(--s3)}
+
+/* cells */
+.rowset{display:flex; flex-direction:column; gap:10px; min-width:max-content}
+.crow{display:flex; align-items:center; gap:14px}
+.crow .lab{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted); width:52px; text-align:right; flex:none}
+.cells{display:flex; gap:5px}
+.cell{width:46px; height:46px; display:grid; place-items:center; position:relative;
+  background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink-2);
+  font-family:"IBM Plex Mono",monospace; font-size:16px; flex:none}
+.cell.i{background:var(--s1-soft); border-color:var(--s1); color:var(--s1)}
+.cell.j{background:var(--s3-soft); border-color:var(--s3); color:var(--s3)}
+.cell.both{background:var(--s2-soft); border-color:var(--s2); color:var(--s2)}
+.cell .pin{position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  font-family:"IBM Plex Mono",monospace; font-size:12px; line-height:1}
+.cell.i .pin{color:var(--s1)} .cell.j .pin{color:var(--s3)} .cell.both .pin{color:var(--s2)}
+.crow .out{font-size:14px; color:var(--muted); white-space:nowrap}
+.result{display:inline-flex; align-items:center; gap:9px; padding:10px 15px; font-size:16px; align-self:flex-start}
+.result.bad{background:var(--s1-soft); color:var(--s1); border:1.5px solid var(--s1-rail)}
+.result.good{background:var(--s2-soft); color:var(--s2); border:1.5px solid var(--s2-rail)}
+.result .big{font-family:"IBM Plex Mono",monospace; font-size:19px}
+
+/* stack figure */
+.stacks{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:28px}
+.stackcol{display:flex; flex-direction:column; gap:10px; align-items:center}
+.stackcol .cap{font-size:15px; text-align:center}
+.stack{display:flex; flex-direction:column-reverse; gap:3px; align-items:center; width:100%}
+.frame{width:100%; max-width:230px; height:22px; display:grid; place-items:center;
+  font-family:"IBM Plex Mono",monospace; font-size:11px;}
+.frame.f1{background:var(--s1-soft); border:1px solid var(--s1-rail); color:var(--s1)}
+.frame.f3{background:var(--s3-soft); border:1px solid var(--s3-rail); color:var(--s3)}
+.frame.dots{border:none; background:none; color:var(--muted); height:26px; font-size:16px}
+.stackcol .tally{font-family:"IBM Plex Mono",monospace; font-size:15px; padding:7px 13px}
+.tally.bad{background:var(--s1-soft); color:var(--s1)}
+.tally.ok{background:var(--s3-soft); color:var(--s3)}
+
+/* three-value figure */
+.med{display:flex; align-items:center; gap:26px; flex-wrap:wrap}
+.medgroup{display:flex; flex-direction:column; gap:9px; align-items:center}
+.medgroup .who{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted)}
+.medcells{display:flex; gap:6px}
+.medcell{width:56px; height:56px; display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:19px;
+  background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink-2)}
+.medcell.pick{background:var(--s3-soft); border-color:var(--s3); color:var(--s3)}
+.medarrow{font-size:26px; color:var(--muted)}
+.medlabels{display:flex; gap:6px}
+.medlabels span{width:56px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted)}
+
+/* code */
+.codebox{border:1px solid var(--line); background:var(--surface); overflow:hidden}
+.codebox .cap{padding:9px 15px; background:var(--surface-2); border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.codebox pre{margin:0; padding:16px 0; overflow-x:auto; font-size:13.5px; line-height:1.65}
+.codebox pre .ln{display:block; padding:0 18px; white-space:pre}
+.codebox pre .ln.mark{background:var(--s2-soft); box-shadow:inset 3px 0 0 var(--s2-rail)}
+.codebox pre .ln.markbad{background:var(--s1-soft); box-shadow:inset 3px 0 0 var(--s1-rail)}
+.codebox pre .ln.mark3{background:var(--s3-soft); box-shadow:inset 3px 0 0 var(--s3-rail)}
+
+/* transition band */
+.bridge{background:var(--sunken); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding:34px 24px; display:flex; flex-direction:column; gap:22px; margin:14px -22px}
+.bridge h3{font-size:24px}
+.bridge .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.12em; color:var(--muted)}
+.hunks{display:flex; flex-direction:column; gap:14px}
+.hunk{background:var(--surface); border:1px solid var(--line); display:grid; grid-template-columns:minmax(280px,1fr) minmax(240px,0.9fr)}
+.hunk .code{border-right:1px solid var(--line); overflow-x:auto; padding:12px 0; font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.6}
+.hunk .code .l{display:block; padding:0 14px; white-space:pre}
+.hunk .code .l.d{background:var(--s1-soft); color:var(--s1)}
+.hunk .code .l.a{background:var(--s2-soft); color:var(--s2)}
+.hunk .code .l.a3{background:var(--s3-soft); color:var(--s3)}
+.hunk .say{padding:14px 16px; display:flex; flex-direction:column; gap:6px}
+.hunk .say b{font-size:15.5px}
+.hunk .say span{font-size:14.5px; color:var(--ink-2); line-height:1.65}
+@media (max-width:720px){ .hunk{grid-template-columns:1fr} .hunk .code{border-right:none; border-bottom:1px solid var(--line)} }
+
+/* measurement */
+.meas{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line)}
+.mcell{background:var(--surface); padding:16px 15px; display:flex; flex-direction:column; gap:5px}
+.mcell .k{font-size:13px; color:var(--muted)}
+.mcell .v{font-family:"IBM Plex Mono",monospace; font-size:25px; line-height:1.15}
+.mcell .v.bad{color:var(--bad)} .mcell .v.good{color:var(--good)}
+.mcell .n{font-size:12.5px; color:var(--muted); line-height:1.5}
+
+table{border-collapse:collapse; width:100%; min-width:560px; font-variant-numeric:tabular-nums; background:var(--surface)}
+.tablewrap{overflow-x:auto; border:1px solid var(--line)}
+th,td{padding:11px 14px; border-bottom:1px solid var(--line); text-align:right; font-size:15px}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:12.5px; color:var(--muted); font-family:"IBM Plex Mono",monospace; letter-spacing:0.06em; background:var(--surface-2)}
+td.mono{font-family:"IBM Plex Mono",monospace}
+td.c1{color:var(--s1)} td.c2{color:var(--s2)} td.c3{color:var(--s3)}
+tbody tr:last-child td{border-bottom:none}
+
+/* execution flow */
+.flow{font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; gap:1px; min-width:max-content}
+.fl{white-space:pre; padding:2px 12px; color:var(--ink-2)}
+.fl.enter{color:var(--s3); background:var(--s3-soft)}
+.fl.back{color:var(--s2); background:var(--s2-soft)}
+.fl.set{color:var(--s4); background:var(--s4-soft)}
+.fl.quiet{color:var(--muted)}
+.order2{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px}
+.ord{border:1.5px solid; padding:16px 17px; display:flex; flex-direction:column; gap:11px}
+.ord.no{border-color:var(--s1-rail); background:var(--s1-soft)}
+.ord.yes{border-color:var(--s2-rail); background:var(--s2-soft)}
+.ord .h{font-size:16px}
+.ord.no .h{color:var(--s1)} .ord.yes .h{color:var(--s2)}
+.ord pre{margin:0; font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.7; white-space:pre; overflow-x:auto}
+.ord .say{font-size:14.5px; line-height:1.7; color:var(--ink-2)}
+.ord .tag{font-family:"IBM Plex Mono",monospace; font-size:12.5px; padding:6px 10px; align-self:flex-start}
+.ord.no .tag{background:var(--surface); color:var(--s1); border:1px solid var(--s1-rail)}
+.ord.yes .tag{background:var(--surface); color:var(--s2); border:1px solid var(--s2-rail)}
+/* appendix */
+.appendix{margin-top:44px; padding-top:34px; border-top:3px dashed var(--s4-rail); display:flex; flex-direction:column; gap:26px}
+.appendix .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.12em; color:var(--s4)}
+.appendix h2{margin:0; font-size:clamp(26px,4vw,36px); letter-spacing:-0.02em}
+.appendix .fig-title{color:var(--s4)}
+.appendix .codebox pre .ln.mark4{background:var(--s4-soft); box-shadow:inset 3px 0 0 var(--s4-rail)}
+.cell.p{background:var(--s4-soft); border-color:var(--s4); color:var(--s4)}
+.scanrow{display:flex; flex-direction:column; gap:9px; min-width:max-content}
+.scanrow .who{font-size:15px}
+.arrows{display:flex; gap:5px}
+.arrows span{width:46px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); flex:none}
+.rangefig{display:flex; flex-direction:column; gap:7px; min-width:max-content}
+.brackets{display:grid; grid-template-columns:repeat(8,46px); gap:5px}
+.br{height:26px; display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:0 4px; text-align:center}
+.br.left{background:var(--s2-soft); color:var(--s2); border:1px solid var(--s2-rail)}
+.br.right{background:var(--s3-soft); color:var(--s3); border:1px solid var(--s3-rail)}
+.br.skip{background:var(--s4-soft); color:var(--s4); border:1px dashed var(--s4-rail)}
+.two-up{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:24px}
+.verdict4{border:1.5px solid var(--s4-rail); background:var(--s4-soft); color:var(--s4); padding:16px 18px; font-size:16.5px; line-height:1.7}
+footer{border-top:1px solid var(--line); margin-top:34px; padding-top:20px; font-size:14px; color:var(--muted); max-width:70ch; line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1 class="dh">퀵 정렬 세 단계</h1>
+  <p class="sub">같은 문제를 세 번 다시 짰습니다. 무엇이 잘못됐고, 무엇을 바꿨고, 그래서 무엇이 달라졌는지 순서대로 봅니다.</p>
+  <div class="roadmap">
+    <div class="rm a"><div class="n dh">1</div><div class="t dh">멈춘 지수를 손으로 밀기</div><div class="d">값이 같으면 지수가 안 움직여서, <code>j</code>를 강제로 내리는 한 줄을 붙였습니다.</div></div>
+    <div class="rm b"><div class="n dh">2</div><div class="t dh">지수를 항상 움직이기</div><div class="d">교환마다 두 지수를 한 칸씩 밀어서, 강제로 내릴 이유 자체를 없앴습니다.</div></div>
+    <div class="rm c"><div class="n dh">3</div><div class="t dh">피벗을 고르고, 깊이를 줄이기</div><div class="d">세 값의 중앙값을 피벗으로 쓰고, 큰 쪽은 재귀 대신 반복으로 처리합니다.</div></div>
+  </div>
+</header>
+
+<!-- ═══════════ 단계 1 ═══════════ -->
+<section class="stage s1">
+  <div class="stage-head">
+    <div class="bignum dh">1</div>
+    <div class="stage-title">
+      <h2 class="dh">멈춘 지수를 손으로 밀기</h2>
+      <div class="file">01_quick_sort.py</div>
+      <div class="oneline">정렬은 됩니다. 다만 같은 값이 많으면 아주 느려지고, 빈 배열에서는 터집니다.</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">이 단계의 생각</h3>
+    <p class="lead">왼쪽에서 <code>i</code>를 밀고, 오른쪽에서 <code>j</code>를 당겨서, 피벗보다 큰 값과 작은 값을 만나게 하면 교환한다. 여기까지는 정확합니다.</p>
+    <p>문제는 <strong>값이 피벗과 같을 때</strong>입니다. <code>while arr[i] &lt; pivot</code>은 같은 값 앞에서 멈추고, <code>while arr[j] &gt; pivot</code>도 멈춥니다. 둘 다 제자리에서 같은 자리를 무한히 교환하게 됩니다.</p>
+    <p>그래서 <code>if arr[i] == arr[j] and i != j: j -= 1</code>이라는 줄을 붙였습니다. <strong>무한 루프는 실제로 멈춥니다.</strong> 대신 다른 대가를 치릅니다.</p>
+  </div>
+
+  <figure>
+    <div class="fig-title dh">같은 값 8개를 한 번 분할하면</div>
+    <div class="rowset">
+      <div class="crow"><span class="lab">1회전</span><div class="cells">
+        <div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell">5</div></div>
+        <span class="out">i는 못 움직임 · j만 한 칸</span></div>
+      <div class="crow"><span class="lab">2회전</span><div class="cells">
+        <div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">또 j만 한 칸</span></div>
+      <div class="crow"><span class="lab">3회전</span><div class="cells">
+        <div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">계속 j만</span></div>
+      <div class="crow"><span class="lab">…</span><div class="cells" style="opacity:0.4">
+        <div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">네 번 더</span></div>
+      <div class="crow"><span class="lab">7회전</span><div class="cells">
+        <div class="cell both"><span class="pin">i j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">j가 i까지 내려옴</span></div>
+    </div>
+    <div class="result bad">분할점 <span class="big">j = 0</span> · 왼쪽 <span class="big">1개</span> 대 오른쪽 <span class="big">7개</span></div>
+    <figcaption><code>i</code>가 0번 칸에 붙박여 움직이지 못합니다. 강제로 내리는 줄이 <code>j</code>만 밀어내니, 분할이 절반씩이 아니라 <strong>한 개씩</strong> 떨어져 나갑니다. 그 다음 층에서도, 그 다음 층에서도 똑같습니다.</figcaption>
+  </figure>
+
+  <div class="codebox">
+    <div class="cap"><span>01_quick_sort.py · 분할 부분</span><span>붉은 줄이 문제의 지점</span></div>
+    <pre><span class="ln">        def quick_sort_module(arr, start, end):</span>
+<span class="ln">            i = start</span>
+<span class="ln">            j = end</span>
+<span class="ln">            n = (start + end) // 2</span>
+<span class="ln">            pivot = arr[n]</span>
+<span class="ln markbad">            while i &lt; j:                        # 검사가 교환보다 앞 회전에 있음</span>
+<span class="ln">                while arr[i] &lt; pivot:</span>
+<span class="ln">                    i += 1</span>
+<span class="ln">                while arr[j] &gt; pivot:</span>
+<span class="ln">                    j -= 1</span>
+<span class="ln markbad">                if arr[i] == arr[j] and i != j:  # 무한 루프를 막는 한 줄</span>
+<span class="ln markbad">                    j -= 1                       # 그 대가로 분할이 1대 n-1이 됨</span>
+<span class="ln">                arr[i], arr[j] = arr[j], arr[i]</span>
+<span class="ln">            return j</span></pre>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">실제로 돌려 보면</h3>
+    <div class="meas">
+      <div class="mcell"><div class="k">같은 값 20,001개</div><div class="v bad">19.348초</div><div class="n">분할이 한 개씩만 되어 재귀가 2,500층까지 내려갑니다.</div></div>
+      <div class="mcell"><div class="k">두 값 교대 20,001개</div><div class="v bad">8.718초</div><div class="n">중복이 조금만 있어도 같은 현상이 일어납니다.</div></div>
+      <div class="mcell"><div class="k">기본 재귀 한도에서</div><div class="v bad">n=2000 실패</div><div class="n">파이썬 기본 한도 1000을 넘겨 <code>RecursionError</code>가 납니다.</div></div>
+      <div class="mcell"><div class="k">빈 배열</div><div class="v bad">IndexError</div><div class="n"><code>end</code>가 -1이 되어 <code>arr[-1]</code>을 읽습니다. 무작위 3,000회 중 308회 발생.</div></div>
+    </div>
+    <p>순서가 틀린 적은 한 번도 없었습니다. <strong>결과는 맞는데 죽거나 느린 것</strong>이 이 단계의 성격입니다.</p>
+  </div>
+</section>
+
+<!-- ═══════════ 전환 1→2 ═══════════ -->
+<div class="bridge">
+  <div>
+    <div class="kicker">단계 1 → 단계 2</div>
+    <h3 class="dh">강제로 미는 대신, 항상 움직이게 만들기</h3>
+  </div>
+  <p>고친 곳은 네 군데입니다. 네 개가 따로가 아니라, <strong>"교환할 때마다 두 지수를 한 칸씩 반드시 전진시킨다"</strong>는 한 가지 결정에서 전부 따라 나옵니다.</p>
+
+  <div class="hunks">
+    <div class="hunk">
+      <div class="code">
+        <span class="l a">+  if start &gt;= end:</span>
+        <span class="l a">+      return</span>
+      </div>
+      <div class="say"><b>① 멈출 자리를 만든다</b><span>원소가 하나 이하인 구간은 이미 정렬된 것이니 그냥 돌아갑니다. 빈 배열의 <code>IndexError</code>도 여기서 함께 막힙니다. 피벗을 읽기 <em>전</em>에 검사한다는 점이 중요합니다.</span></div>
+    </div>
+    <div class="hunk">
+      <div class="code">
+        <span class="l d">-  i = start</span>
+        <span class="l d">-  j = end</span>
+        <span class="l a">+  i = start - 1</span>
+        <span class="l a">+  j = end + 1</span>
+      </div>
+      <div class="say"><b>② 한 칸 물러선 자리에서 출발한다</b><span>회전마다 <code>i += 1</code>과 <code>j -= 1</code>을 먼저 실행할 것이기 때문입니다. 한 칸 바깥에서 시작해야 첫 전진이 정확히 양 끝을 짚습니다.</span></div>
+    </div>
+    <div class="hunk">
+      <div class="code">
+        <span class="l d">-  while i &lt; j:</span>
+        <span class="l a">+  while True:</span>
+        <span class="l a">+      i += 1</span>
+        <span class="l">       while arr[i] &lt; pivot:</span>
+        <span class="l">           i += 1</span>
+        <span class="l a">+      j -= 1</span>
+        <span class="l">       while arr[j] &gt; pivot:</span>
+        <span class="l">           j -= 1</span>
+        <span class="l a">+      if i &gt;= j:</span>
+        <span class="l a">+          break</span>
+        <span class="l">       arr[i], arr[j] = arr[j], arr[i]</span>
+      </div>
+      <div class="say"><b>③ 검사를 교환보다 앞으로 옮긴다</b><span>두 지수가 항상 움직이게 되면 스캔 도중 <code>i</code>가 <code>j</code>를 지나칠 수 있습니다. <code>while i &lt; j</code>는 회전이 <em>시작될 때</em> 검사하므로, 교차했는데도 교환이 먼저 실행됩니다. 검사를 스캔과 교환 사이에 두면 그 일이 없어지고, 바깥 반복은 조건을 잃어 <code>while True</code>가 됩니다.</span></div>
+    </div>
+    <div class="hunk">
+      <div class="code">
+        <span class="l d">-  if arr[i] == arr[j] and i != j:</span>
+        <span class="l d">-      j -= 1</span>
+      </div>
+      <div class="say"><b>④ 반창고를 뗀다</b><span>이제 회전마다 두 지수가 강제로 한 칸씩 움직이므로, 막아야 할 무한 루프가 <em>생기지 않습니다.</em> 상처가 없어졌으니 반창고도 필요 없습니다.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 단계 2 ═══════════ -->
+<section class="stage s2">
+  <div class="stage-head">
+    <div class="bignum dh">2</div>
+    <div class="stage-title">
+      <h2 class="dh">지수를 항상 움직이기</h2>
+      <div class="file">01_quick_sort copy copy.py</div>
+      <div class="oneline">교과서에서 호어(Hoare) 분할이라고 부르는 형태입니다. 여기서 정확성이 완성됩니다.</div>
+    </div>
+  </div>
+
+  <figure>
+    <div class="fig-title dh">같은 장면을, 같은 값 8개로 다시</div>
+    <div class="rowset">
+      <div class="crow"><span class="lab">1회전</span><div class="cells">
+        <div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div></div>
+        <span class="out">둘 다 한 칸씩</span></div>
+      <div class="crow"><span class="lab">2회전</span><div class="cells">
+        <div class="cell">5</div><div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell">5</div></div>
+        <span class="out">서로에게 다가옴</span></div>
+      <div class="crow"><span class="lab">3회전</span><div class="cells">
+        <div class="cell">5</div><div class="cell">5</div><div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">계속</span></div>
+      <div class="crow"><span class="lab">4회전</span><div class="cells">
+        <div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell i"><span class="pin">i</span>5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">바로 옆까지</span></div>
+      <div class="crow"><span class="lab">5회전</span><div class="cells">
+        <div class="cell">5</div><div class="cell">5</div><div class="cell">5</div><div class="cell j"><span class="pin">j</span>5</div><div class="cell i"><span class="pin">i</span>5</div><div class="cell">5</div><div class="cell">5</div><div class="cell">5</div></div>
+        <span class="out">교차 → break</span></div>
+    </div>
+    <div class="result good">분할점 <span class="big">j = 3</span> · 왼쪽 <span class="big">4개</span> 대 오른쪽 <span class="big">4개</span></div>
+    <figcaption>같은 입력, 같은 피벗인데 결과가 다릅니다. 두 지수가 서로를 향해 한 칸씩 다가오니 <strong>구간 한가운데에서 만납니다.</strong> 절반씩 쪼개지므로 재귀 트리가 깊어지지 않습니다.</figcaption>
+  </figure>
+
+  <div class="codebox">
+    <div class="cap"><span>01_quick_sort copy copy.py · 함수 전체</span><span>초록 줄이 새로 들어온 부분</span></div>
+    <pre><span class="ln">    def quick_sort_helper(arr, start, end):</span>
+<span class="ln mark">        if start &gt;= end:</span>
+<span class="ln mark">            return</span>
+<span class="ln mark">        i = start - 1</span>
+<span class="ln mark">        j = end + 1</span>
+<span class="ln">        n = (start + end) // 2</span>
+<span class="ln">        pivot = arr[n]</span>
+<span class="ln mark">        while True:</span>
+<span class="ln mark">            i += 1</span>
+<span class="ln">            while arr[i] &lt; pivot:</span>
+<span class="ln">                i += 1</span>
+<span class="ln mark">            j -= 1</span>
+<span class="ln">            while arr[j] &gt; pivot:</span>
+<span class="ln">                j -= 1</span>
+<span class="ln mark">            if i &gt;= j:</span>
+<span class="ln mark">                break</span>
+<span class="ln">            arr[i], arr[j] = arr[j], arr[i]</span>
+<span class="ln">        quick_sort_helper(arr, start, j)</span>
+<span class="ln">        quick_sort_helper(arr, j + 1, end)</span></pre>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">실제로 돌려 보면</h3>
+    <div class="meas">
+      <div class="mcell"><div class="k">같은 값 20,001개</div><div class="v good">0.016초</div><div class="n">19.348초에서 내려왔습니다. 약 1,200배.</div></div>
+      <div class="mcell"><div class="k">두 값 교대 20,001개</div><div class="v good">0.016초</div><div class="n">8.718초에서 내려왔습니다.</div></div>
+      <div class="mcell"><div class="k">무작위 3,000회</div><div class="v good">실패 0건</div><div class="n">빈 배열과 원소 1개짜리를 포함해 전부 통과했습니다.</div></div>
+      <div class="mcell"><div class="k">산 모양 20,001개</div><div class="v bad">3.239초</div><div class="n">여기는 아직 느립니다. 다음 단계의 과제입니다.</div></div>
+    </div>
+    <p><strong>중복 때문에 생기던 최악은 사라졌습니다.</strong> 그런데 <code>[0,1,2,…,10000,…,2,1]</code> 같은 산 모양 배열은 여전히 느립니다. 이건 다른 원인입니다. 구간의 <em>가운데 원소</em>를 피벗으로 고정해서 쓰기 때문에, 그 위치에 하필 가장 작은 값이나 가장 큰 값이 오도록 배치된 입력에 약합니다.</p>
+  </div>
+</section>
+
+<!-- ═══════════ 전환 2→3 ═══════════ -->
+<div class="bridge">
+  <div>
+    <div class="kicker">단계 2 → 단계 3</div>
+    <h3 class="dh">서로 다른 두 병을, 서로 다른 두 약으로</h3>
+  </div>
+  <p>이번에는 두 가지를 동시에 얹었습니다. <strong>둘은 고치는 병이 다릅니다.</strong> 하나는 느린 것을 고치고, 하나는 죽는 것을 고칩니다.</p>
+
+  <div class="hunks">
+    <div class="hunk">
+      <div class="code">
+        <span class="l a3">+  if arr[start] &gt; arr[n]:</span>
+        <span class="l a3">+      arr[start], arr[n] = arr[n], arr[start]</span>
+        <span class="l a3">+  if arr[start] &gt; arr[end]:</span>
+        <span class="l a3">+      arr[start], arr[end] = arr[end], arr[start]</span>
+        <span class="l a3">+  if arr[n] &gt; arr[end]:</span>
+        <span class="l a3">+      arr[n], arr[end] = arr[end], arr[n]</span>
+        <span class="l">   pivot = arr[n]</span>
+      </div>
+      <div class="say"><b>㉮ 피벗을 고른다 — 느린 것을 고침</b><span>구간의 첫 값, 가운데 값, 마지막 값 <em>세 개만</em> 정렬합니다. 세 개는 개수가 고정이라 반복문이 필요 없고, 비교 세 번이면 끝납니다. 정렬이 끝나면 가운데 자리에 중앙값이 놓이므로, 그때 <code>pivot</code>을 읽습니다. <strong>순서가 중요합니다. 정렬이 먼저, 복사가 나중입니다.</strong></span></div>
+    </div>
+    <div class="hunk">
+      <div class="code">
+        <span class="l d">-  quick_sort_helper(arr, start, j)</span>
+        <span class="l d">-  quick_sort_helper(arr, j + 1, end)</span>
+        <span class="l a3">+  if (j - start + 1) &gt;= end - j:</span>
+        <span class="l a3">+      quick_sort_helper(arr, j + 1, end)</span>
+        <span class="l a3">+      end = j</span>
+        <span class="l a3">+  else:</span>
+        <span class="l a3">+      quick_sort_helper(arr, start, j)</span>
+        <span class="l a3">+      start = j + 1</span>
+      </div>
+      <div class="say"><b>㉯ 작은 쪽만 재귀한다 — 죽는 것을 고침</b><span>양쪽 다 정렬하는 건 같습니다. 다만 <em>작은 쪽</em>만 새 호출로 넘기고, 큰 쪽은 <code>start</code>나 <code>end</code>를 바꿔서 지금 호출이 이어서 처리합니다. 재귀는 스택을 쌓고 반복은 안 쌓으니, 깊이가 <code>log₂(n)</code>을 넘을 수 없게 됩니다.</span></div>
+    </div>
+    <div class="hunk">
+      <div class="code">
+        <span class="l d">-  if start &gt;= end:</span>
+        <span class="l d">-      return</span>
+        <span class="l a3">+  while start &lt; end:</span>
+      </div>
+      <div class="say"><b>㉰ 종료 검사가 반복문의 조건이 된다</b><span>㉯가 <code>start</code>와 <code>end</code>를 갱신하려면, 갱신한 값으로 <em>다시 위에서부터</em> 실행되어야 합니다. <code>if … return</code>은 한 번 검사하고 끝이라 돌아올 방법이 없습니다. 조건은 같지만 하는 일이 다릅니다.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 단계 3 ═══════════ -->
+<section class="stage s3">
+  <div class="stage-head">
+    <div class="bignum dh">3</div>
+    <div class="stage-title">
+      <h2 class="dh">피벗을 고르고, 깊이를 줄이기</h2>
+      <div class="file">01_quick_sort copy.py</div>
+      <div class="oneline">정확성은 그대로 두고, 최악의 입력에 대한 저항력을 붙였습니다.</div>
+    </div>
+  </div>
+
+  <figure>
+    <div class="fig-title dh">㉮ 세 값만 정렬하면 가운데가 중앙값</div>
+    <div class="med">
+      <div class="medgroup">
+        <div class="who">정렬 전</div>
+        <div class="medcells"><div class="medcell">9</div><div class="medcell">2</div><div class="medcell">5</div></div>
+        <div class="medlabels"><span>start</span><span>n</span><span>end</span></div>
+      </div>
+      <div class="medarrow dh">→</div>
+      <div class="medgroup">
+        <div class="who">비교-교환 세 번 뒤</div>
+        <div class="medcells"><div class="medcell">2</div><div class="medcell pick">5</div><div class="medcell">9</div></div>
+        <div class="medlabels"><span>가장 작음</span><span>중앙값</span><span>가장 큼</span></div>
+      </div>
+      <div class="medarrow dh">→</div>
+      <div class="medgroup">
+        <div class="who">피벗</div>
+        <div class="medcells"><div class="medcell pick">5</div></div>
+        <div class="medlabels"><span>pivot = arr[n]</span></div>
+      </div>
+    </div>
+    <figcaption>세 값 중 가장 작은 값과 가장 큰 값을 피벗으로 고를 위험이 사라집니다. 덤으로 구간 양 끝에 확실히 작은 값과 큰 값이 놓이니, 스캔이 구간 밖으로 나갈 수 없다는 보장도 생깁니다.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fig-title dh">㉯ 스택에 쌓이는 층의 수</div>
+    <div class="stacks">
+      <div class="stackcol">
+        <div class="cap">양쪽을 다 재귀로 부르면<br><span style="color:var(--muted);font-size:13.5px">최악의 경우 층이 계속 쌓입니다</span></div>
+        <div class="stack">
+          <div class="frame f1">구간 20001개</div>
+          <div class="frame f1">구간 20000개</div>
+          <div class="frame f1">구간 19999개</div>
+          <div class="frame f1">구간 19998개</div>
+          <div class="frame dots">⋮</div>
+          <div class="frame f1">한도 1000 초과 → 실패</div>
+        </div>
+        <div class="tally bad">최대 2,500층</div>
+      </div>
+      <div class="stackcol">
+        <div class="cap">작은 쪽만 재귀로 부르면<br><span style="color:var(--muted);font-size:13.5px">한 층 내려갈 때마다 구간이 반토막 이하</span></div>
+        <div class="stack">
+          <div class="frame f3">20001개</div>
+          <div class="frame f3">10000개 이하</div>
+          <div class="frame f3">5000개 이하</div>
+          <div class="frame f3">2500개 이하</div>
+          <div class="frame f3">1250개 이하</div>
+          <div class="frame dots">⋮</div>
+          <div class="frame f3">1개 → 종료</div>
+        </div>
+        <div class="tally ok">최대 8층</div>
+      </div>
+    </div>
+    <figcaption>큰 쪽을 처리하는 일이 사라진 것이 아닙니다. <strong>재귀에서 반복으로 옮겨 갔을 뿐</strong>입니다. 반복은 아무리 돌아도 스택을 건드리지 않으므로, 깊이를 만드는 건 오직 재귀 쪽입니다. 그리고 그 재귀는 이제 항상 절반 이하로만 들어갑니다.</figcaption>
+  </figure>
+
+  <div class="block">
+    <h3 class="dh">㉯를 한 줄씩 따라가면</h3>
+    <p class="lead">여기서 가장 헷갈리는 것은 <strong>재귀 호출이 "들어가버린다"고 느껴지는 것</strong>입니다. 그렇지 않습니다. 부른 함수는 자기 일을 전부 마치고 <strong>부른 자리로 돌아오며</strong>, 실행은 바로 다음 줄인 <code>end = j</code>부터 이어집니다.</p>
+  </div>
+
+  <figure>
+    <div class="fig-title dh">㉰ [5, 2, 9, 1, 7, 3]의 실제 실행 순서</div>
+    <div class="flow">
+      <span class="fl enter">┌ 호출#0 시작 · 내 담당 [0..5]</span>
+      <span class="fl">│ [1회전] 분할 j=2 · 왼쪽[0..2] 3개 / 오른쪽[3..5] 3개</span>
+      <span class="fl">│   재귀 호출 → [3..5]   (내 end는 아직 5)</span>
+      <span class="fl enter">│  ┌ 호출#1 시작 · 내 담당 [3..5]</span>
+      <span class="fl quiet">│  │   … 호출#1이 자기 구간을 전부 정렬함 …</span>
+      <span class="fl quiet">│  └ 호출#1 종료</span>
+      <span class="fl back">│   ← 돌아옴. 내 end는 여전히 5</span>
+      <span class="fl set">│   end = j 실행 → 내 담당이 [0..2]로 바뀜</span>
+      <span class="fl">│ [2회전] 분할 j=1 · 왼쪽[0..1] 2개 / 오른쪽[2..2] 1개</span>
+      <span class="fl">│   재귀 호출 → [2..2]</span>
+      <span class="fl enter">│  ┌ 호출#4 시작 · 내 담당 [2..2]</span>
+      <span class="fl quiet">│  └ 호출#4 종료 · 원소 1개라 즉시 반환</span>
+      <span class="fl back">│   ← 돌아옴</span>
+      <span class="fl set">│   end = j 실행 → 내 담당이 [0..1]로 바뀜</span>
+      <span class="fl">│ [3회전] 분할 j=0 · 왼쪽[0..0] 1개 / 오른쪽[1..1] 1개</span>
+      <span class="fl quiet">│   재귀 호출 → [1..1] · 즉시 반환</span>
+      <span class="fl set">│   end = j 실행 → 내 담당이 [0..0]로 바뀜</span>
+      <span class="fl quiet">└ 호출#0 종료 · [0..0]는 원소 1개 이하</span>
+    </div>
+    <figcaption><span style="color:var(--s2)">초록 줄</span>이 재귀에서 <strong>돌아온</strong> 지점입니다. 그 바로 다음 <span style="color:var(--s4)">황토색 줄</span>에서 <code>end = j</code>가 실행됩니다. 호출#0 하나가 <code>[0..5] → [0..2] → [0..1] → [0..0]</code>까지 세 회전을 직접 처리했습니다. <strong>저 세 번이 원래는 재귀 세 층이었습니다.</strong> 원소 6개에 재귀 중첩은 두 층뿐입니다.</figcaption>
+  </figure>
+
+  <div class="block">
+    <h3 class="dh">㉱ 왜 하필 재귀 호출 <em>뒤</em>인가</h3>
+    <p>재귀 호출문이 <code>end</code>를 인자로 쓰고 있기 때문입니다. 오른쪽 구간이 <code>[j+1, end]</code>이니, 그 <code>end</code>는 <strong>아직 바뀌지 않은 원래 값</strong>이어야 합니다.</p>
+    <div class="order2">
+      <div class="ord no">
+        <div class="h dh">갱신을 앞에 두면</div>
+        <pre>end = j
+quick_sort_helper(arr, j + 1, end)
+  ↓ 실제로는
+quick_sort_helper(arr, j + 1, j)</pre>
+        <div class="say"><code>start</code>가 <code>end</code>보다 크니 즉시 반환됩니다. <strong>오른쪽 구간이 영영 정렬되지 않습니다.</strong></div>
+        <div class="tag">무작위 2,000회 중 541회 실패</div>
+        <div class="say" style="font-size:13.5px">예: <code>[8,1,7,3,3,7,8,9]</code> → <code>[1,3,7,3,8,7,8,9]</code></div>
+      </div>
+      <div class="ord yes">
+        <div class="h dh">갱신을 뒤에 두면</div>
+        <pre>quick_sort_helper(arr, j + 1, end)
+end = j
+  ↓ 실제로는
+quick_sort_helper(arr, j + 1, 5)</pre>
+        <div class="say">원래 <code>end</code>로 오른쪽을 정렬하고, 그게 <strong>끝난 다음에야</strong> <code>end</code>를 바꿉니다. 그때는 바꿔도 안전합니다.</div>
+        <div class="tag">무작위 2,000회 중 0회 실패</div>
+        <div class="say" style="font-size:13.5px">현재 코드가 이쪽입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">㉲ 각 호출은 자기만의 <code>start</code>와 <code>end</code>를 가집니다</h3>
+    <p>재귀 호출에 넘긴 <code>j+1</code>과 <code>end</code>는 <strong>자식 호출의 지역 변수로 새로 만들어집니다.</strong> 자식이 자기 <code>end</code>를 아무리 바꿔도 부모의 <code>end</code>는 꿈쩍도 하지 않습니다. 위 추적에서 호출#1이 자기 <code>end</code>를 5에서 4로, 다시 3으로 바꿨지만, 돌아온 호출#0의 <code>end</code>는 여전히 5인 것이 그 증거입니다.</p>
+    <p>배열 <code>arr</code>만 예외입니다. 그건 모든 호출이 <strong>같은 객체를 공유</strong>하니 자식이 바꾼 순서가 부모에게 그대로 보입니다. 그래서 <strong>정렬 결과는 공유되고, 담당 구간은 각자 따로</strong>인 구조가 됩니다.</p>
+    <div class="verdict4" style="border-color:var(--s3-rail); background:var(--s3-soft); color:var(--s3)">회전마다 재귀가 한 번씩 일어나는 것은 맞습니다. 다만 <strong>쌓이지 않습니다.</strong> 하나가 끝나야 다음 회전으로 넘어가기 때문입니다. 위 추적에서 호출#0이 호출#1, #4, #5를 차례로 불렀지만, 셋이 동시에 스택에 올라간 적은 없습니다.</div>
+  </div>
+
+  <div class="codebox">
+    <div class="cap"><span>01_quick_sort copy.py · 함수 전체</span><span>보라 줄이 새로 들어온 부분</span></div>
+    <pre><span class="ln">    def quick_sort_helper(arr, start, end):</span>
+<span class="ln mark3">        while start &lt; end:</span>
+<span class="ln">            n = (start + end) // 2</span>
+<span class="ln mark3">            if arr[start] &gt; arr[n]:</span>
+<span class="ln mark3">                arr[start], arr[n] = arr[n], arr[start]</span>
+<span class="ln mark3">            if arr[start] &gt; arr[end]:</span>
+<span class="ln mark3">                arr[start], arr[end] = arr[end], arr[start]</span>
+<span class="ln mark3">            if arr[n] &gt; arr[end]:</span>
+<span class="ln mark3">                arr[n], arr[end] = arr[end], arr[n]</span>
+<span class="ln">            # start, n(중앙 인덱스), end를 최소값 - 중앙값 - 최댓값으로 정렬</span>
+<span class="ln"></span>
+<span class="ln">            i = start - 1</span>
+<span class="ln">            j = end + 1</span>
+<span class="ln">            pivot = arr[n]</span>
+<span class="ln">            while True:</span>
+<span class="ln">                i += 1</span>
+<span class="ln">                j -= 1</span>
+<span class="ln">                while arr[i] &lt; pivot:</span>
+<span class="ln">                    i += 1</span>
+<span class="ln">                while arr[j] &gt; pivot:</span>
+<span class="ln">                    j -= 1</span>
+<span class="ln">                if i &gt;= j:</span>
+<span class="ln">                    break</span>
+<span class="ln">                arr[i], arr[j] = arr[j], arr[i]</span>
+<span class="ln mark3">            if (j - start + 1) &gt;= end - j:</span>
+<span class="ln mark3">                quick_sort_helper(arr, j + 1, end)  # 오른쪽(작은 쪽)만 재귀</span>
+<span class="ln mark3">                end = j        # (j+1, end)는 정렬 끝. 이 호출이 다시 다룰 범위를 왼쪽으로</span>
+<span class="ln mark3">            else:</span>
+<span class="ln mark3">                quick_sort_helper(arr, start, j)    # 왼쪽(작은 쪽)만 재귀</span>
+<span class="ln mark3">                start = j + 1  # (start, j)는 정렬 끝. 이 호출이 다시 다룰 범위를 오른쪽으로</span></pre>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">실제로 돌려 보면</h3>
+    <div class="meas">
+      <div class="mcell"><div class="k">산 모양 20,001개</div><div class="v good">0.039초</div><div class="n">3.239초에서 내려왔습니다. 약 83배.</div></div>
+      <div class="mcell"><div class="k">같은 값 20,001개</div><div class="v good">0.018초</div><div class="n">단계 2에서 이미 해결된 부분을 그대로 유지합니다.</div></div>
+      <div class="mcell"><div class="k">무작위 3,000회</div><div class="v good">실패 0건</div><div class="n">정확성은 단계 2와 동일합니다.</div></div>
+      <div class="mcell"><div class="k">최대 재귀 깊이</div><div class="v good">8 ~ 14</div><div class="n">모든 입력 모양에서. 원소가 백만 개여도 20 근처입니다.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 종합 ═══════════ -->
+<section class="stage">
+  <div class="block">
+    <h3 class="dh">세 단계를 한자리에</h3>
+    <p>원소 20,001개, 걸린 시간입니다. 재귀 한도는 측정을 위해 임시로 올렸습니다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>입력 모양</th><th>단계 1</th><th>단계 2</th><th>단계 3</th></tr></thead>
+        <tbody>
+          <tr><td>산 모양</td><td class="mono c1">0.154초</td><td class="mono c2">3.239초</td><td class="mono c3">0.039초</td></tr>
+          <tr><td>전부 같은 값</td><td class="mono c1">19.348초</td><td class="mono c2">0.016초</td><td class="mono c3">0.018초</td></tr>
+          <tr><td>두 값 교대</td><td class="mono c1">8.718초</td><td class="mono c2">0.016초</td><td class="mono c3">0.015초</td></tr>
+          <tr><td>이미 정렬됨</td><td class="mono c1">0.019초</td><td class="mono c2">0.014초</td><td class="mono c3">0.019초</td></tr>
+          <tr><td>역순</td><td class="mono c1">0.023초</td><td class="mono c2">0.016초</td><td class="mono c3">0.016초</td></tr>
+          <tr><td>완전 무작위</td><td class="mono c1">0.026초</td><td class="mono c2">0.019초</td><td class="mono c3">0.019초</td></tr>
+          <tr><td>빈 배열</td><td class="mono c1">IndexError</td><td class="mono c2">통과</td><td class="mono c3">통과</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px">단계 1이 산 모양에서 단계 2보다 빠른 것은 우연입니다. 강제로 <code>j</code>를 내리는 줄이 그 배치에서만 우연히 나쁘지 않은 분할을 만들었을 뿐, 원리적인 장점이 아닙니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">각 단계가 무엇을 해결했나</h3>
+    <div class="meas">
+      <div class="mcell" style="border-top:4px solid var(--s1)"><div class="k">단계 1이 남긴 것</div><div class="v" style="font-size:18px;color:var(--s1)">중복 · 빈 배열</div><div class="n">같은 값이 있으면 분할이 한 개씩만 되고, 빈 배열에서 터집니다.</div></div>
+      <div class="mcell" style="border-top:4px solid var(--s2)"><div class="k">단계 2가 고친 것</div><div class="v" style="font-size:18px;color:var(--s2)">정확성 · 중복</div><div class="n">지수를 항상 전진시켜 분할이 균형을 찾습니다. 여기서 구현이 완성됩니다.</div></div>
+      <div class="mcell" style="border-top:4px solid var(--s3)"><div class="k">단계 3이 고친 것</div><div class="v" style="font-size:18px;color:var(--s3)">배치 · 깊이</div><div class="n">중앙값 피벗이 나쁜 배치를 막고, 작은 쪽 재귀가 스택 깊이를 묶습니다.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 부록 ═══════════ -->
+<section class="appendix">
+  <div>
+    <div class="kicker">부록 · 곁가지</div>
+    <h2 class="dh">같은 알고리즘, 다른 길</h2>
+  </div>
+  <p class="lead">퀵 정렬의 분할에는 표준 방식이 둘 있습니다. 지금까지 본 세 단계는 모두 <strong>호어(Hoare) 분할</strong>이고, 다른 하나가 <strong>로무토(Lomuto) 분할</strong>입니다. 문제 파일의 힌트에 적힌 "피벗 선택 — 일반적으로 마지막 원소"가 바로 로무토를 가리킵니다.</p>
+
+  <figure>
+    <div class="fig-title dh">① 지수가 움직이는 방향</div>
+    <div class="two-up">
+      <div class="scanrow">
+        <div class="who dh">로무토 — 한 방향으로만</div>
+        <div class="cells">
+          <div class="cell i"><span class="pin">i</span>3</div><div class="cell j"><span class="pin">j</span>7</div><div class="cell">1</div><div class="cell">9</div><div class="cell p">5</div>
+        </div>
+        <div class="arrows"><span>→</span><span>→</span><span>→</span><span>→</span><span>피벗</span></div>
+        <p style="font-size:14.5px">인덱스 둘 다 왼쪽에서 오른쪽으로 갑니다. <code>j</code>가 훑고, <code>i</code>는 피벗보다 작은 값들의 경계를 기억합니다. 피벗은 <strong>맨 오른쪽 원소로 고정</strong>이고, 훑기가 끝난 뒤에 경계 자리로 옮겨집니다.</p>
+      </div>
+      <div class="scanrow">
+        <div class="who dh">호어 — 양쪽에서 마주 보고</div>
+        <div class="cells">
+          <div class="cell i"><span class="pin">i</span>3</div><div class="cell">7</div><div class="cell p">1</div><div class="cell">9</div><div class="cell j"><span class="pin">j</span>5</div>
+        </div>
+        <div class="arrows"><span>→</span><span>→</span><span>피벗</span><span>←</span><span>←</span></div>
+        <p style="font-size:14.5px">두 인덱스가 양 끝에서 서로에게 다가옵니다. 피벗은 <strong>가운데 원소의 값</strong>이고, 자리가 아니라 값으로만 쓰입니다. 그래서 피벗 원소 자체도 교환에 휩쓸릴 수 있습니다.</p>
+      </div>
+    </div>
+    <figcaption>로무토는 인덱스 하나가 배열을 한 번 훑는 형태라 읽기 쉽습니다. 호어는 두 인덱스를 동시에 따라가야 해서 처음 익힐 때 더 어렵습니다.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="fig-title dh">② 돌려주는 숫자의 뜻이 다릅니다</div>
+    <div class="two-up">
+      <div class="rangefig">
+        <div class="who dh" style="font-size:15px;margin-bottom:2px">로무토가 돌려주는 <code>p</code> — 피벗의 최종 자리</div>
+        <div class="cells">
+          <div class="cell">1</div><div class="cell">2</div><div class="cell">3</div><div class="cell">4</div><div class="cell p"><span class="pin">p</span>5</div><div class="cell">9</div><div class="cell">7</div><div class="cell">8</div>
+        </div>
+        <div class="brackets">
+          <div class="br left" style="grid-column:1/5">왼쪽 재귀 [low .. p-1]</div>
+          <div class="br skip" style="grid-column:5/6">제외</div>
+          <div class="br right" style="grid-column:6/9">오른쪽 재귀 [p+1 .. high]</div>
+        </div>
+        <p style="font-size:14.5px"><code>p</code>번 칸은 <strong>이미 제자리를 찾았습니다.</strong> 다시 건드릴 필요가 없으니 양쪽 재귀 어디에도 넣지 않습니다.</p>
+      </div>
+      <div class="rangefig">
+        <div class="who dh" style="font-size:15px;margin-bottom:2px">호어가 돌려주는 <code>j</code> — 그냥 경계</div>
+        <div class="cells">
+          <div class="cell">1</div><div class="cell">3</div><div class="cell">2</div><div class="cell j"><span class="pin">j</span>4</div><div class="cell">9</div><div class="cell">5</div><div class="cell">8</div><div class="cell">7</div>
+        </div>
+        <div class="brackets">
+          <div class="br left" style="grid-column:1/5">왼쪽 재귀 [start .. j]</div>
+          <div class="br right" style="grid-column:5/9">오른쪽 재귀 [j+1 .. end]</div>
+        </div>
+        <p style="font-size:14.5px"><code>j</code>번 칸이 제자리인지 <strong>알 수 없습니다.</strong> 그래서 왼쪽 재귀에 <code>j</code>를 포함시켜 다시 정렬합니다. 제외하면 그 원소가 영영 정렬되지 않습니다.</p>
+      </div>
+    </div>
+    <figcaption>두 방식에서 <code>+1</code>이 붙는 자리가 다른 이유가 여기 있습니다. 관례를 섞어 쓰면 원소가 하나씩 빠지거나 구간이 줄지 않아 무한 재귀에 빠집니다. <strong>재귀 구간을 정할 때는 반환값이 "자리"인지 "경계"인지부터 확인해야 합니다.</strong></figcaption>
+  </figure>
+
+  <div class="codebox">
+    <div class="cap"><span>ANSWER_01_quick_sort.py · 로무토 분할</span><span>황토색 줄이 호어와 갈리는 지점</span></div>
+    <pre><span class="ln">def partition(arr, low, high):</span>
+<span class="ln mark4">    pivot = arr[high]              # 피벗을 마지막 원소로 고정</span>
+<span class="ln">    i = low - 1                    # 작은 값들의 경계</span>
+<span class="ln mark4">    for j in range(low, high):     # 왼쪽에서 오른쪽으로 한 번 훑기</span>
+<span class="ln mark4">        if arr[j] &lt;= pivot:        # 같은 값도 전부 왼쪽으로</span>
+<span class="ln">            i += 1</span>
+<span class="ln">            arr[i], arr[j] = arr[j], arr[i]</span>
+<span class="ln mark4">    arr[i + 1], arr[high] = arr[high], arr[i + 1]   # 피벗을 제자리에</span>
+<span class="ln mark4">    return i + 1                   # 경계가 아니라 '피벗의 자리'</span>
+<span class="ln"></span>
+<span class="ln">def quick_sort_helper(arr, low, high):</span>
+<span class="ln">    if low &lt; high:</span>
+<span class="ln">        pivot_index = partition(arr, low, high)</span>
+<span class="ln mark4">        quick_sort_helper(arr, low, pivot_index - 1)   # 피벗 칸 제외</span>
+<span class="ln mark4">        quick_sort_helper(arr, pivot_index + 1, high)  # 피벗 칸 제외</span></pre>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">③ 실제로 돌려 보면</h3>
+    <p>먼저 파이썬 기본 재귀 한도(1000)를 그대로 둔 상태입니다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>입력 (n=1000)</th><th>로무토</th><th>단계 2</th><th>단계 3</th></tr></thead>
+        <tbody>
+          <tr><td>이미 정렬됨</td><td class="mono" style="color:var(--bad)">RecursionError</td><td class="mono c2">0.000초</td><td class="mono c3">0.000초</td></tr>
+          <tr><td>역순</td><td class="mono" style="color:var(--bad)">RecursionError</td><td class="mono c2">0.000초</td><td class="mono c3">0.000초</td></tr>
+          <tr><td>전부 같은 값</td><td class="mono" style="color:var(--bad)">RecursionError</td><td class="mono c2">0.001초</td><td class="mono c3">0.001초</td></tr>
+          <tr><td>완전 무작위</td><td class="mono">0.001초</td><td class="mono c2">0.001초</td><td class="mono c3">0.001초</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:4px"><strong>원소 1,000개짜리 정렬된 배열에서 이미 죽습니다.</strong> 단계 1이 2,000개에서 죽었으니, 이 방식이 더 약합니다.</p>
+
+    <p style="margin-top:18px">한도를 임시로 올려서 20,001개로 재면 이렇습니다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>입력 (n=20,001)</th><th>로무토</th><th>단계 2</th><th>단계 3</th></tr></thead>
+        <tbody>
+          <tr><td>이미 정렬됨</td><td class="mono" style="color:var(--bad)">10.602초</td><td class="mono c2">0.011초</td><td class="mono c3">0.012초</td></tr>
+          <tr><td>역순</td><td class="mono" style="color:var(--bad)">8.543초</td><td class="mono c2">0.014초</td><td class="mono c3">0.016초</td></tr>
+          <tr><td>전부 같은 값</td><td class="mono" style="color:var(--bad)">12.297초</td><td class="mono c2">0.018초</td><td class="mono c3">0.017초</td></tr>
+          <tr><td>두 값 교대</td><td class="mono" style="color:var(--bad)">5.789초</td><td class="mono c2">0.018초</td><td class="mono c3">0.015초</td></tr>
+          <tr><td>산 모양</td><td class="mono">1.227초</td><td class="mono c2">2.459초</td><td class="mono c3">0.030초</td></tr>
+          <tr><td>완전 무작위</td><td class="mono">0.021초</td><td class="mono c2">0.020초</td><td class="mono c3">0.019초</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px">정확성은 셋 다 무작위 3,000회 실패 0건이고, 빈 배열도 전부 통과합니다. <strong>틀리는 게 아니라 죽거나 느린 것</strong>이 문제입니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">④ 왜 이렇게 약한가</h3>
+    <p><strong>피벗을 마지막 원소로 고정했기 때문입니다.</strong> 이미 정렬된 배열이면 마지막 원소가 언제나 최댓값입니다. 분할이 매번 <code>n-1</code> 대 <code>0</code>이 되어, 한 층에 원소 하나씩만 떨어져 나갑니다. 그런데 정렬된 입력은 실전에서 가장 흔한 입력 중 하나입니다.</p>
+    <p><strong>그리고 <code>&lt;=</code>로 비교하기 때문입니다.</strong> 피벗과 같은 값을 전부 왼쪽으로 보내니, 원소가 전부 같은 배열에서도 똑같이 무너집니다.</p>
+    <p>단계 1의 반창고 줄과 <strong>증상은 같지만 원인이 다릅니다.</strong> 단계 1은 지수가 움직이지 못해서 생긴 문제였고, 이쪽은 피벗을 고르는 방법과 비교 연산자 때문입니다.</p>
+    <div class="verdict4">문제 파일의 힌트는 로무토를 가리켰지만, 실제로는 <strong>가운데 원소를 쓰는 호어 방식을 고른 쪽이 훨씬 견고했습니다.</strong> 힌트대로 짰다면 정렬된 입력에서 원소 1,000개만 넘어도 죽는 코드가 나왔을 겁니다. 로무토가 나쁜 방식이라는 뜻은 아닙니다. 피벗을 무작위로 고르거나 세 값의 중앙값을 쓰면 이 약점은 대부분 사라집니다. 마지막 원소로 고정한 것이 약점의 원인입니다.</div>
+  </div>
+</section>
+
+<footer>
+  측정 환경 — CPython 3, WSL2. 정확성은 길이 0~9, 값 0~5인 무작위 배열 3,000개로 각 단계를 검증했습니다. 시간은 원소 20,001개를 각 입력 모양별로 한 차례 실행한 값이며, 재귀 깊이를 측정하기 위해 파이썬 기본 재귀 한도(1000)를 임시로 올렸습니다. 별도로 기본 한도 그대로 실행했을 때, 단계 1은 원소 2,000개의 중복 배열에서 <code>RecursionError</code>로 실패했고 단계 2와 3은 통과했습니다. 부록의 로무토 방식은 같은 조건에서 원소 1,000개의 정렬된 배열부터 실패했습니다. 부록에서 비교한 <code>ANSWER_01_quick_sort.py</code>는 표준 정답본이 아니라 대조용으로 작성된 또 하나의 구현입니다.
+</footer>
+
+</div>
+</body>
+</html>
