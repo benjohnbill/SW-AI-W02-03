@@ -1,0 +1,398 @@
+<!doctype html><html lang="ko"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><title>쓰레드 도면집</title><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root{
+  --bg:#EEF2F8;
+  --surface:#FFFFFF;
+  --surface-2:#E3E9F3;
+  --ink:#16233F;
+  --ink-soft:#4A5670;
+  --accent:#FF6B35;
+  --accent-2:#1B998B;
+  --line:#C7D0E0;
+  --danger:#D8453A;
+  --grid-line: rgba(22,35,63,0.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626;
+    --surface:#16213A;
+    --surface-2:#1E2C4A;
+    --ink:#E9EEF9;
+    --ink-soft:#A9B4CC;
+    --accent:#FF8A5C;
+    --accent-2:#3FCBB4;
+    --line:#2C3B5C;
+    --danger:#FF7A70;
+    --grid-line: rgba(233,238,249,0.06);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626;
+  --surface:#16213A;
+  --surface-2:#1E2C4A;
+  --ink:#E9EEF9;
+  --ink-soft:#A9B4CC;
+  --accent:#FF8A5C;
+  --accent-2:#3FCBB4;
+  --line:#2C3B5C;
+  --danger:#FF7A70;
+  --grid-line: rgba(233,238,249,0.06);
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Noto Sans KR",sans-serif;
+  line-height:1.6;
+}
+.wrap{
+  max-width:900px;
+  margin:0 auto;
+  padding:56px 20px 100px;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.hero{
+  text-align:center;
+  padding:8px 0 12px;
+}
+.hero .kicker{
+  font-family:"JetBrains Mono",monospace;
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:.14em;
+  color:var(--accent-2);
+  text-transform:uppercase;
+}
+.hero h1{
+  font-family:"Do Hyeon",sans-serif;
+  font-weight:400;
+  font-size:clamp(34px,7vw,54px);
+  margin:10px 0 12px;
+  text-wrap:balance;
+  color:var(--ink);
+}
+.hero p{
+  color:var(--ink-soft);
+  font-size:16px;
+  max-width:520px;
+  margin:0 auto;
+}
+
+.sheet{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  background-image:
+    repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 28px);
+}
+.sheet-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  padding:20px 24px 0;
+}
+.sheet-num{
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 12%, transparent);
+  padding:4px 10px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+.sheet-head h2{
+  font-family:"Do Hyeon",sans-serif;
+  font-weight:400;
+  font-size:26px;
+  margin:0;
+  text-wrap:balance;
+}
+.sheet-fig{
+  padding:14px 24px 4px;
+  display:flex;
+  justify-content:center;
+}
+.sheet-fig svg{
+  width:100%;
+  max-width:560px;
+  height:auto;
+  display:block;
+}
+.sheet-cap{
+  padding:6px 26px 26px;
+  text-align:center;
+  font-size:17px;
+  color:var(--ink);
+  font-weight:500;
+}
+.sheet-cap b{
+  color:var(--accent-2);
+}
+.sheet-cap .num{
+  font-family:"JetBrains Mono",monospace;
+  font-weight:700;
+}
+
+.legend{
+  background:var(--surface-2);
+  border-radius:18px;
+  padding:26px 24px;
+}
+.legend h3{
+  font-family:"Do Hyeon",sans-serif;
+  font-weight:400;
+  font-size:22px;
+  margin:0 0 16px;
+  text-align:center;
+}
+.legend ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:10px 20px;
+}
+.legend li{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  font-size:15px;
+  color:var(--ink-soft);
+}
+.legend li b{
+  color:var(--ink);
+  font-weight:700;
+  white-space:nowrap;
+}
+.legend li .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent);
+  margin-top:7px;
+  flex:none;
+}
+
+@media (prefers-reduced-motion:no-preference){
+  .glow{ animation: pulse 2.4s ease-in-out infinite; transform-origin:center; }
+  @keyframes pulse{ 0%,100%{opacity:.55;} 50%{opacity:1;} }
+}
+</style>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">CS:APP 1장 · 도면으로 보는 OS</div>
+    <h1>쓰레드 도면집</h1>
+    <p>프로세스는 방 한 칸, 쓰레드는 그 방에서 일하는 일꾼이에요. 오늘 나눈 이야기를 그림 여섯 장으로 정리했어요.</p>
+  </div>
+
+  <!-- Sheet 01 : 프로세스 -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>프로세스, 각자의 방</h2>
+      <span class="sheet-num">도면 01</span>
+    </div>
+    <div class="sheet-fig">
+      <svg viewBox="0 0 560 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Room A -->
+        <rect x="30" y="40" width="220" height="180" rx="14" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="140" y="66" text-anchor="middle" font-family="Do Hyeon" font-size="18" fill="var(--ink)">Process A</text>
+        <rect x="52" y="80" width="176" height="18" rx="4" fill="var(--accent-2)" opacity=".55"/>
+        <rect x="52" y="104" width="176" height="18" rx="4" fill="var(--accent-2)" opacity=".4"/>
+        <rect x="52" y="128" width="120" height="18" rx="4" fill="var(--accent)" opacity=".55"/>
+        <rect x="52" y="176" width="60" height="26" rx="4" fill="var(--ink-soft)" opacity=".35"/>
+        <rect x="166" y="176" width="60" height="26" rx="4" fill="var(--ink-soft)" opacity=".35"/>
+        <!-- Room B -->
+        <rect x="310" y="40" width="220" height="180" rx="14" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="420" y="66" text-anchor="middle" font-family="Do Hyeon" font-size="18" fill="var(--ink)">Process B</text>
+        <rect x="332" y="80" width="176" height="18" rx="4" fill="var(--accent-2)" opacity=".55"/>
+        <rect x="332" y="104" width="176" height="18" rx="4" fill="var(--accent-2)" opacity=".4"/>
+        <rect x="332" y="128" width="90" height="18" rx="4" fill="var(--accent)" opacity=".55"/>
+        <rect x="332" y="176" width="60" height="26" rx="4" fill="var(--ink-soft)" opacity=".35"/>
+        <rect x="446" y="176" width="60" height="26" rx="4" fill="var(--ink-soft)" opacity=".35"/>
+        <!-- wall -->
+        <rect x="270" y="30" width="20" height="200" rx="4" fill="var(--ink)" opacity=".85"/>
+        <circle cx="280" cy="130" r="16" fill="none" stroke="var(--danger)" stroke-width="4"/>
+        <line x1="270" y1="120" x2="290" y2="140" stroke="var(--danger)" stroke-width="4"/>
+      </svg>
+    </div>
+    <div class="sheet-cap">프로세스는 저마다 <b>독립된 방(가상메모리)</b>을 가져요. 옆방 물건은 절대 못 봐요.</div>
+  </div>
+
+  <!-- Sheet 02 : 가상메모리 -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>방 안의 층별 배치도</h2>
+      <span class="sheet-num">도면 02</span>
+    </div>
+    <div class="sheet-fig">
+      <svg viewBox="0 0 560 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g font-family="Noto Sans KR" font-size="15" font-weight="700" fill="var(--ink)">
+          <rect x="150" y="20" width="260" height="34" rx="6" fill="var(--ink-soft)" opacity=".5"/>
+          <text x="280" y="42" text-anchor="middle" fill="var(--surface)">커널 영역 (못 봄)</text>
+
+          <rect x="150" y="60" width="260" height="46" rx="6" fill="var(--accent)" opacity=".85"/>
+          <text x="280" y="88" text-anchor="middle" fill="var(--surface)">스택 · 일꾼별 서랍</text>
+          <path d="M420 66 v34 M413 92 l7 8 l7 -8" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <rect x="150" y="112" width="260" height="40" rx="6" fill="var(--accent-2)" opacity=".55"/>
+          <text x="280" y="137" text-anchor="middle" fill="var(--ink)">공유 라이브러리</text>
+
+          <rect x="150" y="158" width="260" height="46" rx="6" fill="var(--accent-2)" opacity=".85"/>
+          <text x="280" y="186" text-anchor="middle" fill="var(--surface)">힙 · 공용 창고</text>
+          <path d="M140 200 v-34 M133 172 l7 -8 l7 8" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <rect x="150" y="210" width="260" height="40" rx="6" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+          <text x="280" y="235" text-anchor="middle">데이터 (전역변수)</text>
+
+          <rect x="150" y="256" width="260" height="40" rx="6" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+          <text x="280" y="281" text-anchor="middle">코드 (읽기전용)</text>
+        </g>
+        <text x="150" y="312" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">0번지 ↓</text>
+      </svg>
+    </div>
+    <div class="sheet-cap">아래부터 코드 → 데이터 → 힙 → 공유 라이브러리 → 스택 → 커널 순으로 쌓여 있어요. <b>힙은 위로, 스택은 아래로</b> 자라며 서로 마주봐요.</div>
+  </div>
+
+  <!-- Sheet 03 : 쓰레드 -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>같은 방을 쓰는 일꾼들</h2>
+      <span class="sheet-num">도면 03</span>
+    </div>
+    <div class="sheet-fig">
+      <svg viewBox="0 0 560 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="30" width="480" height="200" rx="16" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="280" y="58" text-anchor="middle" font-family="Do Hyeon" font-size="18" fill="var(--ink)">Process 안</text>
+
+        <!-- shared desk -->
+        <rect x="230" y="120" width="100" height="60" rx="8" fill="var(--accent)" opacity=".8"/>
+        <text x="280" y="145" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="var(--surface)">counter</text>
+        <text x="280" y="164" text-anchor="middle" font-family="JetBrains Mono" font-size="16" font-weight="700" fill="var(--surface)">공용 책상</text>
+
+        <!-- worker 1 -->
+        <circle cx="130" cy="120" r="22" fill="var(--accent-2)"/>
+        <text x="130" y="126" text-anchor="middle" font-size="14" font-weight="700" fill="var(--surface)">1</text>
+        <line x1="150" y1="120" x2="228" y2="140" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <rect x="95" y="170" width="70" height="34" rx="6" fill="var(--surface)" stroke="var(--accent-2)" stroke-width="2"/>
+        <text x="130" y="192" text-anchor="middle" font-size="12" fill="var(--ink)">쓰레드1 서랍</text>
+
+        <!-- worker 2 -->
+        <circle cx="430" cy="120" r="22" fill="var(--accent-2)"/>
+        <text x="430" y="126" text-anchor="middle" font-size="14" font-weight="700" fill="var(--surface)">2</text>
+        <line x1="410" y1="120" x2="332" y2="140" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <rect x="395" y="170" width="70" height="34" rx="6" fill="var(--surface)" stroke="var(--accent-2)" stroke-width="2"/>
+        <text x="430" y="192" text-anchor="middle" font-size="12" fill="var(--ink)">쓰레드2 서랍</text>
+      </svg>
+    </div>
+    <div class="sheet-cap">쓰레드는 <b>책상(코드·힙·데이터)은 같이 쓰고, 서랍(스택)만 따로</b> 가져요. 그래서 서로 간섭이 가능해요.</div>
+  </div>
+
+  <!-- Sheet 04 : 컨텍스트 스위칭 -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>조명이 방을 오가요</h2>
+      <span class="sheet-num">도면 04</span>
+    </div>
+    <div class="sheet-fig">
+      <svg viewBox="0 0 560 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="60" width="180" height="120" rx="14" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="130" y="86" text-anchor="middle" font-family="Do Hyeon" font-size="16" fill="var(--ink)">Process A</text>
+        <rect x="340" y="60" width="180" height="120" rx="14" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="430" y="86" text-anchor="middle" font-family="Do Hyeon" font-size="16" fill="var(--ink)">Process B</text>
+
+        <path d="M220 120 C 270 60, 290 60, 340 120" stroke="var(--ink-soft)" stroke-width="2" stroke-dasharray="6 6" fill="none"/>
+        <polygon points="130,150 105,110 155,110" fill="var(--accent)" class="glow"/>
+        <text x="130" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">t1</text>
+        <text x="430" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">t2</text>
+        <text x="280" y="205" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="var(--ink-soft)">CPU는 하나뿐 → 한 번에 한 방만 밝혀요</text>
+      </svg>
+    </div>
+    <div class="sheet-cap">A가 디스크를 기다리는 동안, CPU 조명이 B로 넘어가요. <b>컨텍스트 스위칭</b>이 노는 시간을 채워줘요.</div>
+  </div>
+
+  <!-- Sheet 05 : 코어 vs 쓰레드 -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>코어 1개 vs 코어 2개</h2>
+      <span class="sheet-num">도면 05</span>
+    </div>
+    <div class="sheet-fig">
+      <svg viewBox="0 0 560 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="250" height="180" rx="14" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="145" y="46" text-anchor="middle" font-family="Do Hyeon" font-size="16" fill="var(--ink)">코어 1개</text>
+        <circle cx="90" cy="120" r="26" fill="var(--accent)" opacity=".9" class="glow"/>
+        <circle cx="200" cy="120" r="26" fill="var(--ink-soft)" opacity=".25"/>
+        <text x="145" y="170" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">번갈아 켜짐</text>
+
+        <rect x="290" y="20" width="250" height="180" rx="14" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <text x="415" y="46" text-anchor="middle" font-family="Do Hyeon" font-size="16" fill="var(--ink)">코어 2개</text>
+        <circle cx="360" cy="120" r="26" fill="var(--accent)" opacity=".9" class="glow"/>
+        <circle cx="470" cy="120" r="26" fill="var(--accent)" opacity=".9" class="glow"/>
+        <text x="415" y="170" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">둘 다 동시에 켜짐</text>
+      </svg>
+    </div>
+    <div class="sheet-cap">코어 하나는 <b>번갈아가며</b> 일하고, 코어 둘은 <b>진짜 동시에</b> 일해요. 오라버니 컴퓨터는 코어가 여럿이라 실습에서 진짜 충돌이 났어요.</div>
+  </div>
+
+  <!-- Sheet 06 : race condition -->
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>동시에 만지면 사라져요</h2>
+      <span class="sheet-num">도면 06</span>
+    </div>
+    <div class="sheet-fig">
+      <svg viewBox="0 0 560 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="200" y="70" width="160" height="90" rx="10" fill="var(--accent)" opacity=".85"/>
+        <text x="280" y="105" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="var(--surface)">counter</text>
+        <text x="280" y="132" text-anchor="middle" font-family="JetBrains Mono" font-size="22" font-weight="700" fill="var(--surface)">++</text>
+
+        <!-- hand left -->
+        <path d="M60 150 q40 -10 90 -20" stroke="var(--accent-2)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <circle cx="55" cy="152" r="12" fill="var(--accent-2)"/>
+        <text x="80" y="185" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">쓰레드1</text>
+
+        <!-- hand right -->
+        <path d="M500 150 q-40 -10 -90 -20" stroke="var(--accent-2)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <circle cx="505" cy="152" r="12" fill="var(--accent-2)"/>
+        <text x="440" y="185" font-family="JetBrains Mono" font-size="12" fill="var(--ink-soft)">쓰레드2</text>
+
+        <!-- lost +1 -->
+        <text x="280" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="16" fill="var(--danger)">+1 이 사라짐</text>
+        <line x1="255" y1="25" x2="305" y2="25" stroke="var(--danger)" stroke-width="3"/>
+      </svg>
+    </div>
+    <div class="sheet-cap">
+      기대한 값 <span class="num" style="color:var(--accent-2)">200000</span> 중에서
+      실제로는 <span class="num" style="color:var(--danger)">100000</span>만 남았어요.
+      두 손이 동시에 같은 물건을 고치다가 <b>한쪽 결과가 지워진 것</b>, 이게 실습에서 본 <b>race condition</b>이에요.
+    </div>
+  </div>
+
+  <div class="legend">
+    <h3>한눈에 보는 대응표</h3>
+    <ul>
+      <li><span class="dot"></span><b>프로세스</b>&nbsp;=&nbsp;독립된 방 하나</li>
+      <li><span class="dot"></span><b>가상메모리</b>&nbsp;=&nbsp;방 안의 층별 배치도</li>
+      <li><span class="dot"></span><b>쓰레드</b>&nbsp;=&nbsp;방을 같이 쓰는 일꾼</li>
+      <li><span class="dot"></span><b>스택</b>&nbsp;=&nbsp;일꾼 개인 서랍</li>
+      <li><span class="dot"></span><b>컨텍스트 스위칭</b>&nbsp;=&nbsp;방을 오가는 조명</li>
+      <li><span class="dot"></span><b>코어</b>&nbsp;=&nbsp;실제 조명 개수</li>
+      <li><span class="dot"></span><b>race condition</b>&nbsp;=&nbsp;동시에 만져서 사라진 결과</li>
+    </ul>
+  </div>
+
+</div>
+
+</body></html>

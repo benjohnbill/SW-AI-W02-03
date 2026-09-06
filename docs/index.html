@@ -10,17 +10,17 @@
   color-scheme:light dark;
   --bg:#EFF3F3; --surface:#FFFFFF; --surface-2:#E6ECEC;
   --ink:#12201F; --ink-2:#3D4E4D; --muted:#6D7D7C; --line:#CDD8D8;
-  --s2:#0A7165; --s3:#453AA6;
+  --s2:#0A7165; --s3:#453AA6; --s4:#8A4A18;
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --bg:#0B1413; --surface:#121C1B; --surface-2:#182322;
   --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
-  --s2:#4FC5B3; --s3:#A398F3;
+  --s2:#4FC5B3; --s3:#A398F3; --s4:#E0A06A;
 }}
 :root[data-theme="dark"]{
   --bg:#0B1413; --surface:#121C1B; --surface-2:#182322;
   --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
-  --s2:#4FC5B3; --s3:#A398F3;
+  --s2:#4FC5B3; --s3:#A398F3; --s4:#E0A06A;
 }
 *{box-sizing:border-box}
 body{margin:0; background:var(--bg); color:var(--ink);
@@ -43,11 +43,14 @@ a.card:focus-visible{outline:2px solid var(--s3); outline-offset:2px}
 a.card .t{font-size:22px; letter-spacing:-0.01em; display:flex; align-items:baseline; gap:10px}
 a.card .t::after{content:"→"; font-family:"IBM Plex Mono",monospace; font-size:16px; color:var(--muted); transition:transform .12s ease}
 a.card:hover .t::after{transform:translateX(4px)}
-a.card.one .t{color:var(--s3)} a.card.two .t{color:var(--s2)}
+a.card.one .t{color:var(--s3)} a.card.two .t{color:var(--s2)} a.card.three .t{color:var(--s4)}
+.group{display:flex; flex-direction:column; gap:14px}
+.group + .group{margin-top:30px}
 a.card .d{font-size:15.5px; color:var(--ink-2); line-height:1.7}
 a.card .m{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted)}
 footer{border-top:1px solid var(--line); padding-top:18px; font-size:14px; color:var(--muted); line-height:1.7}
 footer a{color:var(--s2)}
+code{font-family:"IBM Plex Mono",monospace; font-size:0.88em; background:var(--surface-2); padding:0.1em 0.36em; border-radius:3px}
 </style>
 </head>
 <body>
@@ -60,8 +63,8 @@ footer a{color:var(--s2)}
 
 <p>크래프톤 정글 2~3주차 알고리즘 문제를 풀면서, 한 문제를 여러 번 다시 짜는 과정을 기록으로 남긴 페이지입니다. 코드와 함께 실제로 측정한 실행 시간과 재귀 깊이를 싣고 있습니다.</p>
 
-<div>
-  <h2 class="dh">기록</h2>
+<div class="group">
+  <h2 class="dh">알고리즘</h2>
   <div class="cards">
     <a class="card one" href="quicksort-three-stages.html">
       <div class="t dh">퀵 정렬 세 단계</div>
@@ -72,6 +75,27 @@ footer a{color:var(--s2)}
       <div class="t dh">분할 함수 재작성 기록</div>
       <div class="d">호어 분할을 바로잡던 과정의 중간 기록입니다. 같은 값만 있는 구간에서 두 지수가 어떻게 움직이는지를 회전 단위로 추적했습니다.</div>
       <div class="m">week2 / 2. advanced / 01_quick_sort</div>
+    </a>
+    <a class="card one" href="bfs-dfs-wave-and-thread.html">
+      <div class="t dh">물결과 실타래</div>
+      <div class="d">BFS와 DFS를 한 걸음씩 직접 돌려 보는 문서입니다. 큐와 스택의 차이, visited의 정체, 재귀와 호출 스택의 관계를 다루고, 하노이 탑을 상태 그래프로 뒤집어 봅니다.</div>
+      <div class="m">week3 / 1. basic / 04_bfs · 05_dfs</div>
+    </a>
+  </div>
+</div>
+
+<div class="group">
+  <h2 class="dh">시스템</h2>
+  <div class="cards">
+    <a class="card three" href="preprocessor-hello-i.html">
+      <div class="t dh">hello.i 해부도</div>
+      <div class="d">세 줄짜리 C 파일이 <code>gcc -E</code>를 거쳐 844줄이 되는 과정입니다. 늘어난 줄이 각각 무엇인지 세어서 나눠 놓았습니다.</div>
+      <div class="m">CS:APP · 컴파일 파이프라인</div>
+    </a>
+    <a class="card three" href="threads-blueprints.html">
+      <div class="t dh">쓰레드 도면집</div>
+      <div class="d">프로세스와 쓰레드, 가상 메모리 배치, 컨텍스트 스위칭, race condition을 도면 여섯 장으로 정리했습니다.</div>
+      <div class="m">CS:APP 1장 · 운영체제</div>
     </a>
   </div>
 </div>

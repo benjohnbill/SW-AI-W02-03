@@ -1,0 +1,1238 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>물결과 실타래</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  --paper:#EDEFF1;
+  --surface:#FBFCFD;
+  --sunk:#E3E7EA;
+  --ink:#141D26;
+  --ink-2:#55636F;
+  --ink-3:#8998A4;
+  --rule:#C7D0D7;
+  --bfs:#12608E;
+  --bfs-soft:#D3E4EF;
+  --dfs:#A6302C;
+  --dfs-soft:#F1DCDA;
+  --done:#7A8794;
+  --shadow:rgba(20,29,38,.10);
+  --serif:"Gowun Batang",'Nanum Myeongjo',Batang,serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono","IBM Plex Sans KR",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E141A; --surface:#17202A; --sunk:#111A22;
+    --ink:#E2E9EE; --ink-2:#93A2AE; --ink-3:#6B7C89;
+    --rule:#2A3742;
+    --bfs:#5FB3E4; --bfs-soft:#173341;
+    --dfs:#E5837A; --dfs-soft:#3A2321;
+    --done:#6C7C8A;
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E141A; --surface:#17202A; --sunk:#111A22;
+  --ink:#E2E9EE; --ink-2:#93A2AE; --ink-3:#6B7C89;
+  --rule:#2A3742;
+  --bfs:#5FB3E4; --bfs-soft:#173341;
+  --dfs:#E5837A; --dfs-soft:#3A2321;
+  --done:#6C7C8A;
+  --shadow:rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:400;
+  font-size:16.5px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 120px}
+.col{max-width:640px;margin-inline:auto}
+p{margin:0 0 1.1em}
+strong{font-weight:600}
+a{color:var(--bfs)}
+:focus-visible{outline:2px solid var(--bfs);outline-offset:3px;border-radius:3px}
+
+/* ---------- hero ---------- */
+.hero{padding:88px 0 60px;text-align:center}
+.hero .eyebrow{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:26px
+}
+.hero h1{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(48px,10vw,88px);line-height:1.04;letter-spacing:-.02em;
+  margin:0 0 6px;text-wrap:balance
+}
+.hero h1 .w{color:var(--bfs)}
+.hero h1 .t{color:var(--dfs)}
+.hero .sub{
+  font-family:var(--serif);font-size:clamp(17px,2.2vw,21px);
+  color:var(--ink-2);max-width:30ch;margin:18px auto 0;text-wrap:balance
+}
+.hero-figs{
+  display:flex;gap:clamp(28px,7vw,84px);justify-content:center;
+  align-items:flex-start;margin:54px 0 0;flex-wrap:wrap
+}
+.hero-fig{width:170px}
+.hero-fig svg{width:100%;height:auto;display:block}
+.hero-fig figcaption{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;margin-top:14px;color:var(--ink-3)
+}
+
+/* ---------- sections ---------- */
+section{padding:64px 0 0}
+.sec-head{margin-bottom:30px}
+.sec-head .eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-3);display:block;margin-bottom:12px
+}
+h2{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(28px,4.4vw,40px);line-height:1.2;letter-spacing:-.015em;
+  margin:0;text-wrap:balance
+}
+h3{
+  font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.35;
+  margin:38px 0 12px;text-wrap:balance
+}
+.rule{height:1px;background:var(--rule);border:0;margin:76px 0 0}
+
+.lede{font-size:19px;line-height:1.7;color:var(--ink-2);font-family:var(--serif)}
+.note{
+  border-left:2px solid var(--rule);padding:2px 0 2px 18px;
+  color:var(--ink-2);font-size:15.5px;margin:22px 0
+}
+.kbd{
+  font-family:var(--mono);font-size:.92em;background:var(--sunk);
+  padding:.12em .42em;border-radius:4px;color:var(--ink)
+}
+
+/* ---------- panel (breakout) ---------- */
+.panel{
+  background:var(--surface);border:1px solid var(--rule);border-radius:14px;
+  box-shadow:0 1px 2px var(--shadow), 0 12px 34px -22px var(--shadow);
+  padding:22px;margin:34px 0
+}
+.panel-wide{max-width:none}
+
+/* ---------- explorer ---------- */
+.ex-top{
+  display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;
+  padding-bottom:18px;border-bottom:1px solid var(--rule);margin-bottom:20px
+}
+.seg{display:flex;border:1px solid var(--rule);border-radius:9px;overflow:hidden}
+.seg button{
+  font-family:var(--sans);font-size:14px;font-weight:500;
+  border:0;background:transparent;color:var(--ink-2);
+  padding:9px 16px;cursor:pointer;transition:background .18s,color .18s
+}
+.seg button:hover{background:var(--sunk)}
+.seg button[data-mode="bfs"].on{background:var(--bfs);color:#fff}
+.seg button[data-mode="dfs"].on{background:var(--dfs);color:#fff}
+.ctl-label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+select{
+  font-family:var(--mono);font-size:14px;background:var(--surface);color:var(--ink);
+  border:1px solid var(--rule);border-radius:7px;padding:7px 9px;cursor:pointer
+}
+.transport{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.transport button{
+  font-family:var(--sans);font-size:13.5px;font-weight:500;
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink);
+  border-radius:8px;padding:8px 13px;cursor:pointer;transition:background .18s
+}
+.transport button:hover{background:var(--sunk)}
+.transport button:disabled{opacity:.38;cursor:default}
+.transport button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.transport button.primary:hover{opacity:.87;background:var(--ink)}
+.stepnum{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+.ex-body{display:grid;grid-template-columns:minmax(300px,1fr) minmax(260px,1fr);gap:26px;align-items:start}
+@media (max-width:760px){.ex-body{grid-template-columns:1fr}}
+.ex-canvas svg{width:100%;height:auto;display:block;overflow:visible}
+
+.track{margin-bottom:20px}
+.track h4{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 4px;font-weight:500;
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px
+}
+.track .hint{font-size:10.5px;letter-spacing:.06em;text-transform:none;color:var(--ink-3);font-family:var(--sans)}
+.bin{
+  display:flex;gap:6px;flex-wrap:wrap;min-height:44px;align-items:center;
+  background:var(--sunk);border-radius:9px;padding:8px 10px
+}
+.bin.empty::after{content:"비어 있음";font-family:var(--sans);font-size:12.5px;color:var(--ink-3)}
+.chip{
+  font-family:var(--mono);font-weight:600;font-size:14px;
+  min-width:30px;height:30px;display:grid;place-items:center;
+  border-radius:7px;background:var(--surface);border:1px solid var(--rule);color:var(--ink);
+  padding:0 7px
+}
+.chip.q{border-color:currentColor}
+.mode-bfs .chip.q{color:var(--bfs);background:var(--bfs-soft)}
+.mode-dfs .chip.q{color:var(--dfs);background:var(--dfs-soft)}
+.chip.v{background:var(--surface);color:var(--ink-2)}
+.chip.o{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.fresh{animation:pop .32s ease-out}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.sizeline{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:5px;font-variant-numeric:tabular-nums}
+
+.ex-msg{
+  margin:22px 0 0;padding:14px 16px;border-radius:10px;background:var(--sunk);
+  font-size:15.5px;line-height:1.6;min-height:56px
+}
+.mode-bfs .ex-msg{background:var(--bfs-soft)}
+.mode-dfs .ex-msg{background:var(--dfs-soft)}
+
+.ex-code{
+  font-family:var(--mono);font-size:13px;line-height:1.85;
+  margin:18px 0 0;padding:16px 0;background:var(--sunk);border-radius:10px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch
+}
+.ex-code .ln{display:block;padding:0 18px;white-space:pre;color:var(--ink-2);transition:background .18s,color .18s}
+.mode-bfs .ex-code .ln.on{background:var(--bfs-soft);color:var(--ink);box-shadow:inset 3px 0 0 var(--bfs)}
+.mode-dfs .ex-code .ln.on{background:var(--dfs-soft);color:var(--ink);box-shadow:inset 3px 0 0 var(--dfs)}
+
+/* graph svg */
+.edge{stroke:var(--rule);stroke-width:2.5;fill:none;transition:stroke .25s,stroke-width .25s}
+.edge.tree{stroke-width:4}
+.mode-bfs .edge.tree{stroke:var(--bfs)}
+.mode-dfs .edge.tree{stroke:var(--dfs)}
+.edge.flash{stroke-width:4.5}
+.mode-bfs .edge.flash{stroke:var(--bfs)}
+.mode-dfs .edge.flash{stroke:var(--dfs)}
+.edge.dead{stroke:var(--ink-3);stroke-dasharray:5 5;stroke-width:3}
+.nd circle{transition:fill .25s,stroke .25s}
+.nd .disc{fill:var(--surface);stroke:var(--rule);stroke-width:2.5}
+.nd text.lab{
+  font-family:var(--mono);font-weight:600;font-size:17px;fill:var(--ink-3);
+  text-anchor:middle;dominant-baseline:central;transition:fill .25s
+}
+.nd.wait .disc{stroke-width:3}
+.mode-bfs .nd.wait .disc{fill:var(--bfs-soft);stroke:var(--bfs)}
+.mode-dfs .nd.wait .disc{fill:var(--dfs-soft);stroke:var(--dfs)}
+.mode-bfs .nd.wait text.lab{fill:var(--bfs)}
+.mode-dfs .nd.wait text.lab{fill:var(--dfs)}
+.nd.done .disc{fill:var(--ink);stroke:var(--ink)}
+.nd.done text.lab{fill:var(--paper)}
+.nd .halo{fill:none;stroke-width:2.5;opacity:0;transform-box:fill-box;transform-origin:center}
+.mode-bfs .nd .halo{stroke:var(--bfs)}
+.mode-dfs .nd .halo{stroke:var(--dfs)}
+.nd.cur .halo{opacity:1;animation:ring 1.4s ease-out infinite}
+@keyframes ring{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.62);opacity:0}}
+.nd .ord{
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--ink-3);
+  text-anchor:middle;dominant-baseline:central
+}
+.nd.look .disc{stroke-dasharray:4 3}
+
+/* ---------- push/pop mini ---------- */
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:640px){.mini{grid-template-columns:1fr}}
+.mini-card{background:var(--sunk);border-radius:11px;padding:16px}
+.mini-card h4{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 3px;color:var(--ink-3);font-weight:500}
+.mini-card .who{font-family:var(--serif);font-size:19px;font-weight:700;margin:0 0 12px}
+.mini-card.s .who{color:var(--dfs)}
+.mini-card.q .who{color:var(--bfs)}
+.lane{display:flex;align-items:center;gap:8px;min-height:44px;flex-wrap:wrap}
+.arrowtag{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.1em}
+.outlog{font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-top:11px;min-height:1.6em}
+.btnrow{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.btn{
+  font-family:var(--sans);font-size:13.5px;font-weight:500;
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink);
+  border-radius:8px;padding:8px 14px;cursor:pointer;transition:background .18s
+}
+.btn:hover{background:var(--sunk)}
+.btn:disabled{opacity:.38;cursor:default}
+.btn.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.dark:hover{opacity:.87;background:var(--ink)}
+
+/* ---------- runaway ---------- */
+.runrow{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.runrow .t{width:52px;color:var(--ink-3);flex:none}
+.runrow .n{width:34px;color:var(--ink-3);flex:none;text-align:right}
+.bar{
+  height:13px;border-radius:3px;background:var(--dfs);opacity:.85;flex:none;
+  transform:scaleX(0);transform-origin:left center;transition:transform .4s ease-out
+}
+.dupline{display:flex;gap:5px;flex-wrap:wrap;margin-top:16px}
+.dup{font-family:var(--mono);font-size:13px;font-weight:600;width:27px;height:27px;display:grid;place-items:center;border-radius:6px;background:var(--sunk);color:var(--ink-2)}
+.dup.rep{background:var(--dfs);color:#fff}
+
+/* ---------- stacks compare ---------- */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:640px){.cmp{grid-template-columns:1fr}}
+.frames{display:flex;flex-direction:column-reverse;gap:5px;margin-top:12px}
+.frame{
+  font-family:var(--mono);font-size:12.5px;padding:9px 13px;border-radius:7px;
+  background:var(--sunk);color:var(--ink-2);border:1px solid transparent
+}
+.frame.top{color:var(--ink);background:var(--dfs-soft);border-color:var(--dfs)}
+
+/* ---------- hanoi ---------- */
+.hanoi-wrap{position:relative}
+.hanoi-wrap svg{width:100%;height:auto;display:block;overflow:visible}
+.hnode{stroke-width:1.5;transition:fill .45s ease-out,stroke .45s ease-out,r .45s ease-out}
+.hedge{stroke:var(--rule);stroke-width:1.4;transition:stroke .45s,stroke-width .45s}
+.hedge.path{stroke:var(--dfs);stroke-width:3.4}
+.legendrow{display:flex;gap:16px;flex-wrap:wrap;margin-top:18px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);align-items:center}
+.legendrow .sw{width:13px;height:13px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:-2px}
+.hstat{font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-top:14px;font-variant-numeric:tabular-nums}
+
+/* ---------- table ---------- */
+.tblwrap{overflow-x:auto;margin:26px 0}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+td:first-child{font-family:var(--mono);font-size:13.5px;color:var(--ink-2);white-space:nowrap}
+.cbfs{color:var(--bfs);font-weight:600}
+.cdfs{color:var(--dfs);font-weight:600}
+
+pre.code{
+  font-family:var(--mono);font-size:13px;line-height:1.8;background:var(--sunk);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;margin:20px 0;color:var(--ink)
+}
+pre.code .c{color:var(--ink-3)}
+
+.foot{margin-top:70px;text-align:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Breadth-first · Depth-first</div>
+  <h1><span class="w">물결</span>과 <span class="t">실타래</span></h1>
+  <p class="sub">같은 그래프, 같은 출발점. 글자 하나를 바꾸면 탐색이 전혀 다르게 퍼집니다.</p>
+
+  <div class="hero-figs">
+    <figure class="hero-fig">
+      <svg viewBox="0 0 120 120" aria-label="동심원으로 퍼지는 물결">
+        <g fill="none" stroke="var(--bfs)" stroke-width="2">
+          <circle cx="60" cy="60" r="14" opacity=".95"/>
+          <circle cx="60" cy="60" r="26" opacity=".72"/>
+          <circle cx="60" cy="60" r="38" opacity=".5"/>
+          <circle cx="60" cy="60" r="50" opacity=".28"/>
+        </g>
+        <circle cx="60" cy="60" r="5" fill="var(--bfs)"/>
+      </svg>
+      <figcaption>BFS · 거리 순으로</figcaption>
+    </figure>
+    <figure class="hero-fig">
+      <svg viewBox="0 0 120 120" aria-label="한 줄기로 이어지는 실">
+        <path d="M60 8 C 20 30, 100 44, 34 62 C 8 72, 96 74, 88 96 C 84 108, 52 106, 46 114"
+              fill="none" stroke="var(--dfs)" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="60" cy="8" r="5" fill="var(--dfs)"/>
+      </svg>
+      <figcaption>DFS · 한 갈래 끝까지</figcaption>
+    </figure>
+  </div>
+</header>
+
+<hr class="rule">
+
+<!-- ══════════ 1. 그래프 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">먼저 · 무대</span>
+    <h2>그래프는 노선도입니다</h2>
+  </div>
+  <p class="lede">점이 있고, 점과 점을 잇는 선이 있습니다. 그게 전부입니다.</p>
+  <p>점을 <strong>노드</strong>, 선을 <strong>간선</strong>이라 부릅니다. 지하철 노선도를 떠올리시면 정확합니다. 역이 노드이고 선로가 간선입니다.</p>
+  <p>이 문서는 처음부터 끝까지 아래 일곱 개짜리 그래프 하나만 씁니다. 선은 모두 양방향입니다. A에서 B로 갈 수 있으면 B에서 A로도 갈 수 있습니다.</p>
+ </div>
+
+ <div class="panel">
+  <div class="ex-body" style="grid-template-columns:minmax(280px,1fr) minmax(240px,1fr)">
+    <div class="ex-canvas mode-bfs" id="staticGraph"></div>
+    <div>
+      <div class="track"><h4>인접 리스트</h4></div>
+      <pre class="code" style="margin-top:0">graph = {
+    'A': ['B', 'D'],
+    'B': ['A', 'C', 'E'],
+    'C': ['B', 'F'],
+    'D': ['A', 'E'],
+    'E': ['B', 'D', 'F', 'G'],
+    'F': ['C', 'E'],
+    'G': ['E'],
+}</pre>
+      <p style="font-size:14.5px;color:var(--ink-2);margin:0">각 노드에서 <strong>갈 수 있는 곳의 목록</strong>입니다. A는 B와 D로 갈 수 있으니 <span class="kbd">'A': ['B','D']</span>입니다.</p>
+    </div>
+  </div>
+ </div>
+
+ <div class="col">
+  <div class="note">이 그래프에는 <strong>고리</strong>가 두 개 있습니다. <span class="kbd">A→B→E→D→A</span>와 <span class="kbd">B→C→F→E→B</span>입니다. 고리가 있으면 걷다가 제자리로 돌아옵니다. 뒤에서 이것이 큰 문제가 됩니다.</div>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 2. 대기 목록 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">차이의 뿌리 · 통 하나</span>
+    <h2>먼저 넣은 걸 꺼낼까, 나중에 넣은 걸 꺼낼까</h2>
+  </div>
+  <p class="lede">탐색은 "아직 안 가 본 곳"을 어딘가에 적어 둡니다. 그 목록에서 <strong>다음에 누구를 꺼내느냐</strong>가 전부를 가릅니다.</p>
+  <p>아래 두 통에 A, B, C를 <strong>똑같은 순서로</strong> 넣어 보세요. 그다음 꺼내 보세요.</p>
+ </div>
+
+ <div class="panel">
+  <div class="mini">
+    <div class="mini-card q">
+      <h4>Queue · FIFO</h4>
+      <p class="who">큐 — 줄서기</p>
+      <div class="lane"><span class="arrowtag">앞 ↤ 꺼냄</span><div class="bin empty" id="qBin"></div></div>
+      <div class="outlog" id="qOut">&nbsp;</div>
+    </div>
+    <div class="mini-card s">
+      <h4>Stack · LIFO</h4>
+      <p class="who">스택 — 접시쌓기</p>
+      <div class="lane"><div class="bin empty" id="sBin"></div><span class="arrowtag">꺼냄 ↦ 위</span></div>
+      <div class="outlog" id="sOut">&nbsp;</div>
+    </div>
+  </div>
+  <div class="btnrow">
+    <button class="btn dark" id="miniPush">다음 값 넣기</button>
+    <button class="btn" id="miniPop">꺼내기</button>
+    <button class="btn" id="miniReset">처음으로</button>
+  </div>
+ </div>
+
+ <div class="col">
+  <p>줄서기는 <strong>먼저 온 사람</strong>이 먼저 나갑니다. 접시더미는 <strong>맨 위 접시</strong>부터 씁니다. 파이썬으로는 이렇게 한 글자 차이입니다.</p>
+  <pre class="code">q.popleft()   <span class="c"># 큐 — 맨 앞에서   → BFS</span>
+s.pop()       <span class="c"># 스택 — 맨 뒤에서 → DFS</span></pre>
+  <p>먼저 발견한 것을 먼저 꺼내면, 가까운 곳부터 처리하게 되어 <strong class="cbfs">물결처럼</strong> 퍼집니다. 방금 발견한 것을 즉시 꺼내면, 계속 안쪽으로 파고들어 <strong class="cdfs">실타래처럼</strong> 늘어집니다.</p>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 3. 재생기 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">핵심 · 한 걸음씩</span>
+    <h2>직접 돌려 보세요</h2>
+  </div>
+  <p class="lede">위쪽 버튼으로 BFS와 DFS를 바꿔 가며, 같은 그래프가 어떻게 다르게 채워지는지 보세요.</p>
+  <p>오른쪽 세 칸을 눈여겨보세요. <strong>대기 목록</strong>은 늘었다 줄었다 하다 결국 텅 비고, <strong>visited</strong>는 한 번도 줄지 않고 계단처럼 올라갑니다.</p>
+ </div>
+
+ <div class="panel panel-wide mode-bfs" id="explorer">
+  <div class="ex-top">
+    <div class="seg" role="group" aria-label="탐색 방식">
+      <button data-mode="bfs" class="on">BFS · 물결</button>
+      <button data-mode="dfs">DFS · 실타래</button>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span class="ctl-label">출발</span>
+      <select id="startSel" aria-label="출발 노드"></select>
+    </label>
+    <div class="transport">
+      <button id="btnPrev">◀ 이전</button>
+      <button id="btnPlay" class="primary">▶ 재생</button>
+      <button id="btnNext">다음 ▶</button>
+      <button id="btnReset">↺ 처음</button>
+    </div>
+    <span class="stepnum" id="stepNum"></span>
+  </div>
+
+  <div class="ex-body">
+    <div class="ex-canvas" id="exCanvas"></div>
+    <div>
+      <div class="track">
+        <h4><span id="waitName">대기 목록 (큐)</span><span class="hint" id="waitHint">맨 앞에서 꺼냅니다</span></h4>
+        <div class="bin empty" id="binWait"></div>
+        <div class="sizeline" id="sizeWait">크기 0</div>
+      </div>
+      <div class="track">
+        <h4>visited <span class="hint">한 번 들어가면 안 나옵니다</span></h4>
+        <div class="bin empty" id="binVisited"></div>
+        <div class="sizeline" id="sizeVisited">크기 0</div>
+      </div>
+      <div class="track">
+        <h4>처리 순서 <span class="hint">for문을 돈 노드</span></h4>
+        <div class="bin empty" id="binOrder"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="ex-msg" id="exMsg"></p>
+  <pre class="ex-code" id="exCode"></pre>
+ </div>
+
+ <div class="col">
+  <p>DFS로 바꿔서 끝까지 돌려 보시면, 스택에 같은 글자가 <strong>여러 번</strong> 들어가는 장면이 나옵니다. 그래서 DFS 코드에는 꺼낸 뒤 "이미 했나?"를 확인하는 줄이 하나 더 있습니다.</p>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 4. 레이어 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">BFS의 선물 · 거리</span>
+    <h2>층은 저절로 생깁니다</h2>
+  </div>
+  <p class="lede">코드 어디에도 "층"이라는 말은 없습니다. 그런데 결과에는 층이 생깁니다.</p>
+  <p>큐가 가까운 것부터 꺼내다 보니, 거리가 같은 노드들이 자연히 뭉쳐서 처리됩니다. 무시된 간선들을 지우고 남은 모양이 아래 나무입니다.</p>
+ </div>
+
+ <div class="panel">
+  <div class="mode-bfs" id="layerFig"></div>
+  <p style="font-size:14.5px;color:var(--ink-2);margin:16px 0 0;text-align:center">A에서 각 노드로 가는 <strong>최단 경로</strong>가 그대로 나무가 됩니다.</p>
+ </div>
+
+ <div class="col">
+  <p><strong>목표에 처음 닿은 순간이 곧 최단 경로입니다.</strong> BFS가 거리 순으로만 퍼지기 때문에, 더 짧은 길이 있었다면 이미 그 전에 닿았을 것이기 때문입니다.</p>
+  <h3>진짜 층 단위로 다루고 싶다면</h3>
+  <p><span class="kbd">while</span> 한 바퀴는 노드 <strong>하나</strong>를 처리합니다. 한 층을 통째로 처리하려면 이렇게 씁니다.</p>
+  <pre class="code">level = 0
+while q:
+    size = len(q)          <span class="c"># 지금 큐에 있는 것 = 이번 층 전부</span>
+    for _ in range(size):  <span class="c"># 딱 그만큼만 꺼냄</span>
+        v = q.popleft()
+        for w in graph[v]:
+            if w not in visited:
+                visited.add(w)
+                q.append(w) <span class="c"># 다음 층으로 들어감</span>
+    level += 1</pre>
+  <div class="note"><span class="kbd">size = len(q)</span>를 <strong>미리</strong> 재 두는 것이 요령입니다. 루프 안에서 큐가 계속 커지므로, 미리 재지 않으면 이번 층과 다음 층이 뒤섞입니다.</div>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 5. visited ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">가장 많이 오해하는 곳</span>
+    <h2>visited는 문을 잠그지 않습니다</h2>
+  </div>
+  <p class="lede">visited는 "이미 끝난 노드"가 아닙니다. <strong>"한 번이라도 대기 목록에 넣은 적이 있는 노드"</strong>입니다.</p>
+  <p>코드를 보면 <span class="kbd">visited.add(w)</span>와 <span class="kbd">q.append(w)</span>가 언제나 붙어 다닙니다. 하나만 실행되는 경우가 없습니다. 그러니 visited에 있다는 것은 둘 중 하나입니다.</p>
+ </div>
+
+ <div class="panel">
+  <div class="cmp">
+    <div class="mini-card">
+      <h4>상태 하나</h4>
+      <p class="who">이미 처리 완료</p>
+      <p style="font-size:14.5px;color:var(--ink-2);margin:0">큐에서 나와 자기 <span class="kbd">for</span>문을 다 돌았습니다.</p>
+    </div>
+    <div class="mini-card">
+      <h4>상태 둘</h4>
+      <p class="who">큐에서 대기 중</p>
+      <p style="font-size:14.5px;color:var(--ink-2);margin:0">아직 차례가 안 왔을 뿐, <strong>반드시 옵니다.</strong></p>
+    </div>
+  </div>
+  <p style="text-align:center;font-family:var(--serif);font-size:19px;margin:26px 0 0;text-wrap:balance">
+    어느 쪽이든 <strong>그 노드의 <span class="kbd">for</span>문은 정확히 한 번 실행됩니다.</strong>
+  </p>
+ </div>
+
+ <div class="col">
+  <h3>실제 시각표</h3>
+  <p>A에서 출발한 BFS에서, 각 노드가 언제 발견되고 언제 자기 차례를 가졌는지입니다.</p>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>노드</th><th>큐에 들어간 때</th><th>차례가 온 때</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>시작</td><td>1바퀴</td></tr>
+      <tr><td>B</td><td>1바퀴 · A가 발견</td><td>2바퀴</td></tr>
+      <tr><td>D</td><td>1바퀴 · A가 발견</td><td>3바퀴</td></tr>
+      <tr><td>C</td><td>2바퀴 · B가 발견</td><td>4바퀴</td></tr>
+      <tr><td><strong>E</strong></td><td><strong>2바퀴 · B가 발견</strong></td><td><strong>5바퀴</strong></td></tr>
+      <tr><td>F</td><td>4바퀴 · C가 발견</td><td>6바퀴</td></tr>
+      <tr><td>G</td><td>5바퀴 · E가 발견</td><td>7바퀴</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>E는 2바퀴에 큐에 들어가서 <strong>5바퀴가 되어서야</strong> 꺼내졌습니다. 그 사이 3바퀴 동안 E는 visited에 있으면서 동시에 큐에서 기다리고 있었습니다.</p>
+  <p>3바퀴에 D가 자기 이웃을 읽다 E를 보고 "이미 있네" 하고 넘어갔습니다. 그것은 <strong>E를 큐에 또 넣지 않았다</strong>는 뜻일 뿐, E의 차례를 없앤 것이 아닙니다.</p>
+  <div class="note">G의 이웃은 E 하나뿐입니다. 만약 E의 <span class="kbd">for</span>문이 안 돌았다면 G는 영원히 발견되지 않았을 겁니다. 표의 마지막 줄이 그 일이 일어나지 않았음을 보여줍니다.</div>
+  <h3>그림을 바꾸세요</h3>
+  <p>BFS는 길을 <strong>걷지</strong> 않습니다. 각 노드가 자기 차례에 <strong>자기 이웃 명단을 소리 내어 읽습니다.</strong> 그중 처음 듣는 이름만 명단에 새로 오릅니다. 통과가 아니라 호명(呼名)입니다.</p>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 6. 무한루프 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">지워 보기 · 반증</span>
+    <h2>visited를 없애면</h2>
+  </div>
+  <p class="lede">visited가 그저 "값을 담는 통"이었다면, 지워도 결과만 조금 지저분해져야 합니다. 실제로는 프로그램이 끝나지 않습니다.</p>
+ </div>
+
+ <div class="panel">
+  <div id="runBars"></div>
+  <div class="dupline" id="runDups"></div>
+  <p style="font-family:var(--mono);font-size:12.5px;color:var(--ink-3);margin:14px 0 0" id="runNote">&nbsp;</p>
+  <div class="btnrow">
+    <button class="btn dark" id="runGo">돌려 보기</button>
+    <button class="btn" id="runReset">처음으로</button>
+  </div>
+ </div>
+
+ <div class="col">
+  <p>큐의 크기가 <strong>한 번도 줄지 않습니다.</strong> 하나 꺼낼 때마다 이웃 여러 개를 도로 넣으니까요. <span class="kbd">while q:</span>는 큐가 비어야 끝나는데 영영 비지 않습니다.</p>
+  <p>A가 몇 번이고 다시 처리되는 것도 보입니다. 고리를 따라 제자리로 돌아오기 때문입니다.</p>
+  <div class="note"><strong>visited는 값을 담는 통이 아니라, 같은 일을 두 번 하지 않게 막는 안전장치입니다.</strong> 큐가 "무엇을 어떤 순서로"를 맡고, visited가 "두 번 하지 않기"를 맡습니다. 장부가 둘인 이유입니다.</div>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 7. 재귀 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">숨어 있던 스택</span>
+    <h2>재귀는 이미 DFS입니다</h2>
+  </div>
+  <p class="lede">재귀 함수는 스택을 안 쓰는 것이 아닙니다. 파이썬이 대신 써 주고 있을 뿐입니다.</p>
+  <p><span class="kbd">dfs(w)</span>라고 쓰는 한 줄은 사실 세 가지 일을 합니다.</p>
+  <ol style="color:var(--ink-2);padding-left:1.3em">
+    <li>지금의 <span class="kbd">v</span>와 "for문을 어디까지 돌았는지"를 어딘가에 <strong>저장한다</strong></li>
+    <li><span class="kbd">v</span>를 <span class="kbd">w</span>로 바꾸고 함수 <strong>처음으로 점프</strong>한다</li>
+    <li>끝나면 저장해둔 것을 <strong>되찾아</strong> 다음 이웃부터 이어간다</li>
+  </ol>
+  <p>1번과 3번을 해 주는 것이 <strong>호출 스택</strong>입니다. 비재귀 변환이란 이 일을 손으로 하는 것뿐입니다.</p>
+ </div>
+
+ <div class="panel">
+  <div class="cmp">
+    <div>
+      <h4 style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0;font-weight:500">재귀 DFS</h4>
+      <p style="font-family:var(--serif);font-size:18px;font-weight:700;margin:2px 0 0">파이썬의 호출 스택</p>
+      <pre class="code" style="font-size:12.5px">def dfs(v):
+    visited.add(v)
+    for w in graph[v]:
+        if w not in visited:
+            dfs(w)   <span class="c"># 저장+점프</span></pre>
+      <div class="frames">
+        <div class="frame">dfs('A')  ← for문 B 차례</div>
+        <div class="frame">dfs('B')  ← for문 C 차례</div>
+        <div class="frame top">dfs('C')  ← 실행 중</div>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0;font-weight:500">반복 DFS</h4>
+      <p style="font-family:var(--serif);font-size:18px;font-weight:700;margin:2px 0 0">내가 만든 리스트</p>
+      <pre class="code" style="font-size:12.5px">s = [start]
+while s:
+    v = s.pop()      <span class="c"># 되찾기</span>
+    ...
+    s.append(w)      <span class="c"># 저장</span></pre>
+      <div class="frames">
+        <div class="frame">'A'</div>
+        <div class="frame">'B'</div>
+        <div class="frame top">'C'  ← 다음에 꺼낼 것</div>
+      </div>
+    </div>
+  </div>
+ </div>
+
+ <div class="col">
+  <p>같은 내용이 한쪽은 <strong>보이지 않는 곳</strong>에, 한쪽은 <strong>내 손 안</strong>에 있습니다. 그래서 두 가지가 따라 나옵니다.</p>
+  <h3>재귀로는 BFS를 못 짭니다</h3>
+  <p>호출 스택은 구조상 스택입니다. 큐로 만들 방법이 없습니다. BFS를 하려면 큐를 손으로 만드는 수밖에 없습니다.</p>
+  <h3>깊은 그래프에서 재귀는 죽습니다</h3>
+  <p>파이썬의 재귀 한도는 기본 1000입니다. 노드 10만 개짜리 일자 그래프면 호출이 10만 겹 쌓여 그 자리에서 터집니다. 리스트는 힙에 있으므로 그 제한이 없습니다. <strong>저장 장소를 호출 스택에서 힙으로 옮기는 것</strong>이 비재귀 변환의 실질적 이득입니다.</p>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 8. 하노이 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">마지막 · 관점 뒤집기</span>
+    <h2>퍼즐 하나가 통째로 그래프입니다</h2>
+  </div>
+  <p class="lede">지금까지 노드는 "장소"였습니다. 노드를 <strong>"게임의 한 상황"</strong>으로 두면 어떻게 될까요.</p>
+  <p>원반 세 개짜리 하노이 탑에서, 어떤 순간의 상황은 "각 원반이 어느 기둥에 있는가"로 완전히 정해집니다. <span class="kbd">(0,0,0)</span>은 세 원반이 전부 0번 기둥에, <span class="kbd">(2,2,2)</span>는 전부 2번 기둥에 있다는 뜻입니다.</p>
+  <p>그러면 <strong>규칙에 맞게 원반 하나를 옮기는 일</strong>이 곧 <strong>간선 하나를 따라가는 일</strong>이 됩니다. 상황이 노드, 한 수가 간선인 그래프가 생깁니다.</p>
+  <p>상황은 모두 27가지, 간선은 39개입니다. 그려 놓으면 이런 모양입니다.</p>
+ </div>
+
+ <div class="panel panel-wide">
+  <div class="hanoi-wrap" id="hanoiWrap"></div>
+  <div class="legendrow">
+    <span><span class="sw" style="background:var(--ink)"></span>출발 (0,0,0)</span>
+    <span><span class="sw" style="background:var(--bfs)"></span>BFS가 닿은 상황</span>
+    <span><span class="sw" style="background:var(--dfs)"></span>최단 수순</span>
+    <span><span class="sw" style="background:var(--surface);border:1.5px solid var(--rule)"></span>아직 못 닿음</span>
+  </div>
+  <div class="hstat" id="hanoiStat">&nbsp;</div>
+  <div class="btnrow">
+    <button class="btn dark" id="hanoiGo">물결 퍼뜨리기</button>
+    <button class="btn" id="hanoiReset">처음으로</button>
+  </div>
+ </div>
+
+ <div class="col">
+  <p>시에르핀스키 삼각형입니다. 하노이 탑의 규칙만으로 이 모양이 저절로 나옵니다.</p>
+  <p>왼쪽 아래 꼭짓점에서 BFS를 시작하면, 오른쪽 아래 꼭짓점에 <strong>정확히 7걸음</strong> 만에 닿습니다. 그리고 재귀 해법의 이동 횟수는 <span class="kbd">2³ - 1 = 7</span>입니다.</p>
+
+  <h3>두 방법이 답하는 질문이 다릅니다</h3>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th></th><th>재귀 해법</th><th>BFS 해법</th></tr></thead>
+    <tbody>
+      <tr><td>다루는 것</td><td>문제를 쪼개는 방법</td><td>가능한 모든 상황</td></tr>
+      <tr><td>자료구조</td><td class="cdfs">호출 스택 (DFS)</td><td class="cbfs">큐 (BFS)</td></tr>
+      <tr><td>답</td><td>7수</td><td>7수</td></tr>
+      <tr><td>알려주는 것</td><td>"이렇게 하면 된다"</td><td><strong>"이보다 짧은 건 없다"</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>재귀 해법은 <strong>푸는 방법</strong>을 줍니다. 그게 최선인지는 말해 주지 않습니다. BFS는 거리 순으로 빠짐없이 퍼지므로, 7걸음에 처음 닿았다는 사실 자체가 <strong>6수 이하로는 불가능하다는 증명</strong>입니다.</p>
+
+  <h3>그래도 하노이는 재귀로 푸세요</h3>
+  <pre class="code">재귀   2ⁿ - 1 번 이동만 수행     n=20 →   약 100만 번
+BFS    3ⁿ 개 상황을 전부 탐색     n=20 → 약 35억 개</pre>
+  <p>원반이 스무 개만 되어도 BFS는 못 돌립니다. 하노이에는 이미 깔끔한 재귀 해법이 있으니 그걸 쓰는 게 맞습니다.</p>
+  <p>BFS가 값어치를 하는 곳은 <strong>그런 영리한 해법이 없는 퍼즐</strong>입니다. 15퍼즐, 루빅스 큐브, 단어 사다리, 미로 최단 경로. 이때 쓰는 관점이 방금 것과 똑같습니다.</p>
+  <p style="font-family:var(--serif);font-size:20px;line-height:1.6;text-wrap:balance;margin-top:28px">한 상황을 노드로, 한 번의 조작을 간선으로 두면<br>퍼즐이 그래프가 됩니다.</p>
+  <p style="font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--ink-3)">STATE SPACE SEARCH · 상태 공간 탐색</p>
+ </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════ 9. 정리 ══════════ -->
+<section>
+ <div class="col">
+  <div class="sec-head">
+    <span class="eyebrow">한 장으로</span>
+    <h2>정리</h2>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th></th><th class="cbfs">BFS · 물결</th><th class="cdfs">DFS · 실타래</th></tr></thead>
+    <tbody>
+      <tr><td>대기 목록</td><td>큐 (deque)</td><td>스택 (리스트)</td></tr>
+      <tr><td>꺼내는 곳</td><td><span class="kbd">popleft()</span> 맨 앞</td><td><span class="kbd">pop()</span> 맨 뒤</td></tr>
+      <tr><td>퍼지는 모양</td><td>거리 순 동심원</td><td>한 갈래 끝까지</td></tr>
+      <tr><td>방문 표시 시점</td><td>큐에 <strong>넣을 때</strong></td><td>스택에서 <strong>꺼낼 때</strong></td></tr>
+      <tr><td>재귀로 가능?</td><td>불가능</td><td>가능 (호출 스택이 곧 스택)</td></tr>
+      <tr><td>주로 쓰는 곳</td><td>최단 경로, 최소 횟수</td><td>모든 경로, 사이클 찾기</td></tr>
+      <tr><td>메모리</td><td>한 층 전체</td><td>한 갈래만</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>기억할 문장 셋</h3>
+  <p><strong>하나.</strong> <span class="kbd">while</span> 한 바퀴는 노드 <strong>하나</strong>를 처리합니다. 층은 저절로 생기는 결과입니다.</p>
+  <p><strong>둘.</strong> <span class="kbd">for w in graph[v]</span>가 <span class="kbd">w</span>를 만듭니다. 미리 선언할 필요가 없습니다.</p>
+  <p><strong>셋.</strong> visited는 첫 진입을 막지 않습니다. <strong>두 번째 진입만</strong> 막습니다.</p>
+ </div>
+ <p class="foot">물결과 실타래 · Graph traversal</p>
+</section>
+
+</div>
+
+<script>
+"use strict";
+const GRAPH={A:['B','D'],B:['A','C','E'],C:['B','F'],D:['A','E'],E:['B','D','F','G'],F:['C','E'],G:['E']};
+const POS={A:[62,52],B:[190,52],C:[318,52],D:[62,158],E:[190,158],F:[318,158],G:[190,258]};
+const EDGES=[['A','B'],['B','C'],['A','D'],['B','E'],['C','F'],['D','E'],['E','F'],['E','G']];
+const NODES=Object.keys(GRAPH);
+const ekey=(a,b)=>[a,b].sort().join('');
+
+/* ---------- 그래프 SVG 만들기 ---------- */
+function buildGraphSVG(host,{ordered=false}={}){
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox','20 10 340 290');
+  svg.setAttribute('role','img');
+  svg.setAttribute('aria-label','A부터 G까지 일곱 개 노드로 이루어진 그래프');
+  const gE=document.createElementNS(NS,'g'), gN=document.createElementNS(NS,'g');
+  svg.append(gE,gN);
+  const edgeEls={};
+  for(const [a,b] of EDGES){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',POS[a][0]);l.setAttribute('y1',POS[a][1]);
+    l.setAttribute('x2',POS[b][0]);l.setAttribute('y2',POS[b][1]);
+    l.setAttribute('class','edge');l.setAttribute('stroke-linecap','round');
+    gE.append(l); edgeEls[ekey(a,b)]=l;
+  }
+  const nodeEls={};
+  for(const n of NODES){
+    const [x,y]=POS[n];
+    const g=document.createElementNS(NS,'g'); g.setAttribute('class','nd');
+    const halo=document.createElementNS(NS,'circle');
+    halo.setAttribute('cx',x);halo.setAttribute('cy',y);halo.setAttribute('r',22);
+    halo.setAttribute('class','halo');
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',21);
+    c.setAttribute('class','disc');
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('class','lab');t.textContent=n;
+    g.append(halo,c,t);
+    let ord=null;
+    if(ordered){
+      ord=document.createElementNS(NS,'text');
+      ord.setAttribute('x',x);ord.setAttribute('y',y-31);ord.setAttribute('class','ord');
+      g.append(ord);
+    }
+    gN.append(g); nodeEls[n]={g,ord};
+  }
+  host.append(svg);
+  return {edgeEls,nodeEls};
+}
+buildGraphSVG(document.getElementById('staticGraph'));
+
+/* ---------- 스텝 생성 ---------- */
+function buildBFS(start){
+  const steps=[],visited=new Set([start]),q=[start],order=[],tree=[];
+  const snap=o=>steps.push(Object.assign({visited:[...visited],wait:[...q],order:[...order],
+    tree:tree.map(e=>[...e]),cur:null,look:null,edge:null,kind:null},o));
+  snap({msg:`출발점 <b>${start}</b>를 visited에 넣고 큐에 넣습니다. 여기서부터 물결이 퍼집니다.`,line:'init'});
+  while(q.length){
+    const v=q.shift(); order.push(v);
+    snap({cur:v,line:'pop',msg:`큐 <b>맨 앞</b>에서 <b>${v}</b>를 꺼냈습니다. 이제 ${v}가 자기 이웃 명단을 읽을 차례입니다.`});
+    for(const w of GRAPH[v]){
+      if(!visited.has(w)){
+        visited.add(w); q.push(w); tree.push([v,w]);
+        snap({cur:v,look:w,edge:[v,w],kind:'new',line:'push',
+          msg:`<b>${w}</b>는 처음 봅니다. visited에 도장을 찍고 큐 <b>맨 뒤</b>에 세웁니다.`});
+      }else{
+        snap({cur:v,look:w,edge:[v,w],kind:'skip',line:'skip',
+          msg:`<b>${w}</b>는 이미 visited에 있습니다. 큐에 또 넣지 않고 넘어갑니다.`});
+      }
+    }
+  }
+  snap({line:'end',msg:`큐가 비었습니다. <b>${order.length}개 노드를 모두 한 번씩</b> 처리했습니다.`});
+  return steps;
+}
+function buildDFS(start){
+  const steps=[],visited=new Set(),st=[[start,null]],order=[],tree=[];
+  const names=()=>st.map(e=>e[0]);
+  const snap=o=>steps.push(Object.assign({visited:[...visited],wait:names(),order:[...order],
+    tree:tree.map(e=>[...e]),cur:null,look:null,edge:null,kind:null},o));
+  snap({msg:`출발점 <b>${start}</b>를 스택에 넣습니다. 실을 여기 묶어두고 출발합니다.`,line:'init'});
+  while(st.length){
+    const [v,from]=st.pop();
+    if(visited.has(v)){
+      snap({cur:v,kind:'dup',line:'dup',
+        msg:`스택에서 <b>${v}</b>가 나왔지만 이미 처리했습니다. 그냥 버리고 다음으로 갑니다.`});
+      continue;
+    }
+    visited.add(v); order.push(v); if(from) tree.push([from,v]);
+    snap({cur:v,line:'pop',msg:`스택 <b>맨 위</b>에서 <b>${v}</b>를 꺼냈습니다. 처음이니 방문 처리합니다.`});
+    for(const w of GRAPH[v]){
+      if(!visited.has(w)){
+        st.push([w,v]);
+        snap({cur:v,look:w,edge:[v,w],kind:'new',line:'push',
+          msg:`<b>${w}</b>를 스택 <b>맨 위</b>에 얹습니다. 곧바로 여기로 파고들 겁니다.`});
+      }else{
+        snap({cur:v,look:w,edge:[v,w],kind:'skip',line:'skip',
+          msg:`<b>${w}</b>는 이미 방문했습니다. 넘어갑니다.`});
+      }
+    }
+  }
+  snap({line:'end',msg:`스택이 비었습니다. <b>${order.length}개 노드를 모두 한 번씩</b> 처리했습니다.`});
+  return steps;
+}
+
+const CODE={
+  bfs:[
+    ['init','visited = {start}'],
+    ['init','q = deque([start])'],
+    ['',''],
+    ['pop','while q:'],
+    ['pop','    v = q.popleft()'],
+    ['skip','    for w in graph[v]:'],
+    ['skip','        if w not in visited:'],
+    ['push','            visited.add(w)'],
+    ['push','            q.append(w)'],
+  ],
+  dfs:[
+    ['init','visited = set()'],
+    ['init','s = [start]'],
+    ['',''],
+    ['pop','while s:'],
+    ['pop','    v = s.pop()'],
+    ['dup','    if v in visited: continue'],
+    ['pop','    visited.add(v)'],
+    ['skip','    for w in graph[v]:'],
+    ['skip','        if w not in visited:'],
+    ['push','            s.append(w)'],
+  ]
+};
+
+/* ---------- 재생기 ---------- */
+(function(){
+  const root=document.getElementById('explorer');
+  const {edgeEls,nodeEls}=buildGraphSVG(document.getElementById('exCanvas'),{ordered:true});
+  const binWait=document.getElementById('binWait'),binVis=document.getElementById('binVisited'),
+        binOrd=document.getElementById('binOrder'),msgEl=document.getElementById('exMsg'),
+        codeEl=document.getElementById('exCode'),stepEl=document.getElementById('stepNum'),
+        sizeWait=document.getElementById('sizeWait'),sizeVis=document.getElementById('sizeVisited'),
+        waitName=document.getElementById('waitName'),waitHint=document.getElementById('waitHint'),
+        sel=document.getElementById('startSel');
+  const bPrev=document.getElementById('btnPrev'),bPlay=document.getElementById('btnPlay'),
+        bNext=document.getElementById('btnNext'),bReset=document.getElementById('btnReset');
+
+  NODES.forEach(n=>{const o=document.createElement('option');o.value=o.textContent=n;sel.append(o);});
+
+  let mode='bfs',start='A',steps=[],i=0,timer=null,prevWait=[],prevVis=[];
+
+  function renderCode(){
+    codeEl.innerHTML='';
+    CODE[mode].forEach(([k,txt])=>{
+      const s=document.createElement('span');
+      s.className='ln';s.dataset.k=k;s.textContent=txt||' ';
+      codeEl.append(s);
+    });
+  }
+  function chips(host,list,cls,prev){
+    host.innerHTML='';
+    host.classList.toggle('empty',list.length===0);
+    list.forEach((n,idx)=>{
+      const d=document.createElement('span');
+      d.className='chip '+cls;
+      d.textContent=n;
+      if(!prev.includes(n)||prev.length!==list.length) if(idx===list.length-1&&list.length>prev.length) d.classList.add('fresh');
+      host.append(d);
+    });
+  }
+  function render(){
+    const s=steps[i];
+    root.className='panel panel-wide mode-'+mode;
+    for(const k in edgeEls) edgeEls[k].className.baseVal='edge';
+    s.tree.forEach(([a,b])=>{const e=edgeEls[ekey(a,b)];if(e)e.className.baseVal='edge tree';});
+    if(s.edge){
+      const e=edgeEls[ekey(s.edge[0],s.edge[1])];
+      if(e) e.className.baseVal='edge '+(s.kind==='new'?'flash':'dead');
+    }
+    NODES.forEach(n=>{
+      const cls=['nd'];
+      if(s.order.includes(n)) cls.push('done');
+      else if(s.wait.includes(n)) cls.push('wait');
+      if(s.cur===n) cls.push('cur');
+      if(s.look===n) cls.push('look');
+      nodeEls[n].g.setAttribute('class',cls.join(' '));
+      if(nodeEls[n].ord){
+        const k=s.order.indexOf(n);
+        nodeEls[n].ord.textContent = k>=0 ? String(k+1) : '';
+      }
+    });
+    chips(binWait,s.wait,'q',prevWait);
+    chips(binVis,s.visited,'v',prevVis);
+    chips(binOrd,s.order,'o',[]);
+    prevWait=s.wait; prevVis=s.visited;
+    sizeWait.textContent='크기 '+s.wait.length;
+    sizeVis.textContent='크기 '+s.visited.length+' — 줄어든 적 없음';
+    msgEl.innerHTML=s.msg;
+    codeEl.querySelectorAll('.ln').forEach(el=>el.classList.toggle('on', !!s.line && el.dataset.k===s.line));
+    stepEl.textContent=`${i+1} / ${steps.length}`;
+    bPrev.disabled=i===0; bNext.disabled=i===steps.length-1;
+    waitName.textContent = mode==='bfs'?'대기 목록 (큐)':'대기 목록 (스택)';
+    waitHint.textContent = mode==='bfs'?'맨 앞에서 꺼냅니다':'맨 뒤에서 꺼냅니다';
+  }
+  function rebuild(){
+    stop();
+    steps = mode==='bfs'?buildBFS(start):buildDFS(start);
+    i=0; prevWait=[];prevVis=[];
+    renderCode(); render();
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;} bPlay.textContent='▶ 재생'; }
+  function play(){
+    if(timer){stop();return;}
+    if(i>=steps.length-1) i=0;
+    bPlay.textContent='❚❚ 멈춤';
+    timer=setInterval(()=>{
+      if(i>=steps.length-1){stop();return;}
+      i++; render();
+    },950);
+  }
+  bPrev.onclick=()=>{stop();if(i>0){i--;render();}};
+  bNext.onclick=()=>{stop();if(i<steps.length-1){i++;render();}};
+  bPlay.onclick=play;
+  bReset.onclick=()=>{stop();i=0;prevWait=[];prevVis=[];render();};
+  sel.onchange=()=>{start=sel.value;rebuild();};
+  root.querySelectorAll('.seg button').forEach(b=>{
+    b.onclick=()=>{
+      root.querySelectorAll('.seg button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on'); mode=b.dataset.mode; rebuild();
+    };
+  });
+  rebuild();
+})();
+
+/* ---------- 레이어 그림 ---------- */
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const host=document.getElementById('layerFig');
+  const P={A:[220,44],B:[130,124],D:[310,124],C:[70,204],E:[190,204],F:[70,284],G:[190,284]};
+  const T=[['A','B'],['A','D'],['B','C'],['B','E'],['C','F'],['E','G']];
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox','0 10 440 320');
+  svg.setAttribute('role','img');
+  svg.setAttribute('aria-label','A에서 출발한 BFS 트리와 거리 층');
+  [0,1,2,3].forEach(d=>{
+    const y=44+d*80;
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',24);l.setAttribute('x2',420);l.setAttribute('y1',y);l.setAttribute('y2',y);
+    l.setAttribute('stroke','var(--rule)');l.setAttribute('stroke-dasharray','2 6');
+    svg.append(l);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',420);t.setAttribute('y',y-11);
+    t.setAttribute('text-anchor','end');
+    t.setAttribute('style','font-family:var(--mono);font-size:11px;fill:var(--ink-3);letter-spacing:.1em');
+    t.textContent='거리 '+d;
+    svg.append(t);
+  });
+  T.forEach(([a,b])=>{
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',P[a][0]);l.setAttribute('y1',P[a][1]);
+    l.setAttribute('x2',P[b][0]);l.setAttribute('y2',P[b][1]);
+    l.setAttribute('stroke','var(--bfs)');l.setAttribute('stroke-width',3.2);
+    l.setAttribute('stroke-linecap','round');
+    svg.append(l);
+  });
+  Object.entries(P).forEach(([n,[x,y]])=>{
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',20);
+    c.setAttribute('fill','var(--bfs)');
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x);t.setAttribute('y',y);
+    t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','central');
+    t.setAttribute('style','font-family:var(--mono);font-weight:600;font-size:16px;fill:var(--surface)');
+    t.textContent=n;
+    svg.append(c,t);
+  });
+  host.append(svg);
+})();
+
+/* ---------- 큐/스택 미니 ---------- */
+(function(){
+  const seq=['A','B','C','D'];
+  let n=0,q=[],s=[];
+  const qBin=document.getElementById('qBin'),sBin=document.getElementById('sBin'),
+        qOut=document.getElementById('qOut'),sOut=document.getElementById('sOut'),
+        bPush=document.getElementById('miniPush'),bPop=document.getElementById('miniPop'),
+        bRes=document.getElementById('miniReset');
+  function fill(host,arr,cls){
+    host.innerHTML='';host.classList.toggle('empty',arr.length===0);
+    arr.forEach(v=>{const d=document.createElement('span');d.className='chip fresh '+cls;d.textContent=v;host.append(d);});
+  }
+  function draw(){
+    fill(qBin,q,'q');fill(sBin,s,'q');
+    bPush.disabled=n>=seq.length;
+    bPop.disabled=q.length===0;
+  }
+  bPush.onclick=()=>{const v=seq[n++];q.push(v);s.push(v);
+    qOut.textContent='넣음 → '+v; sOut.textContent='넣음 → '+v; draw();};
+  bPop.onclick=()=>{const a=q.shift(),b=s.pop();
+    qOut.innerHTML='꺼냄 ← <b>'+a+'</b>  (가장 먼저 넣은 것)';
+    sOut.innerHTML='꺼냄 ← <b>'+b+'</b>  (가장 나중에 넣은 것)';draw();};
+  bRes.onclick=()=>{n=0;q=[];s=[];qOut.innerHTML='&nbsp;';sOut.innerHTML='&nbsp;';draw();};
+  draw();
+})();
+
+/* ---------- visited 없는 폭주 ---------- */
+(function(){
+  const host=document.getElementById('runBars'),dupHost=document.getElementById('runDups'),
+        note=document.getElementById('runNote'),
+        bGo=document.getElementById('runGo'),bRes=document.getElementById('runReset');
+  const TURNS=12;
+  const data=(function(){
+    const q=['A'],out=[],res=[];
+    for(let t=1;t<=TURNS;t++){
+      const v=q.shift(); out.push(v);
+      for(const w of GRAPH[v]) q.push(w);
+      res.push({t,v,size:q.length});
+    }
+    return {res,out};
+  })();
+  const max=Math.max(...data.res.map(r=>r.size));
+  const rows=data.res.map(r=>{
+    const div=document.createElement('div');div.className='runrow';
+    div.innerHTML=`<span class="t">${r.t}바퀴</span><span class="bar" style="width:0"></span><span class="n"></span>`;
+    host.append(div);return div;
+  });
+  const seen=new Set(),dups=data.out.map(v=>{const rep=seen.has(v);seen.add(v);return {v,rep};});
+  const dupEls=dups.map(()=>{const d=document.createElement('span');d.className='dup';d.textContent='·';dupHost.append(d);return d;});
+  let timer=null;
+  function reset(){
+    if(timer){clearInterval(timer);timer=null;}
+    rows.forEach(r=>{r.querySelector('.bar').style.width='0';r.querySelector('.n').textContent='';});
+    dupEls.forEach(d=>{d.className='dup';d.textContent='·';});
+    note.innerHTML='&nbsp;';bGo.disabled=false;
+  }
+  bGo.onclick=()=>{
+    reset();bGo.disabled=true;let k=0;
+    timer=setInterval(()=>{
+      if(k>=rows.length){
+        clearInterval(timer);timer=null;bGo.disabled=false;
+        note.innerHTML=`12바퀴를 돌았는데 큐에 <b>${data.res[TURNS-1].size}개</b>가 남아 있습니다. 계속 커지는 중입니다.`;
+        return;
+      }
+      const r=data.res[k];
+      rows[k].querySelector('.bar').style.width=(r.size/max*100*0.72)+'%';
+      rows[k].querySelector('.n').textContent=r.size;
+      dupEls[k].textContent=dups[k].v;
+      dupEls[k].className='dup'+(dups[k].rep?' rep':'');
+      k++;
+    },260);
+  };
+  bRes.onclick=reset;
+  reset();
+})();
+
+/* ---------- 하노이 시에르핀스키 ---------- */
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const N=3, CORNER=[[0,0],[-1,1.7320508],[1,1.7320508]], SCALE=Math.pow(2,N)/(Math.pow(2,N)-1);
+  const states=[];
+  (function gen(pre){ if(pre.length===N){states.push(pre.slice());return;}
+    for(let p=0;p<3;p++) gen(pre.concat(p)); })([]);
+  const key=s=>s.join('');
+  function pos(s){let x=0,y=0;
+    for(let i=0;i<N;i++){const w=Math.pow(2,-(N-i));x+=CORNER[s[i]][0]*w;y+=CORNER[s[i]][1]*w;}
+    return [x*SCALE,y*SCALE];}
+  function nbrs(s){const top={};
+    for(let d=0;d<N;d++){const p=s[d];if(!(p in top))top[p]=d;}
+    const out=[];
+    for(const p in top){const d=top[p];
+      for(let dest=0;dest<3;dest++){
+        if(dest===+p)continue;
+        if(dest in top && top[dest]<d)continue;
+        const m=s.slice();m[d]=dest;out.push(m);
+      }}
+    return out;}
+
+  const W=760,H=470,PAD=44;
+  const sx=v=>PAD+(v+1)/2*(W-2*PAD), sy=v=>PAD+v/1.7320508*(H-2*PAD);
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('role','img');
+  svg.setAttribute('aria-label','하노이 탑의 27가지 상황이 이루는 시에르핀스키 삼각형 그래프');
+  const gE=document.createElementNS(NS,'g'),gN=document.createElementNS(NS,'g');
+  svg.append(gE,gN);
+
+  const edgeSet=new Map();
+  states.forEach(s=>nbrs(s).forEach(t=>{
+    const k=[key(s),key(t)].sort().join('-');
+    if(!edgeSet.has(k)) edgeSet.set(k,[s,t]);
+  }));
+  const edgeEls=new Map();
+  edgeSet.forEach(([a,b],k)=>{
+    const [ax,ay]=pos(a),[bx,by]=pos(b);
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',sx(ax));l.setAttribute('y1',sy(ay));
+    l.setAttribute('x2',sx(bx));l.setAttribute('y2',sy(by));
+    l.setAttribute('class','hedge');l.setAttribute('stroke-linecap','round');
+    gE.append(l);edgeEls.set(k,l);
+  });
+  const nodeEls=new Map();
+  states.forEach(s=>{
+    const [x,y]=pos(s);
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',sx(x));c.setAttribute('cy',sy(y));c.setAttribute('r',7);
+    c.setAttribute('class','hnode');
+    c.setAttribute('fill','var(--surface)');c.setAttribute('stroke','var(--rule)');
+    const ttl=document.createElementNS(NS,'title');
+    ttl.textContent='('+s.join(',')+')';
+    c.append(ttl);
+    gN.append(c);nodeEls.set(key(s),c);
+  });
+  ['(0,0,0)\n시작','(1,1,1)','(2,2,2)\n목표'].forEach((lbl,p)=>{
+    const s=Array(N).fill(p);const [x,y]=pos(s);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',sx(x));t.setAttribute('y',sy(y)+(p===0?-24:32));
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('style','font-family:var(--mono);font-size:11.5px;fill:var(--ink-3);letter-spacing:.06em');
+    lbl.split('\n').forEach((line,li)=>{
+      const ts=document.createElementNS(NS,'tspan');
+      ts.setAttribute('x',sx(x));ts.setAttribute('dy',li===0?0:14);ts.textContent=line;
+      t.append(ts);
+    });
+    svg.append(t);
+  });
+  document.getElementById('hanoiWrap').append(svg);
+
+  // BFS
+  const START=Array(N).fill(0),GOAL=Array(N).fill(2);
+  const dist={[key(START)]:0},parent={[key(START)]:null},layers=[[key(START)]];
+  const q=[START];
+  while(q.length){
+    const v=q.shift();
+    for(const w of nbrs(v)){
+      if(!(key(w) in dist)){
+        dist[key(w)]=dist[key(v)]+1;
+        parent[key(w)]=key(v);
+        (layers[dist[key(w)]] ||= []).push(key(w));
+        q.push(w);
+      }
+    }
+  }
+  const path=[];{let c=key(GOAL);while(parent[c]!=null){path.push([c,parent[c]].sort().join('-'));c=parent[c];}}
+
+  const stat=document.getElementById('hanoiStat'),
+        bGo=document.getElementById('hanoiGo'),bRes=document.getElementById('hanoiReset');
+  let timer=null;
+  function reset(){
+    if(timer){clearTimeout(timer);timer=null;}
+    nodeEls.forEach(c=>{c.setAttribute('fill','var(--surface)');c.setAttribute('stroke','var(--rule)');c.setAttribute('r',7);});
+    edgeEls.forEach(l=>l.classList.remove('path'));
+    const s=nodeEls.get(key(START));
+    s.setAttribute('fill','var(--ink)');s.setAttribute('stroke','var(--ink)');s.setAttribute('r',9);
+    stat.innerHTML='상태 27개 · 간선 39개 · 아직 출발점만 닿았습니다.';
+    bGo.disabled=false;
+  }
+  bGo.onclick=()=>{
+    reset();bGo.disabled=true;
+    let d=1;
+    (function step(){
+      if(d>=layers.length){
+        path.forEach(k=>edgeEls.get(k)?.classList.add('path'));
+        const g=nodeEls.get(key(GOAL));
+        g.setAttribute('fill','var(--dfs)');g.setAttribute('stroke','var(--dfs)');g.setAttribute('r',10);
+        stat.innerHTML=`목표 (2,2,2)까지 <b>거리 7</b>. 재귀 해법의 이동 횟수 2³ − 1 = <b>7</b>과 같습니다. 붉은 선이 그 수순입니다.`;
+        bGo.disabled=false;return;
+      }
+      layers[d].forEach(k=>{
+        const c=nodeEls.get(k);
+        c.setAttribute('fill','var(--bfs)');c.setAttribute('stroke','var(--bfs)');c.setAttribute('r',8);
+      });
+      const reached=layers.slice(0,d+1).reduce((a,l)=>a+l.length,0);
+      stat.innerHTML=`거리 <b>${d}</b> — 이번 물결에 ${layers[d].length}개 상황이 새로 닿았습니다. (누적 ${reached} / 27)`;
+      d++; timer=setTimeout(step,760);
+    })();
+  };
+  bRes.onclick=reset;
+  reset();
+})();
+</script>
+
+</body></html>
