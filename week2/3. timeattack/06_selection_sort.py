@@ -47,8 +47,8 @@ def selection_sort(arr):
 
     for i in range(0, n-2)
         min_idx = arr[i]
-        for j in range(i+1, n-1) :
-            if arr[j-1] < arr[j] :
+        for j in range(n-1, j+1, -1) :
+            if arr[n-1] < arr[] :
                 arr[j] = min_idx
         arr[i], arr[min_idx] = arr[min_idx], arr[i]
     return arr

@@ -50,7 +50,7 @@ def is_valid_brackets(s):
         if i == "(" or i == "[" or i == "{":
             stack.append(i)
         elif i == ")" or i == "]" or i == "}":
-            if stack == [] or mapping.get(i) not in mapping.values():
+            if stack == [] or mapping.get(i) in mapping:
                 return False
             else:
                 stack.pop()
