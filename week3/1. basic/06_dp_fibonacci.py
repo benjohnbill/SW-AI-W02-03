@@ -78,7 +78,7 @@ def fibonacci_memo(n, memo=None):
         n번째 피보나치 수
     """
     if memo is None:
-        memo = {0: 1, 1: 1}
+        memo = {0: 0, 1: 1}
     if n in memo:
         return memo[n]
     memo[n] = fibonacci_memo(n - 1, memo) + fibonacci_memo(n - 2, memo)
