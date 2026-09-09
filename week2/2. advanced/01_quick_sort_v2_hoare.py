@@ -36,9 +36,9 @@ def quick_sort(arr):
         pivot = arr[n]
         while True:
             i += 1
+            j -= 1
             while arr[i] < pivot:
                 i += 1
-            j -= 1
             while arr[j] > pivot:
                 j -= 1
             if i >= j:

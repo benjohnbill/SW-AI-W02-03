@@ -56,19 +56,40 @@ N = 8 -> 92      (전통적인 "8-Queens 문제" 의 답)
 
 
 def n_queens(n: int) -> int:
-    """
-    N x N 체스판에 N 개의 퀸을 서로 공격하지 않도록 배치하는 경우의 수를 반환.
-    1 <= N <= 8 범위에서 동작하면 충분합니다.
-    """
-    # TODO: 백트래킹으로 가능한 배치의 수를 반환하세요.
-    # 권장 구조:
-    #   cols = [0] * n
-    #   count = 0
-    #   def place(row):
-    #       ...
-    #   place(0)
-    #   return count
-    pass
+
+    used_cols = set()
+    main_diags = set()  # row - col
+    anti_diags = set()  # row + col
+    total_count = 0
+
+    def place(row: int) -> None:
+        nonlocal total_count
+
+        if row == n:
+            total_count += 1
+            return
+
+        for col in range(n):
+            main_id = row - col
+            anti_id = row + col
+
+            if col in used_cols or main_id in main_diags or anti_id in anti_diags:
+                continue
+
+            # State allocation
+            used_cols.add(col)
+            main_diags.add(main_id)
+            anti_diags.add(anti_id)
+
+            place(row + 1)
+
+            # Backtracking rollback
+            used_cols.remove(col)
+            main_diags.remove(main_id)
+            anti_diags.remove(anti_id)
+
+    place(0)
+    return total_count
 
 
 if __name__ == "__main__":
