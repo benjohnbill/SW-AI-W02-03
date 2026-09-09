@@ -1,0 +1,810 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>hello.i에서 hello까지</title><style>
+:root{
+  --ground:#EAEDF1; --surface:#FFFFFF; --sunk:#DFE4EA;
+  --ink:#141D29; --muted:#5C6B7E; --rule:#C6D0DB;
+  --blue:#1E5AA8; --blue-soft:#D6E3F5;
+  --plum:#A33055; --plum-soft:#F6DDE4;
+  --gold:#8A6410; --gold-soft:#F3E6C6;
+  --green:#26685A; --green-soft:#D5E7E1;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#0E131A; --surface:#161E28; --sunk:#1E2733;
+  --ink:#E5EAF0; --muted:#93A1B2; --rule:#2C3745;
+  --blue:#78ADEC; --blue-soft:#1B2C42;
+  --plum:#E9819E; --plum-soft:#3A2028;
+  --gold:#D8B45E; --gold-soft:#33290F;
+  --green:#71C4AF; --green-soft:#152E29;
+}}
+:root[data-theme="dark"]{
+  --ground:#0E131A; --surface:#161E28; --sunk:#1E2733;
+  --ink:#E5EAF0; --muted:#93A1B2; --rule:#2C3745;
+  --blue:#78ADEC; --blue-soft:#1B2C42;
+  --plum:#E9819E; --plum-soft:#3A2028;
+  --gold:#D8B45E; --gold-soft:#33290F;
+  --green:#71C4AF; --green-soft:#152E29;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans KR","Malgun Gothic",system-ui,sans-serif;
+  font-weight:400; line-height:1.75; font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+.page{max-width:860px;margin:0 auto;padding:0 24px 110px;display:flex;flex-direction:column;gap:76px}
+h1,h2,h3{font-family:"Gowun Batang",serif;font-weight:700;text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0;max-width:62ch}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+/* ── hero ───────────────────────────────────────── */
+.hero{padding:84px 0 0;display:flex;flex-direction:column;gap:26px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.hero h1{font-size:clamp(36px,6.6vw,60px)}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.lede{font-size:19px;color:var(--muted)}
+.prev{display:inline-flex;gap:9px;align-items:baseline;font-size:14px;
+      background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+      padding:12px 16px;text-decoration:none;color:var(--ink);align-self:flex-start}
+.prev b{color:var(--blue);font-weight:600}
+.prev span{color:var(--muted)}
+
+/* 여정 막대 */
+.journey{display:flex;flex-direction:column;gap:0;background:var(--surface);
+         border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.journey .row{display:grid;grid-template-columns:104px 1fr auto;gap:16px;align-items:center;
+              padding:13px 18px;border-bottom:1px solid var(--rule);font-size:14px}
+.journey .row:last-child{border-bottom:none}
+.journey .row.past{color:var(--muted)}
+.journey .row.past .nm{color:var(--muted)}
+.journey .nm{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--blue)}
+.journey .sz{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--muted);
+             font-variant-numeric:tabular-nums;white-space:nowrap}
+.journey .row.here{background:var(--blue-soft)}
+
+/* ── sections ───────────────────────────────────── */
+section{display:flex;flex-direction:column;gap:24px}
+.num{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--blue);letter-spacing:.05em}
+h2{font-size:clamp(25px,4vw,33px)}
+h3{font-size:19px;margin-top:8px}
+.sub{color:var(--muted);font-size:17px}
+
+/* ── 오해 카드 ─────────────────────────────────── */
+.myth{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);
+      border-radius:4px;overflow:hidden}
+@media (max-width:620px){.myth{grid-template-columns:1fr}}
+.myth > div{padding:20px 22px;display:flex;flex-direction:column;gap:9px}
+.myth .wrong{background:var(--plum-soft);border-right:1px solid var(--rule)}
+.myth .right{background:var(--green-soft)}
+@media (max-width:620px){.myth .wrong{border-right:none;border-bottom:1px solid var(--rule)}}
+.myth .hd{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}
+.myth .wrong .hd{color:var(--plum)}
+.myth .right .hd{color:var(--green)}
+.myth .bd{font-size:15px;line-height:1.7;color:var(--ink)}
+.myth .bd code{font-size:13.5px}
+
+/* ── 코드 / 표 ─────────────────────────────────── */
+.code{background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+      padding:18px 20px;overflow-x:auto}
+.code pre{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.75;white-space:pre}
+.code .cap{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+           font-weight:600;margin-bottom:11px}
+.hl-blue{color:var(--blue);font-weight:600}
+.hl-plum{color:var(--plum);font-weight:600}
+.hl-gold{color:var(--gold);font-weight:600}
+.hl-green{color:var(--green);font-weight:600}
+.dim{color:var(--muted)}
+
+.tbl{border:1px solid var(--rule);border-radius:4px;overflow-x:auto;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:440px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+         font-weight:600;background:var(--sunk)}
+tbody tr:last-child td{border-bottom:none}
+td.m,th.m{font-family:"IBM Plex Mono",monospace;font-size:13px;font-variant-numeric:tabular-nums}
+tr.yes td{background:var(--green-soft)}
+tr.no td{background:var(--plum-soft)}
+
+.note{background:var(--gold-soft);border:1px solid var(--rule);padding:16px 19px;
+      border-radius:4px;font-size:14.5px;line-height:1.7}
+.note b{font-weight:600;color:var(--gold)}
+
+/* ── 바이트 레인 ───────────────────────────────── */
+.bytes{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:24px 22px;overflow-x:auto}
+.bytes .lane{display:flex;gap:6px;font-family:"IBM Plex Mono",monospace;font-size:clamp(15px,3.2vw,21px);
+             font-weight:600;min-width:300px}
+.bytes .b{padding:7px 9px;border-radius:3px;background:var(--sunk);color:var(--muted)}
+.bytes .b.op{background:var(--blue-soft);color:var(--blue)}
+.bytes .b.gap{background:var(--plum-soft);color:var(--plum)}
+.bytes .b.fill{background:var(--green-soft);color:var(--green)}
+.bytes .legend{margin-top:16px;display:flex;flex-direction:column;gap:7px;font-size:14px;min-width:300px}
+.bytes .legend div{display:flex;gap:11px;align-items:baseline}
+.bytes .legend .sw{width:11px;height:11px;border-radius:2px;flex:none;position:relative;top:2px}
+
+/* ── 대조 2열 ──────────────────────────────────── */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:620px){.pair{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:19px 21px;
+     display:flex;flex-direction:column;gap:9px}
+.box .hd{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.box .big{font-family:"Gowun Batang",serif;font-size:27px;line-height:1.2;font-variant-numeric:tabular-nums}
+.box p{font-size:14.5px;line-height:1.65}
+
+/* ── 메모리 지도 ───────────────────────────────── */
+.map{border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--surface)}
+.map .seg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+          padding:14px 18px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.map .seg:last-child{border-bottom:none}
+.map .seg .nm{display:flex;flex-direction:column;gap:2px}
+.map .seg .nm small{color:var(--muted);font-size:13px}
+.map .perm{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+           display:flex;gap:4px}
+.map .perm i{font-style:normal;width:22px;height:24px;display:grid;place-items:center;border-radius:3px;
+             background:var(--sunk);color:var(--muted)}
+.map .perm i.on{background:var(--blue-soft);color:var(--blue)}
+.map .perm i.x{background:var(--plum-soft);color:var(--plum)}
+.map .seg.kernel{background:var(--sunk);color:var(--muted)}
+
+/* ── 타임라인 ──────────────────────────────────── */
+.tl{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);border-radius:4px;
+    overflow:hidden;background:var(--surface)}
+.tl .step{display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:center;
+          padding:15px 18px;border-bottom:1px solid var(--rule)}
+.tl .step:last-child{border-bottom:none}
+.tl .n{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--muted);
+       width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--sunk)}
+.tl .step.lock{background:var(--gold-soft)}
+.tl .step.lock .n{background:var(--gold);color:var(--surface)}
+.tl .step.risk{background:var(--plum-soft)}
+.tl .step.risk .n{background:var(--plum);color:var(--surface)}
+.tl .t{font-size:14.5px;line-height:1.6}
+.tl .t b{font-weight:600}
+.tl .w{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* ── 마무리 ────────────────────────────────────── */
+.recap{display:flex;flex-direction:column;gap:14px}
+.recap .item{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:baseline;
+             background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:16px 18px}
+.recap .k{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--blue);font-size:14px}
+.recap .v{font-size:14.5px;line-height:1.65}
+.recap .v b{font-weight:600}
+footer{border-top:1px solid var(--rule);padding-top:24px;color:var(--muted);font-size:13.5px;
+       display:flex;flex-direction:column;gap:7px}
+</style></head><body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div class="page">
+
+<header class="hero">
+  <div class="eyebrow">Krafton Jungle · W02-03 · 컴파일 파이프라인 (2)</div>
+  <h1><em>hello.i</em>에서 <em>hello</em>까지</h1>
+  <p class="lede">전처리가 끝난 20.9K짜리 텍스트가 15.6K짜리 실행 파일이 되기까지, 남은 세 단계에서
+  실제로 무슨 일이 벌어지는지 바이트 단위로 확인한 기록입니다.</p>
+
+  <a class="prev" href="preprocessor-hello-i.html">
+    <b>← 1편</b><span>hello.i 해부도 · 전처리기가 844줄을 만든 과정</span>
+  </a>
+
+  <div class="journey">
+    <div class="row past"><span class="nm">hello.c</span><span>사람이 쓴 소스</span><span class="sz">117 B</span></div>
+    <div class="row past"><span class="nm">hello.i</span><span>전처리 완료 · 1편에서 다룸</span><span class="sz">20.9 KB</span></div>
+    <div class="row here"><span class="nm">hello.s</span><span>어셈블리 · <b>여기부터</b></span><span class="sz">661 B</span></div>
+    <div class="row"><span class="nm">hello.o</span><span>기계어 · 주소는 아직 빈칸</span><span class="sz">1.5 KB</span></div>
+    <div class="row"><span class="nm">hello</span><span>실행 파일 · 그래도 아직 반제품</span><span class="sz">15.6 KB</span></div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">00&nbsp;&nbsp;이 문서의 뼈대</div>
+  <h2>세 번의 헷갈림</h2>
+  <p class="sub">이 뒷부분이 어려운 이유는 개념이 많아서가 아닙니다. 서로 다른 두 가지가
+  이름이나 모양이 비슷해서 하나로 뭉뚱그려지기 때문입니다. 실제로 막히는 지점은 셋뿐이고,
+  이 문서의 여섯 개 장은 전부 그 셋 중 하나를 다룹니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>하나로 보기 쉬운 것</th><th>실제로는</th><th>다루는 장</th></tr></thead>
+      <tbody>
+        <tr><td><b>헤더</b>와 <b>라이브러리</b></td>
+            <td>이름만 적힌 약속 / 진짜 코드가 든 이진 파일. 읽는 시점도 읽는 주체도 다릅니다.</td>
+            <td class="m">01 · 03</td></tr>
+        <tr><td><b>어셈블리</b>와 <b>기계어</b></td>
+            <td>층이 다른 두 단계가 아니라, 같은 명령을 적는 두 표기법입니다.</td>
+            <td class="m">02</td></tr>
+        <tr><td><b>계정 권한</b>과 <b>페이지 권한</b></td>
+            <td>누가 하느냐를 묻는 제도 / 어느 주소냐만 묻는 제도. root도 후자를 못 넘습니다.</td>
+            <td class="m">05 · 06</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><b>읽는 방법.</b> 각 장은 “이렇게 생각하기 쉽다”로 시작해서 “실제로는 이렇다”로
+  넘어가고, 마지막에 그 자리에서 직접 확인할 수 있는 명령어와 그 출력이 붙습니다.
+  출력은 전부 이 저장소의 <code>hello</code> 파일에서 실제로 뽑은 것입니다.</div>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">01&nbsp;&nbsp;컴파일 · hello.i → hello.s</div>
+  <h2>쓴 적 없는 함수가 불려요</h2>
+  <p>소스에는 분명 <code>printf</code>를 썼는데, 컴파일 결과인 <code>hello.s</code>에는
+  <code>printf</code>가 한 번도 등장하지 않습니다. 대신 이렇게 되어 있습니다.</p>
+
+  <div class="code">
+    <div class="cap">hello.s · main 안쪽</div>
+<pre>leaq    .LC0(%rip), %rax
+movq    %rax, %rdi
+call    <span class="hl-plum">puts@PLT</span></pre>
+  </div>
+
+  <div class="myth">
+    <div class="wrong">
+      <div class="hd">이렇게 생각하기 쉬워요</div>
+      <div class="bd"><code>printf</code>는 C 언어의 문법이다. 어셈블리로 내려가면 문법이
+      사라지고 하드웨어에 출력을 지시하는 명령으로 바뀌는데, 그게 <code>puts</code>다.</div>
+    </div>
+    <div class="right">
+      <div class="hd">실제로는</div>
+      <div class="bd"><code>printf</code>는 문법이 아니라 <b>평범한 함수</b>입니다. 누군가 C로 짜서
+      libc에 넣어 둔 것이고, 직접 같은 이름으로 만들 수도 있습니다. 문법은
+      <code>if</code>, <code>while</code>, <code>return</code>처럼 컴파일러가 아는 단어입니다.</div>
+    </div>
+  </div>
+
+  <h3>그럼 누가 바꿨을까요</h3>
+  <p>컴파일러입니다. GCC는 <code>printf</code>를 “모르는 남의 함수”로 두지 않고 <b>뜻을 아는 이름</b>으로
+  취급합니다. 그래서 이렇게 추론합니다. 서식이 <code>"%s\n"</code>이고 인자가 문자열 하나뿐이면
+  결과는 “그 문자열 + 줄바꿈”이고, 그건 <code>puts</code>가 하는 일과 정확히 같은데,
+  <code>puts</code>는 서식을 해석하지 않으니 더 빠릅니다.</p>
+
+  <p>다만 <b>결과가 완전히 같다고 증명될 때만</b> 바꿉니다. 조건을 하나씩 무너뜨려 보면 경계가 드러납니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>소스 코드</th><th>옵션</th><th class="m">결과</th></tr></thead>
+      <tbody>
+        <tr class="yes"><td class="m">printf("%s\n", "Hello, world!")</td><td>없음</td><td class="m">call puts</td></tr>
+        <tr class="no"><td class="m">printf("%s\n", "Hello, world!")</td><td class="m">-fno-builtin</td><td class="m">call printf</td></tr>
+        <tr class="yes"><td class="m">printf("Hello, world!\n")</td><td>없음</td><td class="m">call puts</td></tr>
+        <tr class="no"><td class="m">printf("Hello, world!")</td><td>없음</td><td class="m">call printf</td></tr>
+        <tr class="no"><td class="m">printf("%s %d\n", "Hello", 42)</td><td>없음</td><td class="m">call printf</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>아래 두 줄이 경계를 보여 줍니다. 줄바꿈을 빼면 바뀌지 않는데, <code>puts</code>는 줄바꿈을
+  <b>자기가 붙이기 때문에</b> 결과가 달라져 버리기 때문입니다. 인자가 늘어나도 바뀌지 않습니다.
+  그때는 서식을 진짜로 해석해야 하니까요.</p>
+
+  <div class="note"><b>최적화를 껐는데도 일어납니다.</b> 위 실험은 전부 <code>-O0</code>입니다.
+  이런 종류의 치환은 최적화 단계가 아니라 컴파일러가 함수 이름을 인식하는 단계에서 일어나기 때문에,
+  최적화를 껐다는 이유로 막히지 않습니다. 막으려면 <code>-fno-builtin</code>으로 “안다고 나서지 말라”고
+  따로 말해야 합니다.</div>
+
+  <h3>중요한 것은 컴파일러가 <em>하지 않은</em> 일</h3>
+  <p>컴파일러가 만든 것은 <b>이름 네 글자뿐</b>입니다. <code>puts</code>의 몸통은 수십 년 전에 누군가
+  C로 짜서 컴파일해 둔 것이고, 지금 <code>/usr/lib/x86_64-linux-gnu/libc.so.6</code>이라는
+  <b>2,190,608바이트</b>짜리 파일 안에 이진 상태로 들어 있습니다. 컴파일러는 그 파일을 열어 본 적이 없습니다.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">02&nbsp;&nbsp;어셈블 · hello.s → hello.o</div>
+  <h2>같은 것을 두 번 적기</h2>
+
+  <div class="myth">
+    <div class="wrong">
+      <div class="hd">이렇게 생각하기 쉬워요</div>
+      <div class="bd">어셈블리와 기계어는 층이 다르다. 어셈블리라는 층에서 실행되는 일이 따로 있고,
+      기계어는 그보다 아래에 있다.</div>
+    </div>
+    <div class="right">
+      <div class="hd">실제로는</div>
+      <div class="bd">같은 명령을 적는 <b>두 가지 표기법</b>입니다. 숫자 <code>255</code>와 글자
+      <code>"이백오십오"</code>의 관계와 같습니다. 실행되는 것은 언제나 기계어 하나뿐이고,
+      어셈블리는 사람이 보려고 옮겨 적은 것입니다.</div>
+    </div>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th class="m">기계어 · CPU가 먹는 것</th><th class="m">어셈블리 · 사람이 읽는 것</th></tr></thead>
+      <tbody>
+        <tr><td class="m">55</td><td class="m">push %rbp</td></tr>
+        <tr><td class="m">48 89 e5</td><td class="m">mov %rsp,%rbp</td></tr>
+        <tr><td class="m">e8 <span class="dim">…</span></td><td class="m">call <span class="dim">…</span></td></tr>
+        <tr><td class="m">c3</td><td class="m">ret</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>그래서 <b>“어셈블리 영역”과 “기계어 영역”이라는 별도의 실행 층은 없습니다.</b>
+  시스템 콜도 마찬가지입니다. <code>syscall</code>은 특별한 층에 사는 것이 아니라
+  <code>0f 05</code>라는 두 바이트짜리 기계어 명령이고, <code>push</code>나 <code>ret</code>과
+  나란히 놓입니다. 다만 그 명령을 만나면 CPU가 권한 등급을 바꿔서 커널로 넘어간다는 점만 다릅니다.</p>
+
+  <h3>어셈블러의 곤란</h3>
+  <p><code>call</code>이라는 기계어 명령은 결국 “어느 주소로 뛰어라”라는 뜻이고, 기계어에는
+  숫자 주소가 박혀 있어야 합니다. 그런데 어셈블러는 <code>hello.s</code>라는 텍스트 파일 하나만
+  보고 있습니다. libc는 열어 본 적도 없습니다. <code>puts</code>의 주소를 알 방법이 없습니다.</p>
+
+  <p>그래서 이렇게 했습니다.</p>
+
+  <div class="bytes">
+    <div class="lane">
+      <span class="b op">e8</span>
+      <span class="b gap">00</span><span class="b gap">00</span><span class="b gap">00</span><span class="b gap">00</span>
+    </div>
+    <div class="legend">
+      <div><span class="sw" style="background:var(--blue)"></span>
+           <span><code>e8</code>: “call” 명령. 이건 지금 알 수 있습니다.</span></div>
+      <div><span class="sw" style="background:var(--plum)"></span>
+           <span>주소가 들어갈 4바이트. <b>전부 0을 적어 놨습니다.</b> 모르니까요.</span></div>
+    </div>
+  </div>
+
+  <p>모르는 것을 아는 척할 수 없으니, 어셈블러가 할 수 있는 선택은 둘뿐이었습니다.
+  에러를 내고 죽거나, <b>일단 0을 적고 쪽지를 남기거나.</b> 후자를 골랐고, 그 쪽지에는
+  <b>재배치 표(relocation table)</b>라는 이름이 붙어 있습니다.</p>
+
+  <div class="code">
+    <div class="cap">readelf -r hello.o</div>
+<pre>Offset        Type              Sym. Name + Addend
+<span class="hl-gold">0x13</span>          R_X86_64_PLT32    <span class="hl-plum">puts</span> - 4</pre>
+  </div>
+
+  <p>읽으면 이런 뜻입니다. <b>“이 파일의 0x13번째 바이트에 4바이트짜리 빈칸이 있다.
+  거기 들어갈 값은 <code>puts</code>라는 이름의 주소다. 나는 그 주소를 모른다. 네가 채워라.”</b></p>
+
+  <div class="note"><b>어셈블이 단순하다는 말의 정확한 범위.</b> 명령을 옮겨 적는 부분은 실제로
+  거의 1:1입니다. 다만 어셈블러도 라벨 주소를 계산하고, 같은 명령을 짧게 넣을지 길게 넣을지 고르고,
+  위와 같은 쪽지를 남깁니다. 그래서 “받아쓰기에 가깝다”는 맞지만 “완전히 기계적이다”는 조금 지나칩니다.</div>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">03&nbsp;&nbsp;링크 · hello.o → hello</div>
+  <h2>빈칸을 채우는 사람</h2>
+
+  <h3>먼저, 링커가 왜 필요한가</h3>
+  <p>흔한 설명은 “참조하는 라이브러리를 가져오려고”입니다. 그런데 그건 결과이지 이유가 아닙니다.
+  진짜 이유는 <b>분할 컴파일</b>입니다.</p>
+
+  <p>소스 파일이 1,000개인 프로젝트를 생각해 봅니다. 파일들을 각각 따로 컴파일하면,
+  <b>모든 <code>.o</code>가 자기는 0번지에서 시작한다고 가정하고</b> 만들어집니다.
+  그대로 이어 붙이면 주소가 전부 충돌합니다. 그러니 누군가
+  “너는 이제 0번지가 아니라 0x1200번지다, 네 안의 모든 주소를 그만큼 밀어라”라고 고쳐 줘야 합니다.</p>
+
+  <p>그 <b>주소를 다시 계산해서 미는 사람</b>에게 붙인 이름이 링커입니다. 그래서
+  “링커 없이 부분 컴파일해서 합칠 수 없나”라는 질문은 “링커 없이 링커의 일을 할 수 없나”와
+  같은 질문이 됩니다. 할 수는 있고, 그렇게 만든 프로그램의 이름이 링커입니다.</p>
+
+  <div class="pair">
+    <div class="box">
+      <div class="hd">링크 단계가 없다면</div>
+      <div class="big">1,000개</div>
+      <p>코드 한 줄만 고쳐도 전부 다시 컴파일해야 합니다. 그리고 libc는 소스 코드를 통째로
+      배포해야만 쓸 수 있게 됩니다.</p>
+    </div>
+    <div class="box">
+      <div class="hd">링크 단계가 있으면</div>
+      <div class="big">1개</div>
+      <p>고친 파일 하나만 다시 컴파일하고, 나머지 999개의 <code>.o</code>는 그대로 재사용해
+      붙이기만 하면 됩니다.</p>
+    </div>
+  </div>
+
+  <h3>hello.o 안에는 무엇이 들어 있나</h3>
+  <p>“표준 라이브러리에서 필요한 일부를 가져왔겠지”라고 생각하기 쉽지만, <b>단 한 바이트도 없습니다.</b>
+  파일에 있는 심볼 전부를 뽑으면 두 줄입니다.</p>
+
+  <div class="code">
+    <div class="cap">nm hello.o</div>
+<pre>0000000000000000 <span class="hl-green">T</span> main
+                 <span class="hl-plum">U</span> puts</pre>
+  </div>
+
+  <div class="pair">
+    <div class="box">
+      <div class="hd">T · 정의됨</div>
+      <p><code>main</code>의 <b>진짜 코드가 이 파일 안에</b> 있습니다. 30바이트짜리입니다.</p>
+    </div>
+    <div class="box">
+      <div class="hd">U · Undefined, 미정의</div>
+      <p><code>puts</code>는 <b>이름만 있고 코드는 없습니다.</b> 여기가 1편의 “선언은 약속이지
+      실체가 아니다”와 이어지는 자리입니다.</p>
+    </div>
+  </div>
+
+  <h3>쪽지가 실제로 채워지는 순간</h3>
+  <p>같은 자리를 <code>hello.o</code>와 완성된 <code>hello</code>에서 나란히 보면 이렇습니다.</p>
+
+  <div class="bytes">
+    <div class="lane" style="margin-bottom:14px">
+      <span class="b op">e8</span>
+      <span class="b gap">00</span><span class="b gap">00</span><span class="b gap">00</span><span class="b gap">00</span>
+      <span class="b" style="background:transparent;color:var(--muted);font-weight:400">hello.o</span>
+    </div>
+    <div class="lane">
+      <span class="b op">e8</span>
+      <span class="b fill">f0</span><span class="b fill">fe</span><span class="b fill">ff</span><span class="b fill">ff</span>
+      <span class="b" style="background:transparent;color:var(--muted);font-weight:400">hello</span>
+    </div>
+    <div class="legend">
+      <div><span class="sw" style="background:var(--green)"></span>
+           <span>링커가 쪽지를 읽고 빈칸을 메웠습니다. <code>call 1050 &lt;puts@plt&gt;</code>가 됐습니다.</span></div>
+    </div>
+  </div>
+
+  <h3>그런데 반전이 있습니다</h3>
+  <p>링커가 <code>puts</code>의 <b>코드를 가져오지 않았습니다.</b> 완성된 실행 파일 안에도 없습니다.</p>
+
+  <div class="code">
+    <div class="cap">nm -D hello</div>
+<pre>     <span class="hl-plum">U</span> puts@GLIBC_2.2.5</pre>
+  </div>
+
+  <p>또 <code>U</code>입니다. <b>끝까지 미정의 상태입니다.</b> 링커는 코드 대신
+  “실행할 때 찾아와라”라는 지시서를 넣어 뒀습니다. 그래서 <code>hello</code>가 실제로 하는 일은 이렇습니다.</p>
+
+  <div class="code">
+    <div class="cap">objdump -d hello</div>
+<pre>main:
+  115b:  e8 f0 fe ff ff    call   1050 &lt;puts@plt&gt;   <span class="dim">← libc가 아니라 자기 파일 안으로</span>
+
+1050 &lt;puts@plt&gt;:                                   <span class="dim">← PLT. 환승역입니다</span>
+  1054:  ff 25 76 2f 00 00 jmp    *0x2f76(%rip)     <span class="dim">← 어떤 칸에 적힌 주소로 다시 점프</span>
+                                # 3fd0 &lt;puts@GLIBC_2.2.5&gt;
+</pre>
+  </div>
+
+  <p>그 칸(<b>GOT</b>)은 파일에 저장될 때 비어 있습니다. 채우는 것은 <b>실행 순간</b>입니다.
+  <code>hello</code>를 실행하면 커널이 그것을 바로 돌리지 않고, 먼저
+  <code>/lib64/ld-linux-x86-64.so.2</code>라는 <b>동적 링커</b>를 띄웁니다.
+  이 프로그램이 libc를 메모리에 올리고, 오늘 <code>puts</code>가 앉은 주소를 알아내
+  그 빈칸에 적어 넣습니다. 그 다음에야 프로그램이 시작됩니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th></th><th>정적 링킹</th><th>동적 링킹</th></tr></thead>
+      <tbody>
+        <tr><td>언제</td><td>빌드할 때 (<code>ld</code>)</td><td>실행할 때 (<code>ld-linux</code>)</td></tr>
+        <tr><td>무엇을</td><td><code>.o</code>들을 합치고 PLT 뼈대를 만듦</td><td>libc를 올리고 GOT에 진짜 주소를 꽂음</td></tr>
+        <tr><td>결과</td><td><code>hello</code> 파일</td><td>실행 중인 프로세스</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><b>그래서 <code>hello</code>는 완성품이 아닙니다.</b> libc가 없는 컴퓨터에 복사하면
+  실행되지 않습니다. 15.6K에서 <code>hello.o</code>의 1.5K를 뺀 나머지는 libc 코드가 아니라,
+  <b>“실행할 때 libc를 찾아오는 방법”을 적은 서류들</b>입니다.</div>
+
+  <p>이게 왜 좋은 설계인지는 숫자로 보면 분명합니다. libc는 2.19MB입니다. 모든 프로그램이
+  <code>puts</code> 코드를 자기 안에 복사해 넣는다면 프로그램 1,000개가 있는 컴퓨터에는
+  libc 사본이 1,000개 생깁니다. 디스크에서도, 메모리에서도요. 동적 링킹을 쓰면
+  <b>libc는 메모리에 딱 하나만 올라가고 모든 프로그램이 그것을 공유합니다.</b>
+  게다가 libc에 보안 취약점이 발견되면 파일 하나만 갈아 끼우면 끝입니다.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">04&nbsp;&nbsp;ELF · 파일의 맨 앞 64바이트</div>
+  <h2>커널이 모르는 것의 목록</h2>
+  <p class="sub"><code>hello</code>의 맨 앞 64바이트에는 우리 코드가 한 바이트도 없습니다.
+  왜 커널은 첫 바이트부터 CPU에 먹이지 않고, 이런 안내문을 먼저 읽어야 할까요.</p>
+
+  <div class="myth">
+    <div class="wrong">
+      <div class="hd">이렇게 생각하기 쉬워요</div>
+      <div class="bd">가상 메모리 그림의 맨 위에 “커널 가상 메모리”가 있으니,
+      맨 앞의 ELF 헤더가 그 영역과 관련해서 커널에게 정보를 주는 자리일 것이다.</div>
+    </div>
+    <div class="right">
+      <div class="hd">실제로는</div>
+      <div class="bd">커널 가상 메모리와 <b>아무 관계가 없습니다.</b> <code>hello</code>는 그림의
+      <b>맨 아래</b> 두 칸에 올라갑니다. 커널이 헤더를 <b>읽는 것</b>은 맞지만,
+      “커널이 읽는다”와 “커널 영역에 있다”는 다른 이야기입니다.</div>
+    </div>
+  </div>
+
+  <div class="map">
+    <div class="seg kernel"><div class="nm"><span>커널 가상 메모리</span>
+      <small>모든 프로세스 주소 공간의 맨 위에 예약된 금지 구역. hello와 무관합니다.</small></div></div>
+    <div class="seg"><div class="nm"><span>스택</span><small>지역 변수, 돌아갈 주소</small></div></div>
+    <div class="seg"><div class="nm"><span>공유 라이브러리 매핑</span><small>libc.so.6이 여기 올라옵니다</small></div></div>
+    <div class="seg"><div class="nm"><span>힙</span><small>malloc</small></div></div>
+    <div class="seg" style="background:var(--blue-soft)"><div class="nm"><span>읽기 / 쓰기 데이터</span>
+      <small><b>hello가 올라가는 자리</b></small></div></div>
+    <div class="seg" style="background:var(--blue-soft)"><div class="nm"><span>읽기 전용 코드 및 데이터</span>
+      <small><b>ELF 헤더도 여기 포함됩니다</b></small></div></div>
+  </div>
+
+  <h3>헤더의 항목이 곧 질문의 목록입니다</h3>
+  <p>커널은 방금 전까지 이 파일이 존재하는지도 몰랐습니다. 그 상태에서 커널이 모르는 것을
+  적어 보면, ELF 헤더의 항목과 정확히 일대일로 맞아떨어집니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>커널의 질문</th><th>헤더의 답</th></tr></thead>
+      <tbody>
+        <tr><td>이거 실행 파일 맞아? JPEG 아니고?</td><td class="m">7f 45 4c 46 <span class="dim">(매직)</span></td></tr>
+        <tr><td>32비트야 64비트야?</td><td class="m">ELF64</td></tr>
+        <tr><td>바이트 순서가 어느 쪽이야?</td><td class="m">little endian</td></tr>
+        <tr><td>어느 CPU용이야?</td><td class="m">x86-64</td></tr>
+        <tr class="yes"><td><b>어느 주소부터 실행해?</b></td><td class="m"><b>0x1060</b></td></tr>
+        <tr><td>메모리에 어떻게 배치해?</td><td class="m">프로그램 헤더 14개, 64바이트째부터</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><b>다섯 번째 줄이 핵심입니다.</b> 파일 안에서 실행 가능한 코드는 0x1060번지부터이지
+  파일의 시작이 아닙니다. 첫 바이트부터 실행하면 CPU는 <code>7f 45 4c 46</code>을
+  명령으로 해석하려다 즉시 죽습니다. 그러니 커널은 “어디서 시작하느냐”를 <b>물어봐야만</b> 하고,
+  그 답이 적혀 있는 곳이 헤더입니다.</p>
+
+  <p>매직 넘버가 왜 필요한지도 여기서 드러납니다. 헤더를 믿고 0x1060으로 뛰었는데 그 파일이
+  사실 JPEG였다면 아무 데나 뛰어드는 셈입니다. <b>뛰기 전에 신분증부터 확인</b>하는 것입니다.
+  앞에 <code>0x7f</code>를 세워 둔 이유도 우연히 <code>ELF</code>라는 글자로 시작하는
+  평범한 텍스트 파일과 구분하기 위해서입니다.</p>
+
+  <div class="note"><b>진입점 0x1060은 <code>main</code>이 아닙니다.</b> <code>main</code>은 0x1149에 있습니다.
+  0x1060은 <code>_start</code>라는, libc가 넣어 둔 준비 코드입니다. 전역 변수를 초기화하고
+  <code>argc</code>와 <code>argv</code>를 정리한 다음에야 <code>main</code>을 부릅니다.
+  “<code>main</code>이 프로그램의 시작”이라는 말은 <b>C 언어 안에서만 참</b>입니다.</div>
+
+  <h3>덧붙여, strip이 잘라내는 1.5K</h3>
+  <p><code>hello</code>가 15.6K, <code>strip</code>한 것이 14.1K인데 둘 다 똑같이 실행됩니다.
+  없어진 것은 딱 두 칸, <code>.symtab</code>과 <code>.strtab</code>입니다. 심볼이 30개에서 0개가 됩니다.</p>
+
+  <div class="code">
+    <div class="cap">nm hello · 지워지는 것들</div>
+<pre>0000000000001149 T main
+0000000000001060 T _start
+0000000000001000 T _init</pre>
+  </div>
+
+  <p><code>main</code>이 0x1149에 있다는 <b>대응표</b>입니다. 그런데 <b>CPU는 <code>main</code>이라는
+  이름을 전혀 모릅니다.</b> CPU가 아는 것은 “0x1149번지로 뛰어라”뿐이고, 그 주소는 이미 기계어 안에
+  숫자로 박혀 있습니다. 이름은 실행에 아무 역할도 하지 않습니다. 쓰는 쪽은 사람과 사람의 도구입니다.
+  <code>gdb</code>에서 <code>break main</code>이라고 칠 수 있는 이유가 이 표이고,
+  프로파일러 결과가 “0x1149에서 60%”가 아니라 “<code>main</code>에서 60%”로 나오는 이유도 이 표입니다.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">05&nbsp;&nbsp;메모리 권한</div>
+  <h2>누구냐가 아니라 어디냐를 묻습니다</h2>
+
+  <div class="myth">
+    <div class="wrong">
+      <div class="hd">이렇게 생각하기 쉬워요</div>
+      <div class="bd">읽기·쓰기·실행 권한을 다 주면, 관리자 계정처럼 임의로 시스템을
+      조작할 수 있게 되니까 위험한 것이다.</div>
+    </div>
+    <div class="right">
+      <div class="hd">실제로는</div>
+      <div class="bd">여기서 말하는 rwx는 <b>관리자냐 아니냐와 아무 상관이 없습니다.</b>
+      메모리 페이지 권한은 “누가 하느냐”를 묻지 않고 <b>“이 주소에 무슨 짓을 하느냐”만</b> 봅니다.</div>
+    </div>
+  </div>
+
+  <p>글자가 똑같아서 헷갈리지만, 완전히 다른 두 제도입니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th></th><th>파일 권한 (<code>ls -l</code>의 rwx)</th><th>메모리 페이지 권한</th></tr></thead>
+      <tbody>
+        <tr><td>대상</td><td>디스크의 파일</td><td>메모리의 4KB 한 칸</td></tr>
+        <tr><td>사용자에 따라</td><td>사람마다 다름</td><td><b>사용자와 무관</b></td></tr>
+        <tr><td>검사 주체</td><td>커널의 파일 시스템</td><td><b>CPU의 MMU · 하드웨어</b></td></tr>
+        <tr><td>root면 통과?</td><td>대체로 통과</td><td><b>root여도 못 통과</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>그럼 왜 쓰기와 실행을 같이 주지 않을까</h3>
+  <p>프로그램이 이름을 입력받는다고 합니다. 개발자가 실수로 100글자 공간에 500글자를 받아 버립니다.
+  넘친 400글자가 옆자리를 덮어쓰는데, 하필 그 옆에 <b>“이 함수가 끝나면 어디로 돌아갈지”를
+  적어 둔 칸</b>이 있습니다. 공격자는 이렇게 합니다.</p>
+
+  <div class="tl">
+    <div class="step"><span class="n">1</span><span class="t">이름 대신 <b>기계어 바이트를 입력</b>합니다.
+      프로그램은 그것을 이름인 줄 알고 메모리에 저장합니다.</span></div>
+    <div class="step"><span class="n">2</span><span class="t">넘치게 입력해서 “돌아갈 주소” 칸을
+      <b>자기가 넣은 데이터의 주소</b>로 덮어씁니다.</span></div>
+    <div class="step risk"><span class="n">3</span><span class="t">함수가 끝나면 CPU가 그 주소로 뜁니다.
+      <b>입력한 데이터가 코드로 실행됩니다.</b></span></div>
+  </div>
+
+  <p>성립 조건을 보면, <b>데이터를 넣은 자리가 “쓰기 가능”이면서 동시에 “실행 가능”해야만</b> 됩니다.
+  그래서 방어는 간단합니다. <b>둘 중 하나만 줍니다.</b> 쓸 수 있는 곳은 실행을 막고,
+  실행되는 곳은 쓰기를 막습니다. 이것을 <b>W^X</b>(Write XOR eXecute)라고 부릅니다.
+  배타적 논리합 기호를 쓴 것은 “둘 중 하나만”이라는 뜻입니다.</p>
+
+  <h3>hello의 실제 배치</h3>
+
+  <div class="map">
+    <div class="seg"><div class="nm"><span>LOAD · 0x0000</span><small>ELF 헤더, 각종 표</small></div>
+      <div class="perm"><i class="on">R</i><i>W</i><i>E</i></div></div>
+    <div class="seg"><div class="nm"><span>LOAD · 0x1000</span><small>코드. 실행은 되지만 고칠 수 없습니다</small></div>
+      <div class="perm"><i class="on">R</i><i>W</i><i class="on">E</i></div></div>
+    <div class="seg"><div class="nm"><span>LOAD · 0x2000</span><small>"Hello, world!" 문자열</small></div>
+      <div class="perm"><i class="on">R</i><i>W</i><i>E</i></div></div>
+    <div class="seg"><div class="nm"><span>LOAD · 0x3db8</span><small>전역 변수. 쓸 수는 있지만 실행되지 않습니다</small></div>
+      <div class="perm"><i class="on">R</i><i class="on">W</i><i>E</i></div></div>
+    <div class="seg"><div class="nm"><span>GNU_STACK</span><small>스택도 실행 금지입니다</small></div>
+      <div class="perm"><i class="on">R</i><i class="on">W</i><i>E</i></div></div>
+  </div>
+
+  <p><b><code>W</code>와 <code>E</code>가 함께 켜진 줄이 하나도 없습니다.</b>
+  문자열 <code>"Hello, world!"</code>가 굳이 읽기 전용 칸에 따로 있는 이유도 여기서 설명됩니다.
+  문자열 상수를 실수로 고치는 버그를 하드웨어가 즉시 잡아 주기 때문입니다.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">06&nbsp;&nbsp;RELRO</div>
+  <h2>신원 대신 시간으로 가릅니다</h2>
+
+  <p>여기서 모순이 하나 생깁니다. 동적 링커가 GOT에 주소를 쓰려면 그 칸은 <b>쓰기 가능</b>해야 합니다.
+  그런데 쓰기가 가능하다는 것은 <b>공격자도 거기에 쓸 수 있다</b>는 뜻입니다. 그 칸을 조작하면
+  <code>puts</code>를 부르는 척하면서 전혀 다른 코드로 뛰게 만들 수 있습니다.</p>
+
+  <p>그러면 정상적인 동적 링커의 쓰기와 공격자의 쓰기를 어떻게 구분할까요.
+  답이 우아한 이유는 <b>구분하지 않기 때문</b>입니다.</p>
+
+  <p>누가 쓰는지 알아내려는 시도는 애초에 불가능합니다. 메모리에 쓰는 것은 그냥 <code>mov</code> 명령
+  하나이고, CPU는 그것이 착한 코드인지 나쁜 코드인지 알 방법이 없습니다.
+  <b>신원으로는 가를 수 없습니다.</b> 그래서 <b>시간으로 가릅니다.</b></p>
+
+  <div class="tl">
+    <div class="step"><span class="n">1</span><span class="t">커널이 <code>hello</code>를 메모리에 올립니다.</span>
+      <span class="w">쓰기 불필요</span></div>
+    <div class="step"><span class="n">2</span><span class="t">동적 링커가 libc를 올리고
+      <b>GOT의 빈칸을 전부 채웁니다.</b></span><span class="w">쓰기 필요</span></div>
+    <div class="step lock"><span class="n">3</span><span class="t"><b>동적 링커가 GOT 구역을
+      읽기 전용으로 바꿉니다.</b> 여기가 GNU_RELRO입니다.</span><span class="w">mprotect</span></div>
+    <div class="step"><span class="n">4</span><span class="t"><code>_start</code>가 준비를 마치고
+      <code>main</code>이 시작됩니다.</span><span class="w">잠김</span></div>
+    <div class="step risk"><span class="n">5</span><span class="t">외부 입력을 받습니다.
+      <b>공격이 가능해지는 최초 시점입니다.</b></span><span class="w">잠김</span></div>
+  </div>
+
+  <p><b>②와 ⑤ 사이에는 겹치는 구간이 없습니다.</b> 동적 링커가 일할 때 프로그램은 아직 시작조차
+  하지 않았고, 따라서 외부 입력이 들어올 통로가 없습니다. 그러니 쓰기를 허용해도 안전합니다.
+  그리고 일을 마치자마자 문을 잠그면, 그 뒤로는 <b>누구든</b> 쓸 수 없습니다.
+  공격자도, 동적 링커 자신도요.</p>
+
+  <p><code>GNU_RELRO</code>가 하는 일이 정확히 이 문 잠그기이고, 이름도 그대로입니다.
+  <b>REL</b>ocation <b>R</b>ead-<b>O</b>nly, 즉 “재배치가 끝난 곳은 읽기 전용으로”.</p>
+
+  <div class="code">
+    <div class="cap">readelf -lW hello · 같은 주소에 붙은 두 개의 지시</div>
+<pre>LOAD        0x3db8  ...  <span class="hl-plum">RW</span>    <span class="dim">← 처음엔 쓰기 가능</span>
+GNU_RELRO   0x3db8  크기 0x248  <span class="hl-green">R</span>     <span class="dim">← 초기화가 끝나면 읽기 전용으로</span></pre>
+  </div>
+
+  <p>모순처럼 보이는 두 지시가 나란히 있는 이유가 <b>시간 차</b>입니다. 처음엔 RW, 나중엔 R입니다.</p>
+
+  <h3>실행 중에 정말 그렇게 되는지 확인</h3>
+  <p>같은 방식으로 빌드한 프로그램의 <code>/proc/self/maps</code>를 실행 중에 직접 읽어 봤습니다.</p>
+
+  <div class="code">
+    <div class="cap">/proc/self/maps · 실행 중인 프로세스의 메모리 지도</div>
+<pre>r--p  offset 0x0000     <span class="dim">← LOAD 1</span>
+r-xp  offset 0x1000     <span class="dim">← LOAD 2 · 코드</span>
+r--p  offset 0x2000     <span class="dim">← LOAD 3</span>
+<span class="hl-green">r--p  offset 0x2000     ← 파일엔 RW였는데 실행 중엔 R</span>
+rw-p  offset 0x3000     <span class="dim">← 여기만 쓰기 가능하게 남음</span></pre>
+  </div>
+
+  <p>강조한 줄이 증거입니다. 파일에 <code>RW</code>라고 적혀 있던 구역이 실행 중에는
+  <code>r--</code>로 바뀌어 있습니다. <b>파일에서 LOAD 하나였던 것이 실행 중에는 두 칸으로
+  쪼개졌습니다.</b> 앞쪽 절반은 잠겼고, 뒤쪽 절반만 열려 있습니다.</p>
+
+  <p>경계가 어디인지도 정확합니다.</p>
+
+  <div class="map">
+    <div class="seg" style="background:var(--green-soft)"><div class="nm">
+      <span class="mono">0x3db8 &nbsp;.dynamic</span><small>RELRO 보호 범위 · 잠깁니다</small></div>
+      <div class="perm"><i class="on">R</i><i>W</i><i>E</i></div></div>
+    <div class="seg" style="background:var(--green-soft)"><div class="nm">
+      <span class="mono">0x3fb8 &nbsp;.got</span><small>PLT가 참조하는 빈칸 · 다 채웠으니 잠급니다</small></div>
+      <div class="perm"><i class="on">R</i><i>W</i><i>E</i></div></div>
+    <div class="seg"><div class="nm">
+      <span class="mono">0x4000 &nbsp;.data / .bss</span><small>전역 변수 · 프로그램이 계속 고쳐야 하므로 열어 둡니다</small></div>
+      <div class="perm"><i class="on">R</i><i class="on">W</i><i>E</i></div></div>
+  </div>
+
+  <p><code>.got</code>은 0x3fb8이라 보호 범위(0x3db8부터 0x4000까지) 안이고,
+  <code>.data</code>는 0x4000이라 밖입니다. <b>페이지 경계에 딱 맞춰 갈라 놨습니다.</b>
+  링커가 이것을 미리 계산해서 두 종류를 분리해 배치한 것입니다.</p>
+
+  <h3>마지막 조각: 왜 지금 다 채울 수 있나</h3>
+  <p>원래 PLT는 <b>게으르게</b> 동작합니다. <code>puts</code>를 처음 부르는 순간에야 주소를 찾아
+  GOT에 적고, 안 쓰는 함수는 영영 찾지 않습니다. 그런데 이러면 GOT에 쓰는 시점이 프로그램 실행
+  도중이 되어서, ③에서 문을 잠글 수가 없습니다. 그래서 이 옵션이 켜져 있습니다.</p>
+
+  <div class="code">
+    <div class="cap">readelf -dW hello</div>
+<pre>FLAGS    <span class="hl-gold">BIND_NOW</span></pre>
+  </div>
+
+  <p><b>“게으르게 하지 말고 시작할 때 전부 찾아 놔라”</b>는 뜻입니다. 시작이 아주 조금 느려지는 대신,
+  초기화가 끝난 시점에 GOT를 완전히 잠글 수 있게 됩니다. 요즘 리눅스 배포판은 이것을 기본으로 켭니다.
+  이 조합을 <b>Full RELRO</b>라고 부릅니다.</p>
+
+  <div class="note"><b>한 문장으로.</b> 쓰기가 필요한 시간을 최소로 줄이고, 그 시간이 끝나면
+  하드웨어로 문을 잠급니다. 신원을 검사하는 대신 시간을 좁힌 것입니다.</div>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">07&nbsp;&nbsp;마무리</div>
+  <h2>지금 어디쯤 왔나요</h2>
+  <p class="sub">1편이 “선언은 약속이지 실체가 아니다”에서 끝났고, 이 문서는 그 실체를 끝까지
+  따라간 기록입니다. 두 편을 합치면 <code>hello.c</code> 117바이트가 화면의 한 줄이 되기까지의
+  전 과정이 됩니다.</p>
+
+  <div class="recap">
+    <div class="item"><span class="k">01</span><span class="v">컴파일러는 <code>printf</code>를
+      <code>puts</code>로 바꿨습니다. <b>결과가 같다고 증명될 때만</b>이고, 만든 것은 이름뿐입니다.</span></div>
+    <div class="item"><span class="k">02</span><span class="v">어셈블러는 주소를 몰라서
+      <b>0을 적고 쪽지를 남겼습니다.</b> 그 쪽지의 이름이 재배치 표입니다.</span></div>
+    <div class="item"><span class="k">03</span><span class="v">링커는 그 빈칸을 채웠지만
+      <b><code>puts</code>의 코드는 끝까지 가져오지 않았습니다.</b> 진짜 주소는 실행 순간에 꽂힙니다.</span></div>
+    <div class="item"><span class="k">04</span><span class="v">ELF 헤더는 <b>커널이 모르는 것의 목록</b>이고,
+      그중 가장 중요한 것은 “어디서 시작하느냐”입니다. 그리고 그 답은 <code>main</code>이 아닙니다.</span></div>
+    <div class="item"><span class="k">05</span><span class="v">메모리 권한은 <b>사용자가 아니라 주소를</b>
+      검사합니다. 쓰기와 실행을 같이 주지 않는 것이 W^X입니다.</span></div>
+    <div class="item"><span class="k">06</span><span class="v">RELRO는 정상 쓰기와 공격을 구분하지 않고,
+      <b>쓰기가 필요한 시간을 좁힌 뒤 문을 잠급니다.</b></span></div>
+  </div>
+
+  <h3>직접 확인해 볼 명령어</h3>
+  <p>이 문서의 모든 출력은 아래 명령으로 다시 뽑을 수 있습니다. 다른 프로그램에도 그대로 써 볼 수 있습니다.</p>
+
+  <div class="code">
+    <div class="cap">hello-pipeline/ 에서</div>
+<pre><span class="dim"># 단계별 산출물을 남기며 빌드</span>
+gcc -E hello.c -o hello.i     <span class="dim"># 전처리까지</span>
+gcc -S hello.i -o hello.s     <span class="dim"># 컴파일까지</span>
+gcc -c hello.s -o hello.o     <span class="dim"># 어셈블까지</span>
+gcc hello.o -o hello          <span class="dim"># 링크</span>
+
+<span class="dim"># 무엇이 정의됐고 무엇이 미정의인가</span>
+nm hello.o
+nm -D hello
+
+<span class="dim"># 링커에게 남긴 쪽지</span>
+readelf -r hello.o
+
+<span class="dim"># 빈칸이 채워지는 것</span>
+objdump -d hello.o | grep call
+objdump -d hello  | grep call
+
+<span class="dim"># 헤더 · 메모리 배치 · RELRO</span>
+readelf -h hello
+readelf -lW hello
+readelf -dW hello | grep BIND_NOW
+
+<span class="dim"># 실행 중 실제 권한</span>
+cat /proc/$(pgrep -n hello)/maps</pre>
+  </div>
+
+  <div class="note"><b>남은 질문 하나.</b> <code>puts</code>가 <code>syscall</code>을 부르기 전에
+  글자를 <b>버퍼에 모아 둔다</b>는 이야기를 3장에서 짧게 지나갔습니다. 왜 바로 보내지 않고 모을까요,
+  그리고 프로그램이 중간에 죽으면 그 버퍼는 어떻게 될까요. 다음에 볼 주제입니다.</div>
+</section>
+
+<footer>
+  <div>Krafton Jungle W02-03 · 컴파일 파이프라인 2편 · 2026-09-10</div>
+  <div>모든 수치와 출력은 Ubuntu / GCC 15.2.0 / x86-64 환경의 <code>~/dev/hello-pipeline</code>에서 실측했습니다.</div>
+</footer>
+
+</div>
+</body></html>
