@@ -36,11 +36,36 @@ def lcs_length(s1: str, s2: str) -> int:
     s1, s2 의 가장 긴 공통 부분수열의 길이를 반환.
     어느 한쪽이라도 비어 있으면 0 을 반환합니다.
     """
-    # TODO: 빈 문자열 처리
-    # TODO: (len(s1)+1) x (len(s2)+1) 크기의 2차원 dp 배열을 0 으로 초기화
-    # TODO: 이중 반복문으로 점화식에 따라 dp 채우기
-    # TODO: dp[len(s1)][len(s2)] 반환
-    pass
+
+    # 1. 부분집합을 set() 설정
+    def lcs_mother(str):
+        n = len(str)
+        word_set = set()
+
+        # 2. [Main] 부분집합 계산
+        def lcs_child(str, n):
+            if n == 0:
+                word_set.add("")
+                return  # (Base Case) 0이면 ""
+            last_word = str[-1]
+            str = str[:-1]
+            lcs_child(str, n - 1)  # 마지막 단어 제외하고 재귀
+            # 3. [Main] 계산 이후 set에 머지
+            unchanged_list = list(word_set)
+            changed_list = [words + last_word for words in unchanged_list]
+            word_set.update(changed_list)
+
+        lcs_child(str, n)
+        return word_set
+
+    # 4. 실제 s1, s2의 부분집합 set() 비교
+    s1_set = lcs_mother(s1)
+    s2_set = lcs_mother(s2)
+    common_set = s1_set & s2_set
+
+    # 5. 공통부분집합의 max str 도출 및 최종 길이 return
+    answer = max(common_set, key=len, default=0)
+    return len(answer)
 
 
 if __name__ == "__main__":
@@ -66,3 +91,9 @@ if __name__ == "__main__":
 
     print("[테스트 6] 두 LCS 후보가 길이가 같은 경우")
     print(f'  s1="ABCBDAB", s2="BDCABA" -> LCS 길이={lcs_length("ABCBDAB", "BDCABA")}')
+
+    # # TODO: 빈 문자열 처리
+    # # TODO: (len(s1)+1) x (len(s2)+1) 크기의 2차원 dp 배열을 0 으로 초기화
+    # # TODO: 이중 반복문으로 점화식에 따라 dp 채우기
+    # # TODO: dp[len(s1)][len(s2)] 반환
+    # pass

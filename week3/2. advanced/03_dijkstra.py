@@ -22,9 +22,9 @@
     그림:
               4
         0 --------> 1
-        |\         ^|
+        |\\         ^|
         | \1     2/ |
-        |  \    /   |1
+        |  \\    /   |1
         |   v  /    v
         |    2 ---> 3 ---> 4
         |    5      3
@@ -64,27 +64,48 @@ dijkstra(n: int, edges: list[tuple[int, int, int]], start: int) -> list
 
 import heapq
 
-
-INF = float('inf')
+INF = float("inf")
 
 
 def dijkstra(n: int, edges: list, start: int) -> list:
     """
-    n: 정점 수 (정점 번호 0 ~ n-1)
-    edges: (u, v, w) 형식 방향 간선 리스트
+    n: 정점 개수 (0 ~ n-1)
+    edges: (from_node, to_node, weight) 형태의 방향 간선 리스트
     start: 출발 정점
-    반환: 길이 n 의 거리 리스트 (도달 불가 = float('inf'))
+    반환: 각 정점까지의 최단 거리 리스트 (도달 불가 = float('inf'))
     """
-    # TODO: 인접 리스트 graph 구성 (graph[u] = [(v, w), ...])
-    # TODO: dist 를 INF 로 초기화하고 dist[start] = 0
-    # TODO: 우선순위 큐(heapq)로 BFS-like 최단경로 탐색
-    # TODO: dist 반환
-    pass
+    if n == 0:
+        return []
+
+    graph = [[] for _ in range(n)]
+    for from_node, to_node, weight in edges:
+        graph[from_node].append((to_node, weight))
+
+    distances = [INF] * n
+    distances[start] = 0
+
+    priority_queue = [(0, start)]
+
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        # 이미 기록된 최단 거리보다 크면 버림 (Pruning)
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, weight in graph[current_node]:
+            new_distance = current_distance + weight
+
+            if new_distance < distances[neighbor]:
+                distances[neighbor] = new_distance
+                heapq.heappush(priority_queue, (new_distance, neighbor))
+
+    return distances
 
 
 def _format(dist):
     """출력 표기를 위한 헬퍼: float('inf') 는 'INF' 로 보여줌"""
-    return [('INF' if x == INF else x) for x in dist]
+    return ["INF" if x == INF else x for x in dist]
 
 
 if __name__ == "__main__":
@@ -103,7 +124,7 @@ if __name__ == "__main__":
     print()
 
     print("[테스트 2] 정점 1개")
-    print(f"  n=1, edges=[], start=0")
+    print("  n=1, edges=[], start=0")
     print(f"  최단 거리: {_format(dijkstra(1, [], 0))}")
     print()
 
