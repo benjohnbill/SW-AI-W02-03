@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>응급실 대기줄</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EFF3F3; --surface:#FFFFFF; --surface-2:#E6ECEC; --sunken:#DBE3E3;
+  --ink:#12201F; --ink-2:#3D4E4D; --muted:#6D7D7C; --line:#CDD8D8;
+  --s1:#AF4227; --s1-soft:#F9E6E1; --s1-rail:#D9917E;
+  --s2:#0A7165; --s2-soft:#DDF0EC; --s2-rail:#6FBBB0;
+  --s3:#453AA6; --s3-soft:#E5E3F7; --s3-rail:#9A92DC;
+  --s4:#7E6416; --s4-soft:#F5EEDA; --s4-rail:#C3A85C;
+  --bad:#AF4227; --good:#0A7165;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0B1413; --surface:#121C1B; --surface-2:#182322; --sunken:#0E1817;
+  --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
+  --s1:#F09479; --s1-soft:#2B1712; --s1-rail:#7E4030;
+  --s2:#4FC5B3; --s2-soft:#0D2A26; --s2-rail:#2C6B61;
+  --s3:#A398F3; --s3-soft:#1B1836; --s3-rail:#4E4696;
+  --s4:#D8B65E; --s4-soft:#2A2312; --s4-rail:#7A6631;
+  --bad:#F09479; --good:#4FC5B3;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1413; --surface:#121C1B; --surface-2:#182322; --sunken:#0E1817;
+  --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
+  --s1:#F09479; --s1-soft:#2B1712; --s1-rail:#7E4030;
+  --s2:#4FC5B3; --s2-soft:#0D2A26; --s2-rail:#2C6B61;
+  --s3:#A398F3; --s3-soft:#1B1836; --s3-rail:#4E4696;
+  --s4:#D8B65E; --s4-soft:#2A2312; --s4-rail:#7A6631;
+  --bad:#F09479; --good:#4FC5B3;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink);
+  font-family:"Gowun Dodum",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.85;}
+.wrap{max-width:1000px; margin:0 auto; padding:44px 22px 90px; display:flex; flex-direction:column; gap:12px}
+.mono,code,pre{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+code{font-size:0.85em; background:var(--surface-2); padding:0.1em 0.38em; border-radius:3px}
+.dh{font-family:"Do Hyeon","Gowun Dodum",sans-serif; font-weight:400}
+
+/* header */
+header{display:flex; flex-direction:column; gap:16px; padding-bottom:34px; margin-bottom:22px; border-bottom:3px solid var(--ink)}
+h1{margin:0; font-size:clamp(38px,7vw,64px); line-height:1.1; letter-spacing:-0.02em}
+.sub{margin:0; font-size:18px; color:var(--ink-2); max-width:58ch}
+.roadmap{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:6px}
+.rm{padding:16px 16px 18px; border-top:4px solid; background:var(--surface); display:flex; flex-direction:column; gap:5px}
+.rm.a{border-color:var(--s1)} .rm.b{border-color:var(--s2)} .rm.c{border-color:var(--s3)}
+.rm .n{font-size:26px; line-height:1}
+.rm.a .n{color:var(--s1)} .rm.b .n{color:var(--s2)} .rm.c .n{color:var(--s3)}
+.rm .t{font-size:17px}
+.rm .d{font-size:14px; color:var(--muted); line-height:1.6}
+
+/* stage */
+.stage{display:flex; flex-direction:column; gap:22px; padding:38px 0 12px}
+.stage-head{display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap}
+.bignum{font-size:76px; line-height:0.85; letter-spacing:-0.04em}
+.s1 .bignum{color:var(--s1)} .s2 .bignum{color:var(--s2)} .s3 .bignum{color:var(--s3)}
+.stage-title{display:flex; flex-direction:column; gap:5px; flex:1; min-width:260px}
+.stage-title h2{margin:0; font-size:clamp(26px,4vw,36px); line-height:1.2; letter-spacing:-0.02em}
+.file{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted)}
+.oneline{font-size:18px; color:var(--ink-2)}
+
+.block{display:flex; flex-direction:column; gap:12px}
+h3{margin:0; font-size:21px; letter-spacing:-0.01em}
+p{margin:0; max-width:64ch; color:var(--ink-2)}
+p strong{color:var(--ink)}
+.lead{font-size:19px; color:var(--ink)}
+
+/* figure */
+figure{margin:0; background:var(--surface); border:1px solid var(--line); padding:26px 22px 20px; display:flex; flex-direction:column; gap:18px; overflow-x:auto}
+figcaption{font-size:15px; color:var(--ink-2); border-top:1px solid var(--line); padding-top:14px; max-width:70ch}
+.fig-title{font-size:19px}
+.s1 .fig-title{color:var(--s1)} .s2 .fig-title{color:var(--s2)} .s3 .fig-title{color:var(--s3)}
+
+/* cells */
+.rowset{display:flex; flex-direction:column; gap:10px; min-width:max-content}
+.crow{display:flex; align-items:center; gap:14px}
+.crow .lab{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted); width:52px; text-align:right; flex:none}
+.cells{display:flex; gap:5px}
+.cell{width:46px; height:46px; display:grid; place-items:center; position:relative;
+  background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink-2);
+  font-family:"IBM Plex Mono",monospace; font-size:16px; flex:none}
+.cell.i{background:var(--s1-soft); border-color:var(--s1); color:var(--s1)}
+.cell.j{background:var(--s3-soft); border-color:var(--s3); color:var(--s3)}
+.cell.both{background:var(--s2-soft); border-color:var(--s2); color:var(--s2)}
+.cell .pin{position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  font-family:"IBM Plex Mono",monospace; font-size:12px; line-height:1}
+.cell.i .pin{color:var(--s1)} .cell.j .pin{color:var(--s3)} .cell.both .pin{color:var(--s2)}
+.crow .out{font-size:14px; color:var(--muted); white-space:nowrap}
+.result{display:inline-flex; align-items:center; gap:9px; padding:10px 15px; font-size:16px; align-self:flex-start}
+.result.bad{background:var(--s1-soft); color:var(--s1); border:1.5px solid var(--s1-rail)}
+.result.good{background:var(--s2-soft); color:var(--s2); border:1.5px solid var(--s2-rail)}
+.result .big{font-family:"IBM Plex Mono",monospace; font-size:19px}
+
+/* stack figure */
+.stacks{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:28px}
+.stackcol{display:flex; flex-direction:column; gap:10px; align-items:center}
+.stackcol .cap{font-size:15px; text-align:center}
+.stack{display:flex; flex-direction:column-reverse; gap:3px; align-items:center; width:100%}
+.frame{width:100%; max-width:230px; height:22px; display:grid; place-items:center;
+  font-family:"IBM Plex Mono",monospace; font-size:11px;}
+.frame.f1{background:var(--s1-soft); border:1px solid var(--s1-rail); color:var(--s1)}
+.frame.f3{background:var(--s3-soft); border:1px solid var(--s3-rail); color:var(--s3)}
+.frame.dots{border:none; background:none; color:var(--muted); height:26px; font-size:16px}
+.stackcol .tally{font-family:"IBM Plex Mono",monospace; font-size:15px; padding:7px 13px}
+.tally.bad{background:var(--s1-soft); color:var(--s1)}
+.tally.ok{background:var(--s3-soft); color:var(--s3)}
+
+/* three-value figure */
+.med{display:flex; align-items:center; gap:26px; flex-wrap:wrap}
+.medgroup{display:flex; flex-direction:column; gap:9px; align-items:center}
+.medgroup .who{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted)}
+.medcells{display:flex; gap:6px}
+.medcell{width:56px; height:56px; display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:19px;
+  background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink-2)}
+.medcell.pick{background:var(--s3-soft); border-color:var(--s3); color:var(--s3)}
+.medarrow{font-size:26px; color:var(--muted)}
+.medlabels{display:flex; gap:6px}
+.medlabels span{width:56px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted)}
+
+/* code */
+.codebox{border:1px solid var(--line); background:var(--surface); overflow:hidden}
+.codebox .cap{padding:9px 15px; background:var(--surface-2); border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.codebox pre{margin:0; padding:16px 0; overflow-x:auto; font-size:13.5px; line-height:1.65}
+.codebox pre .ln{display:block; padding:0 18px; white-space:pre}
+.codebox pre .ln.mark{background:var(--s2-soft); box-shadow:inset 3px 0 0 var(--s2-rail)}
+.codebox pre .ln.markbad{background:var(--s1-soft); box-shadow:inset 3px 0 0 var(--s1-rail)}
+.codebox pre .ln.mark3{background:var(--s3-soft); box-shadow:inset 3px 0 0 var(--s3-rail)}
+
+/* transition band */
+.bridge{background:var(--sunken); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding:34px 24px; display:flex; flex-direction:column; gap:22px; margin:14px -22px}
+.bridge h3{font-size:24px}
+.bridge .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.12em; color:var(--muted)}
+.hunks{display:flex; flex-direction:column; gap:14px}
+.hunk{background:var(--surface); border:1px solid var(--line); display:grid; grid-template-columns:minmax(280px,1fr) minmax(240px,0.9fr)}
+.hunk .code{border-right:1px solid var(--line); overflow-x:auto; padding:12px 0; font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.6}
+.hunk .code .l{display:block; padding:0 14px; white-space:pre}
+.hunk .code .l.d{background:var(--s1-soft); color:var(--s1)}
+.hunk .code .l.a{background:var(--s2-soft); color:var(--s2)}
+.hunk .code .l.a3{background:var(--s3-soft); color:var(--s3)}
+.hunk .say{padding:14px 16px; display:flex; flex-direction:column; gap:6px}
+.hunk .say b{font-size:15.5px}
+.hunk .say span{font-size:14.5px; color:var(--ink-2); line-height:1.65}
+@media (max-width:720px){ .hunk{grid-template-columns:1fr} .hunk .code{border-right:none; border-bottom:1px solid var(--line)} }
+
+/* measurement */
+.meas{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line)}
+.mcell{background:var(--surface); padding:16px 15px; display:flex; flex-direction:column; gap:5px}
+.mcell .k{font-size:13px; color:var(--muted)}
+.mcell .v{font-family:"IBM Plex Mono",monospace; font-size:25px; line-height:1.15}
+.mcell .v.bad{color:var(--bad)} .mcell .v.good{color:var(--good)}
+.mcell .n{font-size:12.5px; color:var(--muted); line-height:1.5}
+
+table{border-collapse:collapse; width:100%; min-width:560px; font-variant-numeric:tabular-nums; background:var(--surface)}
+.tablewrap{overflow-x:auto; border:1px solid var(--line)}
+th,td{padding:11px 14px; border-bottom:1px solid var(--line); text-align:right; font-size:15px}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:12.5px; color:var(--muted); font-family:"IBM Plex Mono",monospace; letter-spacing:0.06em; background:var(--surface-2)}
+td.mono{font-family:"IBM Plex Mono",monospace}
+td.c1{color:var(--s1)} td.c2{color:var(--s2)} td.c3{color:var(--s3)}
+tbody tr:last-child td{border-bottom:none}
+
+/* execution flow */
+.flow{font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; gap:1px; min-width:max-content}
+.fl{white-space:pre; padding:2px 12px; color:var(--ink-2)}
+.fl.enter{color:var(--s3); background:var(--s3-soft)}
+.fl.back{color:var(--s2); background:var(--s2-soft)}
+.fl.set{color:var(--s4); background:var(--s4-soft)}
+.fl.quiet{color:var(--muted)}
+.order2{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px}
+.ord{border:1.5px solid; padding:16px 17px; display:flex; flex-direction:column; gap:11px}
+.ord.no{border-color:var(--s1-rail); background:var(--s1-soft)}
+.ord.yes{border-color:var(--s2-rail); background:var(--s2-soft)}
+.ord .h{font-size:16px}
+.ord.no .h{color:var(--s1)} .ord.yes .h{color:var(--s2)}
+.ord pre{margin:0; font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.7; white-space:pre; overflow-x:auto}
+.ord .say{font-size:14.5px; line-height:1.7; color:var(--ink-2)}
+.ord .tag{font-family:"IBM Plex Mono",monospace; font-size:12.5px; padding:6px 10px; align-self:flex-start}
+.ord.no .tag{background:var(--surface); color:var(--s1); border:1px solid var(--s1-rail)}
+.ord.yes .tag{background:var(--surface); color:var(--s2); border:1px solid var(--s2-rail)}
+/* appendix */
+.appendix{margin-top:44px; padding-top:34px; border-top:3px dashed var(--s4-rail); display:flex; flex-direction:column; gap:26px}
+.appendix .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.12em; color:var(--s4)}
+.appendix h2{margin:0; font-size:clamp(26px,4vw,36px); letter-spacing:-0.02em}
+.appendix .fig-title{color:var(--s4)}
+.appendix .codebox pre .ln.mark4{background:var(--s4-soft); box-shadow:inset 3px 0 0 var(--s4-rail)}
+.cell.p{background:var(--s4-soft); border-color:var(--s4); color:var(--s4)}
+.scanrow{display:flex; flex-direction:column; gap:9px; min-width:max-content}
+.scanrow .who{font-size:15px}
+.arrows{display:flex; gap:5px}
+.arrows span{width:46px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); flex:none}
+.rangefig{display:flex; flex-direction:column; gap:7px; min-width:max-content}
+.brackets{display:grid; grid-template-columns:repeat(8,46px); gap:5px}
+.br{height:26px; display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:0 4px; text-align:center}
+.br.left{background:var(--s2-soft); color:var(--s2); border:1px solid var(--s2-rail)}
+.br.right{background:var(--s3-soft); color:var(--s3); border:1px solid var(--s3-rail)}
+.br.skip{background:var(--s4-soft); color:var(--s4); border:1px dashed var(--s4-rail)}
+.two-up{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:24px}
+.verdict4{border:1.5px solid var(--s4-rail); background:var(--s4-soft); color:var(--s4); padding:16px 18px; font-size:16.5px; line-height:1.7}
+footer{border-top:1px solid var(--line); margin-top:34px; padding-top:20px; font-size:14px; color:var(--muted); max-width:70ch; line-height:1.7}
+
+/* --- 이 페이지에서 더한 것 --- */
+.pts{display:flex; gap:5px; flex-wrap:wrap}
+.pt{min-width:56px; padding:6px 8px; display:flex; flex-direction:column; align-items:center; gap:1px;
+  background:var(--surface-2); border:1.5px solid var(--line); font-family:"IBM Plex Mono",monospace; flex:none}
+.pt .nm{font-size:11.5px; color:var(--muted); white-space:nowrap}
+.pt .pr{font-size:17px; line-height:1.15; color:var(--ink-2)}
+.s1 .pt.hi{background:var(--s1-soft); border-color:var(--s1)} .s1 .pt.hi .pr{color:var(--s1)} .s1 .pt.hi .nm{color:var(--s1)}
+.s2 .pt.hi{background:var(--s2-soft); border-color:var(--s2)} .s2 .pt.hi .pr{color:var(--s2)} .s2 .pt.hi .nm{color:var(--s2)}
+.s3 .pt.hi{background:var(--s3-soft); border-color:var(--s3)} .s3 .pt.hi .pr{color:var(--s3)} .s3 .pt.hi .nm{color:var(--s3)}
+.crow .pts{min-width:max-content}
+td.c4{color:var(--s4)} td.c5{color:var(--muted)}
+thead th{line-height:1.5}
+.bridge .result{max-width:70ch; line-height:1.8; align-items:flex-start}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1 class="dh">응급실 대기줄</h1>
+  <p class="sub">같은 문제를 다섯 번 짰고 그중 셋만 살아남았습니다. 무엇이 느렸고, 무엇이 느리기 전에 이미 틀렸고, 힌트가 가리킨 곳이 왜 정답이 아니었는지를 측정값으로 따라갑니다.</p>
+  <div class="roadmap">
+    <div class="rm a"><div class="n dh">1</div><div class="t">매번 최솟값을 다시 찾기</div><div class="d">답은 맞습니다. 다만 입력이 어떻게 생겼느냐에 따라 비용이 제곱도 되고 세제곱도 됩니다.</div></div>
+    <div class="rm b"><div class="n dh">2</div><div class="t">우선순위를 뒤집어 붙이기</div><div class="d"><code>min()</code>은 없앴지만 이름을 찾으러 다시 훑습니다. 그리고 순서가 뒤집혀 있습니다.</div></div>
+    <div class="rm c"><div class="n dh">3</div><div class="t">우선순위를 튜플 앞으로</div><div class="d">비교를 언어에 맡깁니다. 백만 명이 단계 1의 800명보다 빠릅니다.</div></div>
+  </div>
+</header>
+
+<section class="stage">
+  <div class="block">
+    <h3 class="dh">문제, 그리고 정답이 맞아 보이는 이유</h3>
+    <p class="lead">환자 명단 <code>(이름, 우선순위)</code>를 받아 급한 사람부터 처리한 순서를 돌려주는 문제입니다. 숫자가 작을수록 급합니다.</p>
+    <p>문제 지문의 힌트는 <code>heapq</code>를 가리킵니다. 제출한 코드는 힙을 쓰지 않고 <code>.sort()</code> 두 줄로 끝냈습니다. 이 페이지는 그 두 줄에 이르기까지 접어 둔 네 개의 시도를 꺼내서, 각각이 실제로 몇 초 걸리는지 재 본 기록입니다.</p>
+    <div class="codebox">
+      <div class="cap"><span>03_priority_queue.py · 44-51행</span><span>테스트 블록</span></div>
+<pre><span class="ln">if __name__ == "__main__":</span><span class="ln">    patients1 = [("김철수", 3), ("이영희", 1), ("박민수", 2)]</span><span class="ln">    print("=== 응급실 환자 처리 ===")</span><span class="ln">    processed1 = process_emergency_room(patients1)</span><span class="ln mark3">    for name, priority in patients1:</span><span class="ln mark3">        print(f"처리: {name} (우선순위: {priority})")</span><span class="ln">    print(f"처리 순서: {processed1}")</span></pre>
+    </div>
+    <p>보라색으로 칠한 두 줄을 눈여겨봐 주세요. <strong>이 반복문은 반환값 <code>processed1</code>이 아니라 원본 명단 <code>patients1</code>을 훑습니다.</strong> 그런데도 출력은 우선순위 순서로 나옵니다. 왜 그런지는 단계 3에서 갚습니다.</p>
+  </div>
+</section>
+
+<section class="stage s1">
+  <div class="stage-head">
+    <div class="bignum dh">1</div>
+    <div class="stage-title">
+      <h2 class="dh">매번 최솟값을 다시 찾기</h2>
+      <div class="file">03_priority_queue.py · 62-84행 (주석 처리됨)</div>
+      <div class="oneline">가장 급한 사람을 찾고, 빼고, 남은 사람들에게서 다시 찾습니다.</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">이 단계의 생각</h3>
+    <p>힙이라는 자료구조를 아직 안 쓰기로 하고, 리스트 두 개로 흉내를 냅니다. <code>heap</code>에는 이름을, <code>priority_list</code>에는 우선순위를 같은 순서로 넣습니다. 그리고 남은 사람이 있는 동안, 명단을 처음부터 훑으면서 <code>min(priority_list)</code>와 같은 사람을 만나면 꺼냅니다.</p>
+    <div class="codebox">
+      <div class="cap"><span>단계 1</span><span>주석을 실행 가능한 함수로 옮긴 것</span></div>
+<pre><span class="ln">while heap:</span><span class="ln">    for name, priority in patients:</span><span class="ln">        if not priority_list:</span><span class="ln">            break</span><span class="ln markbad">        if priority == min(priority_list):</span><span class="ln">            processed.append(name)</span><span class="ln markbad">            priority_list.remove(priority)</span><span class="ln markbad">            heap.remove(name)</span></pre>
+    </div>
+    <p>빨갛게 칠한 세 줄이 값을 치릅니다. <code>min()</code>은 남은 사람 전체를 매번 다시 훑고, <code>remove()</code> 두 번도 각각 리스트 전체를 훑습니다. 안쪽 <code>for</code>가 한 바퀴 도는 데 이미 <code>n</code>번씩 세 번의 순회가 겹쳐 있습니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">바깥 while이 몇 바퀴 도는지는 입력이 정합니다</h3>
+    <p>여기가 이 단계의 성격을 정하는 자리입니다. 안쪽 <code>for</code>는 명단을 앞에서 뒤로 훑습니다. 그러니 <strong>급한 사람이 앞쪽에 몰려 있으면 한 바퀴에 여러 명이 빠지고, 뒤쪽에 몰려 있으면 한 바퀴에 한 명씩만 빠집니다.</strong></p>
+    <figure>
+      <div class="fig-title dh">우선순위가 오름차순으로 들어온 경우</div>
+      <div class="rowset">
+        <div class="crow"><div class="lab">입력</div><div class="pts"><div class="pt hi"><span class="nm">A</span><span class="pr">1</span></div><div class="pt"><span class="nm">B</span><span class="pr">2</span></div><div class="pt"><span class="nm">C</span><span class="pr">3</span></div><div class="pt"><span class="nm">D</span><span class="pr">4</span></div></div><div class="out">min = 1, 맨 앞에서 바로 만납니다</div></div>
+        <div class="crow"><div class="lab">1바퀴</div><div class="pts"><div class="pt hi"><span class="nm">A</span><span class="pr">1</span></div><div class="pt hi"><span class="nm">B</span><span class="pr">2</span></div><div class="pt hi"><span class="nm">C</span><span class="pr">3</span></div><div class="pt hi"><span class="nm">D</span><span class="pr">4</span></div></div><div class="out">A를 빼면 min이 2로 바뀌고, 바로 다음이 B입니다</div></div>
+      </div>
+      <div class="result good"><span class="big">while 1바퀴</span><span>한 번의 for로 전부 빠져나갑니다</span></div>
+      <div class="fig-title dh">우선순위가 내림차순으로 들어온 경우</div>
+      <div class="rowset">
+        <div class="crow"><div class="lab">입력</div><div class="pts"><div class="pt"><span class="nm">A</span><span class="pr">4</span></div><div class="pt"><span class="nm">B</span><span class="pr">3</span></div><div class="pt"><span class="nm">C</span><span class="pr">2</span></div><div class="pt hi"><span class="nm">D</span><span class="pr">1</span></div></div><div class="out">min = 1, 맨 끝까지 가야 만납니다</div></div>
+        <div class="crow"><div class="lab">1바퀴</div><div class="pts"><div class="pt"><span class="nm">A</span><span class="pr">4</span></div><div class="pt"><span class="nm">B</span><span class="pr">3</span></div><div class="pt"><span class="nm">C</span><span class="pr">2</span></div><div class="pt hi"><span class="nm">D</span><span class="pr">1</span></div></div><div class="out">D 하나만 빠지고 for가 끝납니다</div></div>
+        <div class="crow"><div class="lab">2바퀴</div><div class="pts"><div class="pt"><span class="nm">A</span><span class="pr">4</span></div><div class="pt"><span class="nm">B</span><span class="pr">3</span></div><div class="pt hi"><span class="nm">C</span><span class="pr">2</span></div><div class="pt"><span class="nm">—</span><span class="pr">·</span></div></div><div class="out">또 하나만 빠집니다</div></div>
+      </div>
+      <div class="result bad"><span class="big">while n바퀴</span><span>한 바퀴에 한 명씩만 빠집니다</span></div>
+      <figcaption>같은 코드, 같은 사람 수인데 바깥 반복의 횟수가 1과 n으로 갈립니다. 안쪽 <code>for</code>가 이미 <code>n</code>에 <code>min()</code>과 <code>remove()</code>를 곱한 비용을 치르고 있으므로, 여기에 바깥 <code>while</code>의 배수가 그대로 얹힙니다.</figcaption>
+    </figure>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">실제로 돌려 보면</h3>
+    <p>n을 두 배로 키우면서, 같은 사람 수를 세 가지 모양으로 넣어 재 봤습니다. 배가할 때 시간이 몇 배가 되는지가 곧 복잡도입니다. <strong>제곱이면 4배, 세제곱이면 8배</strong>입니다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>n</th><th>오름차순</th><th>배수</th><th>내림차순</th><th>배수</th><th>무작위</th><th>배수</th></tr></thead>
+        <tbody>
+          <tr><td>100</td><td class="mono c2">0.0001초</td><td class="mono c5">—</td><td class="mono c1">0.0040초</td><td class="mono c5">—</td><td class="mono c3">0.0022초</td><td class="mono c5">—</td></tr>
+          <tr><td>200</td><td class="mono c2">0.0003초</td><td class="mono c5">×3.38</td><td class="mono c1">0.0324초</td><td class="mono c5">×8.05</td><td class="mono c3">0.0151초</td><td class="mono c5">×6.84</td></tr>
+          <tr><td>400</td><td class="mono c2">0.0007초</td><td class="mono c5">×2.31</td><td class="mono c1">0.2663초</td><td class="mono c5">×8.21</td><td class="mono c3">0.1428초</td><td class="mono c5">×9.45</td></tr>
+          <tr><td>800</td><td class="mono c2">0.0025초</td><td class="mono c5">×3.73</td><td class="mono c1">2.1385초</td><td class="mono c5">×8.03</td><td class="mono c3">1.2104초</td><td class="mono c5">×8.48</td></tr>
+          <tr><td>1,600</td><td class="mono c2">0.0103초</td><td class="mono c5">×4.14</td><td class="mono c1">18.6997초</td><td class="mono c5">×8.74</td><td class="mono c3">9.2364초</td><td class="mono c5">×7.63</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="meas">
+      <div class="mcell"><div class="k">내림차순 배수</div><div class="v bad">×8.0</div><div class="n">8.05 · 8.21 · 8.03 · 8.74. 네 번 다 8 근처입니다. 세제곱입니다.</div></div>
+      <div class="mcell"><div class="k">오름차순 배수</div><div class="v good">×3.4</div><div class="n">3.38 · 2.31 · 3.73 · 4.14. 4 근처를 오갑니다. 제곱입니다.</div></div>
+      <div class="mcell"><div class="k">1,600명 내림차순</div><div class="v bad">18.6997초</div><div class="n">같은 1,600명이 오름차순이면 0.0103초입니다. 1,800배 차이입니다.</div></div>
+      <div class="mcell"><div class="k">답의 정확성</div><div class="v good">맞음</div><div class="n">우선순위 순서는 언제나 옳습니다. 다만 같은 우선순위끼리의 순서에는 정해진 규칙이 없습니다.</div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">주석에 적었던 O(n!)은 사실이 아니었습니다</h3>
+    <p>이 블록에는 <code>최악의 경우 O(n!)</code>이라는 주석이 붙어 있습니다. 측정은 그렇게 말하지 않습니다. 팩토리얼이라면 n을 두 배로 늘렸을 때 시간이 배수가 아니라 자릿수로 뛰어야 합니다. <strong>실제로는 네 구간 모두 8배 언저리에서 멈춥니다.</strong> 8배는 세제곱입니다.</p>
+    <p>세제곱이 나오는 이유도 코드에 그대로 적혀 있습니다. 바깥 <code>while</code>이 최악에 n번, 안쪽 <code>for</code>가 n번, 그 안의 <code>min()</code>이 다시 n번입니다. 셋을 곱하면 <code>n³</code>입니다. 손으로 센 값과 잰 값이 같은 자리에서 만납니다.</p>
+  </div>
+</section>
+<div class="bridge">
+  <div class="kicker">단계 1 → 단계 2</div>
+  <h3 class="dh">while을 없애려다 while로 돌아온 자리</h3>
+  <p>다음 단계로 넘어가기 전에, 돌려 보지도 못하고 접은 시도가 하나 있습니다. 파일에는 <code>[시행착오 1]</code>이라고만 적혀 있고, 그 아래 한 줄에 철회한 이유가 남아 있습니다.</p>
+  <div class="result bad"><span>“<code>.sort()</code>를 쓴 이유는 결국 while 없이 우선순위를 for(1번 순회)로 정렬하려고 했던 것인데, 자연스럽게 while로 넘어가게 되어서. <strong>사고의 전환이 필요했음.</strong>”</span></div>
+  <div class="hunks">
+    <div class="hunk">
+      <div class="code"><span class="l d">while (name, priority) in patients:</span><span class="l">    temp = priority_list.pop()</span><span class="l d">    if priority == temp[-1]:</span></div>
+      <div class="say"><b>이 블록에는 측정값이 없습니다</b><span>돌지 않기 때문입니다. <code>priority_list</code>에는 정수가 들어 있는데 <code>temp[-1]</code>로 인덱싱해서 <code>TypeError: 'int' object is not subscriptable</code>이 납니다. 그 전에 <code>while</code> 조건도 문제입니다. <code>(name, priority)</code>는 앞 반복문에서 새어 나온 값이라 루프 안에서 바뀌지 않으니, 조건이 참이면 영원히 참입니다.</span></div>
+    </div>
+  </div>
+  <p>그래서 이 페이지의 표에서 시행착오 1의 칸은 비어 있습니다. <strong>실행되지 않은 코드에 초를 붙일 수는 없습니다.</strong> 다만 이 블록은 다음 단계를 낳았다는 점에서 값어치가 있습니다. “정렬을 한 번 하고 끝내고 싶다”는 생각이 여기서 처음 문장이 됐고, 단계 2가 그 문장을 코드로 옮긴 결과입니다.</p>
+</div>
+
+<section class="stage s2">
+  <div class="stage-head">
+    <div class="bignum dh">2</div>
+    <div class="stage-title">
+      <h2 class="dh">우선순위를 뒤집어 붙이기</h2>
+      <div class="file">03_priority_queue.py · 100-124행 (주석 처리됨)</div>
+      <div class="oneline">한 번 정렬해 두면 <code>min()</code>을 다시 부를 일이 없습니다.</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">이 단계의 생각</h3>
+    <p>우선순위마다 <code>(-priority, priority)</code>라는 짝을 만들어 정렬합니다. 부호를 뒤집었으니 급한 사람이 뒤로 가고, 그러면 리스트의 <code>pop()</code>으로 끝에서부터 꺼낼 수 있습니다. <code>pop()</code>은 끝에서 빼기 때문에 <code>remove()</code>와 달리 리스트를 훑지 않습니다. 여기까지가 계획이었습니다.</p>
+    <div class="codebox">
+      <div class="cap"><span>단계 2</span><span>계획과 코드가 어긋난 자리</span></div>
+<pre><span class="ln">for name, priority in patients:</span><span class="ln">    priority_list.append((priority * -1, priority))</span><span class="ln"> </span><span class="ln">priority_list.sort()          # 시급한 것이 뒤로 옵니다</span><span class="ln"> </span><span class="ln markbad">for priority_tuple in priority_list:   # 그런데 앞에서부터 훑습니다</span><span class="ln">    temp = priority_tuple[-1]</span><span class="ln markbad">    for name, priority in patients:    # 이름을 찾으러 다시 전체 순회</span><span class="ln">        if priority == temp:</span><span class="ln">            processed.append(name)</span></pre>
+    </div>
+    <p><code>pop()</code>으로 끝에서 꺼내려고 부호를 뒤집어 놓고, 정작 4단계에서는 <code>for</code>로 <strong>앞에서부터</strong> 훑습니다. 계획은 뒤에서 꺼내는 것이었는데 코드는 앞에서 꺼냅니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">그래서 답이 뒤집힙니다</h3>
+    <p>부호를 뒤집은 채로 앞에서부터 읽으면, 가장 안 급한 사람이 첫 번째로 나옵니다. 우선순위 8인 환자가 우선순위 1인 환자보다 먼저 처리되는 순서입니다.</p>
+    <figure>
+      <div class="fig-title dh">우선순위 8명을 넣었을 때</div>
+      <div class="rowset">
+        <div class="crow"><div class="lab">정답</div><div class="pts"><div class="pt hi"><span class="nm">환자5</span><span class="pr">1</span></div><div class="pt"><span class="nm">환자7</span><span class="pr">2</span></div><div class="pt"><span class="nm">환자6</span><span class="pr">3</span></div><div class="pt"><span class="nm">환자2</span><span class="pr">4</span></div><div class="pt"><span class="nm">환자1</span><span class="pr">5</span></div><div class="pt"><span class="nm">환자0</span><span class="pr">6</span></div><div class="pt"><span class="nm">환자3</span><span class="pr">7</span></div><div class="pt"><span class="nm">환자4</span><span class="pr">8</span></div></div></div>
+        <div class="crow"><div class="lab">단계 2</div><div class="pts"><div class="pt"><span class="nm">환자4</span><span class="pr">8</span></div><div class="pt"><span class="nm">환자3</span><span class="pr">7</span></div><div class="pt"><span class="nm">환자0</span><span class="pr">6</span></div><div class="pt"><span class="nm">환자1</span><span class="pr">5</span></div><div class="pt"><span class="nm">환자2</span><span class="pr">4</span></div><div class="pt"><span class="nm">환자6</span><span class="pr">3</span></div><div class="pt"><span class="nm">환자7</span><span class="pr">2</span></div><div class="pt hi"><span class="nm">환자5</span><span class="pr">1</span></div></div></div>
+      </div>
+      <div class="result bad"><span class="big">완전한 역순</span><span>가장 안 급한 사람부터 처리됩니다</span></div>
+      <figcaption>정확히 뒤집혀 있습니다. 우연히 어긋난 것이 아니라, 정렬 방향과 읽는 방향이 서로 상쇄되지 않고 겹친 결과입니다.</figcaption>
+    </figure>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">같은 우선순위가 있으면 사람이 불어납니다</h3>
+    <p>안쪽 <code>for</code>는 우선순위가 같은 사람을 <strong>전부</strong> 넣습니다. 그런데 바깥 <code>for</code>도 같은 우선순위를 그 사람 수만큼 반복합니다. 그래서 <code>k</code>명이 같은 우선순위를 가지면 <code>k × k</code>명이 결과에 들어갑니다.</p>
+    <figure>
+      <div class="fig-title dh">세 사람이 전부 우선순위 1인 경우</div>
+      <div class="rowset">
+        <div class="crow"><div class="lab">입력</div><div class="pts"><div class="pt hi"><span class="nm">정환자</span><span class="pr">1</span></div><div class="pt hi"><span class="nm">김환자</span><span class="pr">1</span></div><div class="pt hi"><span class="nm">박환자</span><span class="pr">1</span></div></div><div class="out">3명</div></div>
+        <div class="crow"><div class="lab">단계 2</div><div class="out">정환자 · 김환자 · 박환자 · 정환자 · 김환자 · 박환자 · 정환자 · 김환자 · 박환자</div></div>
+      </div>
+      <div class="result bad"><span class="big">3명 → 9명</span><span>3 × 3 = 9. 같은 사람이 세 번씩 처리됩니다</span></div>
+      <figcaption>환자 8명에 우선순위를 1~5에서 뽑아 넣었을 때는 결과가 22명이 됐습니다. 응급실에서라면 같은 환자를 세 번 부르는 일입니다.</figcaption>
+    </figure>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">실제로 돌려 보면</h3>
+    <div class="meas">
+      <div class="mcell"><div class="k">n = 8,000</div><div class="v bad">1.8508초</div><div class="n">단계 3은 같은 시간에 백만 명을 처리합니다.</div></div>
+      <div class="mcell"><div class="k">배가할 때 배수</div><div class="v bad">×4.5</div><div class="n">4.40 · 4.97 · 4.25. 4 근처이므로 제곱입니다. 세제곱에서 제곱으로 한 칸 내려왔습니다.</div></div>
+      <div class="mcell"><div class="k">순서</div><div class="v bad">역순</div><div class="n">가장 안 급한 사람부터 나옵니다.</div></div>
+      <div class="mcell"><div class="k">동점이 있을 때 인원</div><div class="v bad">3 → 9</div><div class="n">같은 우선순위 k명이 k² 명으로 불어납니다.</div></div>
+    </div>
+    <p>파일의 주석은 이 블록을 <code>결국 N(n^2)나서 포기</code>라고 적었습니다. 제곱이라는 진단은 정확합니다. 다만 <strong>이 버전은 느리기 전에 이미 틀려 있었습니다.</strong> 속도만 보고 접었기 때문에, 순서가 뒤집힌 것과 사람이 불어난 것은 기록에 남지 않았습니다. 재 보고 나서야 드러난 사실입니다.</p>
+  </div>
+</section>
+
+<div class="bridge">
+  <div class="kicker">단계 2 → 단계 3</div>
+  <h3 class="dh">이름을 튜플에 함께 태우면 두 번째 순회가 사라집니다</h3>
+  <p>단계 2의 제곱은 어디서 왔는지가 분명합니다. 우선순위만 정렬해 놓고 이름은 따로 두었기 때문에, 정렬된 우선순위마다 이름을 찾으러 명단을 다시 훑어야 했습니다. 그러면 튜플에 이름을 같이 넣으면 됩니다.</p>
+  <div class="hunks">
+    <div class="hunk">
+      <div class="code"><span class="l d">priority_list.append((priority * -1, priority))</span><span class="l a">patients_reverse.append((tuple[-1], tuple[0]))</span></div>
+      <div class="say"><b>부호 대신 이름을 태웁니다</b><span><code>(-우선순위, 우선순위)</code>가 <code>(우선순위, 이름)</code>이 됩니다. 부호를 뒤집을 이유가 사라지므로 순서도 저절로 바로잡힙니다.</span></div>
+    </div>
+    <div class="hunk">
+      <div class="code"><span class="l d">for name, priority in patients:</span><span class="l d">    if priority == temp:</span><span class="l d">        processed.append(name)</span><span class="l a">processed.append(tuple[1])</span></div>
+      <div class="say"><b>안쪽 반복문이 통째로 없어집니다</b><span>이름이 이미 튜플 안에 있으니 찾을 필요가 없습니다. 제곱을 만들던 중첩이 여기서 풀립니다.</span></div>
+    </div>
+    <div class="hunk">
+      <div class="code"><span class="l d">priority_list.sort()   # 시급한 것이 뒤로</span><span class="l a">patients_reverse.sort() # 그냥 오름차순</span></div>
+      <div class="say"><b>정렬 방향을 되돌립니다</b><span>튜플의 첫 자리가 우선순위이므로, 평범한 오름차순이 곧 급한 순서입니다.</span></div>
+    </div>
+  </div>
+</div>
+<section class="stage s3">
+  <div class="stage-head">
+    <div class="bignum dh">3</div>
+    <div class="stage-title">
+      <h2 class="dh">우선순위를 튜플 앞으로</h2>
+      <div class="file">03_priority_queue.py · 126-140행 (주석) · 39-40행 (현재 코드)</div>
+      <div class="oneline">비교를 직접 하지 않고 정렬에 맡깁니다.</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">같은 생각의 두 가지 표현</h3>
+    <p>이 단계에는 코드가 둘 있습니다. 하나는 주석으로 남은 <code>앞 뒤 sorting한 버전</code>이고, 다른 하나는 실제로 제출한 두 줄입니다. 생각은 같습니다. <strong>파이썬의 튜플 비교가 앞자리부터 본다는 성질에 순서를 통째로 맡긴다</strong>는 것입니다. 표현만 다릅니다.</p>
+    <div class="two-up">
+      <div class="codebox">
+        <div class="cap"><span>126-140행 (주석)</span><span>튜플을 뒤집어 만든다</span></div>
+<pre><span class="ln">patients_reverse = []</span><span class="ln mark3">for tuple in patients:</span><span class="ln mark3">    patients_reverse.append((tuple[-1], tuple[0]))</span><span class="ln">patients_reverse.sort()</span><span class="ln"> </span><span class="ln">for tuple in patients_reverse:</span><span class="ln">    processed.append(tuple[1])</span></pre>
+      </div>
+      <div class="codebox">
+        <div class="cap"><span>39-40행 (제출한 코드)</span><span>뒤집지 않고 기준만 알려 준다</span></div>
+<pre><span class="ln mark">patients.sort(key=lambda x: x[1])</span><span class="ln mark">return [x[0] for x in patients]</span><span class="ln"> </span><span class="ln"> </span><span class="ln"> </span><span class="ln"> </span><span class="ln"> </span></pre>
+      </div>
+    </div>
+    <p>왼쪽은 정렬이 앞자리를 본다는 사실에 맞춰 <strong>자료를 고칩니다.</strong> 오른쪽은 자료를 그대로 두고 <strong>정렬에게 어디를 보라고 알려 줍니다.</strong> 둘 다 <code>O(n log n)</code>이고, 측정값도 거의 붙어 있습니다. 그런데 두 표현은 눈에 보이는 흔적을 두 개 남깁니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">흔적 하나 · 우선순위가 같을 때 누가 먼저인가</h3>
+    <p>세 사람이 전부 우선순위 1이라면, 누구를 먼저 불러야 할까요. 문제 지문은 이 경우를 정하지 않았습니다. 그러면 코드가 정합니다.</p>
+    <figure>
+      <div class="fig-title dh">입력: 정환자(1) · 김환자(1) · 박환자(1)</div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>버전</th><th>결과</th><th>규칙</th></tr></thead>
+          <tbody>
+            <tr><td>39-40행 <code>key=</code></td><td class="mono c3">정환자 · 김환자 · 박환자</td><td>들어온 순서 그대로</td></tr>
+            <tr><td>126행 앞뒤 뒤집기</td><td class="mono c2">김환자 · 박환자 · 정환자</td><td>이름 사전순</td></tr>
+            <tr><td>부록 <code>heapq</code></td><td class="mono c4">김환자 · 박환자 · 정환자</td><td>이름 사전순</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption><code>key=</code>는 우선순위만 비교하고 나머지는 건드리지 않습니다. 파이썬의 정렬은 안정 정렬이라, 비교해서 같으면 원래 순서를 지킵니다. 반면 튜플을 만들어 넣으면 우선순위가 같을 때 두 번째 자리인 <strong>이름</strong>이 비교에 끌려 들어옵니다. 응급실이라면 먼저 온 사람이 먼저인 쪽이 옳을 것입니다.</figcaption>
+    </figure>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">흔적 둘 · 받은 명단을 제자리에서 뒤섞습니다</h3>
+    <p>도입부에서 미뤄 둔 이야기를 갚을 자리입니다. <code>patients.sort(...)</code>는 새 리스트를 만들지 않고 <strong>인자로 받은 리스트 자체를 정렬합니다.</strong> 함수를 부르고 나면 호출한 쪽의 명단도 이미 정렬되어 있습니다.</p>
+    <figure>
+      <div class="fig-title dh">함수를 부른 뒤 원본 명단</div>
+      <div class="rowset">
+        <div class="crow"><div class="lab">호출 전</div><div class="pts"><div class="pt"><span class="nm">김철수</span><span class="pr">3</span></div><div class="pt hi"><span class="nm">이영희</span><span class="pr">1</span></div><div class="pt"><span class="nm">박민수</span><span class="pr">2</span></div></div></div>
+        <div class="crow"><div class="lab">39-40행</div><div class="pts"><div class="pt hi"><span class="nm">이영희</span><span class="pr">1</span></div><div class="pt"><span class="nm">박민수</span><span class="pr">2</span></div><div class="pt"><span class="nm">김철수</span><span class="pr">3</span></div></div><div class="out">원본이 바뀌었습니다</div></div>
+        <div class="crow"><div class="lab">126행</div><div class="pts"><div class="pt"><span class="nm">김철수</span><span class="pr">3</span></div><div class="pt hi"><span class="nm">이영희</span><span class="pr">1</span></div><div class="pt"><span class="nm">박민수</span><span class="pr">2</span></div></div><div class="out">원본은 그대로입니다</div></div>
+      </div>
+      <figcaption>도입부의 테스트 블록이 <code>processed1</code>이 아니라 <code>patients1</code>을 훑는데도 정렬된 순서로 출력되던 이유가 이것입니다. 출력이 맞아 보이던 것은 부작용 덕분이었습니다. 만약 126행 버전을 제출했다면 같은 테스트 블록이 정렬되지 않은 순서를 찍었을 것입니다.</figcaption>
+    </figure>
+    <p>측정에서도 이 부작용을 다뤄야 했습니다. 같은 명단을 세 번 재는데 첫 회에 원본이 정렬되어 버리면, <strong>두 번째 회부터는 이미 정렬된 입력을 재는 셈</strong>이 됩니다. 그래서 하니스는 매 회 리스트 사본을 새로 만들어 넘깁니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">실제로 돌려 보면</h3>
+    <div class="meas">
+      <div class="mcell"><div class="k">백만 명 · 39-40행</div><div class="v good">0.5554초</div><div class="n">단계 1이 1,600명 내림차순에 쓴 18.7초의 34분의 1입니다.</div></div>
+      <div class="mcell"><div class="k">백만 명 · 126행</div><div class="v good">1.5239초</div><div class="n">튜플 백만 개를 새로 만드는 값이 붙습니다.</div></div>
+      <div class="mcell"><div class="k">n을 2.5배 할 때</div><div class="v good">×2.55</div><div class="n">n이 커진 만큼만 늘어납니다. n log n의 모양입니다.</div></div>
+      <div class="mcell"><div class="k">답의 정확성</div><div class="v good">맞음</div><div class="n">동점 규칙만 서로 다르고, 우선순위 순서는 둘 다 옳습니다.</div></div>
+    </div>
+    <p>여기서 <strong>규모의 벽이 사라집니다.</strong> 단계 1이 2,000명에 19초를 쓰는 동안, 이 단계는 같은 2,000명을 0.0003초에 끝냅니다. 6만 배 차이입니다. 그리고 이 차이는 n이 커질수록 더 벌어집니다.</p>
+  </div>
+</section>
+
+<section class="stage">
+  <div class="block">
+    <h3 class="dh">다섯 단계를 한 표에</h3>
+    <p>단계마다 감당하는 규모가 워낙 달라서, 하나의 n으로는 비교가 되지 않습니다. 그래서 두 개의 표로 나눴습니다. 먼저 <strong>단계 1이 아직 버티는 범위</strong>에서 다섯 버전을 나란히 잰 것입니다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>n</th><th>단계 1<br>완전탐색</th><th>단계 2<br>음수 튜플</th><th>단계 3<br>앞뒤 뒤집기</th><th>단계 3<br>key=</th><th>부록<br>heapq</th></tr></thead>
+        <tbody>
+          <tr><td>250</td><td class="mono c1">0.0288초</td><td class="mono c2">0.0008초</td><td class="mono c3">0.0001초 미만</td><td class="mono c3">0.0001초 미만</td><td class="mono c4">0.0001초</td></tr>
+          <tr><td>500</td><td class="mono c1">0.2540초</td><td class="mono c2">0.0038초</td><td class="mono c3">0.0001초</td><td class="mono c3">0.0001초</td><td class="mono c4">0.0001초</td></tr>
+          <tr><td>1,000</td><td class="mono c1">2.0805초</td><td class="mono c2">0.0212초</td><td class="mono c3">0.0002초</td><td class="mono c3">0.0001초</td><td class="mono c4">0.0003초</td></tr>
+          <tr><td>2,000</td><td class="mono c1">19.3415초</td><td class="mono c2">0.0678초</td><td class="mono c3">0.0004초</td><td class="mono c3">0.0003초</td><td class="mono c4">0.0006초</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>단계 1은 2,000명에서 멈췄습니다. 배가할 때마다 8배가 되므로 4,000명이면 2분 반, 8,000명이면 20분입니다. 잴 값어치가 없습니다. 반면 오른쪽 세 열은 아직 시작도 하지 않았습니다. <strong>규모를 백만까지 올려야 비로소 숫자가 보입니다.</strong></p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>n</th><th>단계 3<br>앞뒤 뒤집기</th><th>단계 3<br>key=</th><th>부록<br>heapq</th></tr></thead>
+        <tbody>
+          <tr><td>10,000</td><td class="mono c3">0.0049초</td><td class="mono c3">0.0017초</td><td class="mono c4">0.0040초</td></tr>
+          <tr><td>100,000</td><td class="mono c3">0.0792초</td><td class="mono c3">0.0388초</td><td class="mono c4">0.1909초</td></tr>
+          <tr><td>400,000</td><td class="mono c3">0.4866초</td><td class="mono c3">0.2180초</td><td class="mono c4">1.9343초</td></tr>
+          <tr><td>1,000,000</td><td class="mono c3">1.5239초</td><td class="mono c3">0.5554초</td><td class="mono c4">7.6612초</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">각 단계가 무엇을 해결했나</h3>
+    <div class="meas">
+      <div class="mcell" style="border-top:4px solid var(--s1)"><div class="k">단계 1</div><div class="v">답을 얻었다</div><div class="n">리스트만으로 우선순위 순서를 만들어 냈습니다. 대신 비용이 입력 모양에 좌우되고, 최악에는 세제곱입니다.</div></div>
+      <div class="mcell" style="border-top:4px solid var(--s2)"><div class="k">단계 2</div><div class="v"><code>min()</code>을 없앴다</div><div class="n">한 번의 정렬이 반복적인 최솟값 탐색을 대신합니다. 세제곱이 제곱으로 내려왔습니다. 대신 답이 틀렸습니다.</div></div>
+      <div class="mcell" style="border-top:4px solid var(--s3)"><div class="k">단계 3</div><div class="v">순회를 없앴다</div><div class="n">이름을 튜플에 태워서 두 번째 순회를 지웠습니다. 제곱이 <code>n log n</code>이 됐고, 정렬 방향 문제도 함께 사라졌습니다.</div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">측정이 뒤집은 것 세 가지</h3>
+    <p>이 페이지를 만든 이유의 절반은 여기 있습니다. 재 보기 전까지는 사실이라고 믿었지만, 재고 나니 아니었던 것들입니다.</p>
+    <div class="hunks">
+      <div class="hunk">
+        <div class="code"><span class="l d">[while &amp; for 문을 통한 완전탐색 버전 - 최악의 경우 O(n!)]</span><span class="l a">배가할 때 ×8.05 · ×8.21 · ×8.03 · ×8.74  →  O(n³)</span></div>
+        <div class="say"><b>팩토리얼이 아니라 세제곱이었습니다</b><span>반복문이 세 겹이면 세제곱입니다. 팩토리얼은 순열을 전부 만들어 볼 때 나오는 모양인데, 이 코드는 그런 일을 하지 않습니다. 느리다는 감각을 가장 큰 표기법에 갖다 붙였던 것입니다.</span></div>
+      </div>
+      <div class="hunk">
+        <div class="code"><span class="l d">[시행착오 2] … 결국 N(n^2)나서 포기</span><span class="l a">순서가 역순 · 동점 k명이 k²명으로 불어남</span></div>
+        <div class="say"><b>느리기 전에 이미 틀려 있었습니다</b><span>제곱이라는 진단은 맞았습니다. 다만 속도를 보고 접었기 때문에, 이 버전이 애초에 답을 잘못 내고 있었다는 사실은 기록에 남지 않았습니다. 정확성을 먼저 확인했다면 속도는 볼 필요도 없었습니다.</span></div>
+      </div>
+      <div class="hunk">
+        <div class="code"><span class="l d">힌트: heapq 모듈 사용 / 정석(heapq 모듈 사용) 버전</span><span class="l a">백만 명 기준 heapq 7.6612초 · .sort() 0.5554초</span></div>
+        <div class="say"><b>정석이 가장 느렸습니다</b><span>13.8배 차이입니다. 둘 다 <code>n log n</code>인데도 이만큼 벌어집니다. 왜 그런지, 그리고 그럼에도 힙이 왜 존재하는지는 부록에서 다룹니다.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="appendix">
+  <div class="kicker">부록</div>
+  <h2 class="dh">힌트가 가리킨 곳</h2>
+  <p>문제 지문은 <code>heapq</code>를 쓰라고 했고, 파일 맨 아래에는 <code>정석(heapq 모듈 사용) 버전</code>이 주석으로 적혀 있습니다. 정석이라고 불렀으니 가장 좋은 답일 것 같습니다. 재 보면 그렇지 않습니다.</p>
+
+  <div class="block">
+    <h3 class="dh">① 코드</h3>
+    <div class="codebox">
+      <div class="cap"><span>03_priority_queue.py · 142-154행 (주석)</span><span>돌려 보려고 오타 한 곳을 고쳤습니다</span></div>
+<pre><span class="ln">def process_emergency_room(patients):</span><span class="ln">    processed = []</span><span class="ln mark4">    heap = [(priority, name) for name, priority in patients]</span><span class="ln mark4">    heapq.heapify(heap)</span><span class="ln">    for _ in range(len(heap)):        # O(N log N)</span><span class="ln mark4">        item = heapq.heappop(heap)    # 원문은 heappop(hea p)</span><span class="ln">        name = item[1]</span><span class="ln">        processed.append(name)</span><span class="ln">    return processed</span></pre>
+    </div>
+    <p>튜플을 <code>(우선순위, 이름)</code>으로 만드는 것은 단계 3과 똑같습니다. 다른 점은 그 다음입니다. 단계 3은 <code>sort()</code>를 한 번 부르고 끝내지만, 여기서는 <code>heapify</code>로 힙을 만든 뒤 <code>heappop</code>을 n번 부릅니다.</p>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">② 실제로 돌려 보면</h3>
+    <div class="meas">
+      <div class="mcell"><div class="k">백만 명 · heapq</div><div class="v bad">7.6612초</div><div class="n">단계 3의 <code>.sort()</code>는 같은 입력을 0.5554초에 끝냅니다.</div></div>
+      <div class="mcell"><div class="k">차이</div><div class="v bad">13.8배</div><div class="n">둘 다 <code>n log n</code>인데도 이만큼 벌어집니다.</div></div>
+      <div class="mcell"><div class="k">배가할 때 배수</div><div class="v">×3.96</div><div class="n">2.5배 늘렸을 때 3.96배. 기울기 자체는 <code>n log n</code>이 맞습니다.</div></div>
+      <div class="mcell"><div class="k">답의 정확성</div><div class="v good">맞음</div><div class="n">동점일 때 이름 사전순인 것만 <code>key=</code> 버전과 다릅니다.</div></div>
+    </div>
+    <p>기울기가 같은데 값이 벌어지는 것은 <strong>상수의 차이</strong>입니다. 어디서 오는지는 코드의 모양에 그대로 보입니다.</p>
+    <div class="two-up">
+      <div class="codebox">
+        <div class="cap"><span>단계 3</span><span>파이썬 반복문 없음</span></div>
+<pre><span class="ln mark">patients.sort(key=lambda x: x[1])</span></pre>
+      </div>
+      <div class="codebox">
+        <div class="cap"><span>부록</span><span>파이썬 반복문 n바퀴</span></div>
+<pre><span class="ln mark4">for _ in range(len(heap)):</span><span class="ln mark4">    item = heapq.heappop(heap)</span></pre>
+      </div>
+    </div>
+    <p><code>.sort()</code>는 파이썬이 아니라 C로 구현된 Timsort를 <strong>한 번</strong> 호출하고, 정렬이 끝날 때까지 파이썬으로 돌아오지 않습니다. 반면 <code>heappop</code>을 n번 부르는 쪽은 <strong>파이썬 반복문을 백만 바퀴</strong> 돕니다. 한 바퀴마다 함수 호출과 튜플 언패킹의 값을 치릅니다. 표기법으로는 보이지 않는 자리입니다.</p>
+    <div class="verdict4">전부 받아 놓고 전부 꺼내는 문제라면, 힙을 만들 이유가 없습니다. 정렬 한 번이 더 빠릅니다.</div>
+  </div>
+
+  <div class="block">
+    <h3 class="dh">③ 그러면 힙은 왜 있나</h3>
+    <p class="lead">여기부터는 <strong>문제 파일에 없는 시나리오</strong>입니다. 위 결과를 설명하려고 덧붙인 측정이며, 학습 기록의 일부가 아닙니다.</p>
+    <p>이 문제는 명단을 통째로 받아 한 번에 다 처리합니다. 실제 응급실은 그렇지 않습니다. 환자가 한 명씩 도착하고, 그때마다 “지금 가장 급한 사람이 누구인가”를 물어야 합니다. 조건을 이렇게 바꾸고 다시 재 봤습니다.</p>
+    <div class="two-up">
+      <div class="codebox">
+        <div class="cap"><span>매번 다시 정렬</span><span>단계 3의 방식</span></div>
+<pre><span class="ln">for name, priority in arrivals:</span><span class="ln">    waiting.append((priority, name))</span><span class="ln markbad">    waiting.sort()</span><span class="ln">    answers.append(waiting[0][1])</span></pre>
+      </div>
+      <div class="codebox">
+        <div class="cap"><span>힙에 밀어 넣기</span><span>부록의 방식</span></div>
+<pre><span class="ln">for name, priority in arrivals:</span><span class="ln mark4">    heapq.heappush(heap, (priority, name))</span><span class="ln">    answers.append(heap[0][1])</span><span class="ln"> </span></pre>
+      </div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>도착한 환자 수</th><th>매번 재정렬</th><th>heappush</th><th>차이</th></tr></thead>
+        <tbody>
+          <tr><td>1,000</td><td class="mono c1">0.0048초</td><td class="mono c4">0.0002초</td><td class="mono">24.2배</td></tr>
+          <tr><td>5,000</td><td class="mono c1">0.1299초</td><td class="mono c4">0.0006초</td><td class="mono">225.8배</td></tr>
+          <tr><td>20,000</td><td class="mono c1">2.3015초</td><td class="mono c4">0.0029초</td><td class="mono">806.2배</td></tr>
+          <tr><td>50,000</td><td class="mono c1">18.5370초</td><td class="mono c4">0.0163초</td><td class="mono">1,140.3배</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>두 방식이 내놓은 답은 모든 규모에서 완전히 같았습니다. 같은 일을 하는데 <strong>1,140배</strong>가 벌어집니다. 정렬은 한 명이 들어올 때마다 이미 정렬된 줄을 다시 정렬하지만, 힙은 새로 온 한 명을 제자리까지만 밀어 올리기 때문입니다.</p>
+    <div class="verdict4">전부 꺼내고 끝나는 문제라면 <code>.sort()</code>가 이깁니다. 들어올 때마다 지금 가장 급한 사람을 물어야 한다면 힙이 이깁니다. <strong>힌트가 틀린 것이 아니라, 이 문제가 힙이 빛나는 모양이 아니었던 것입니다.</strong></div>
+  </div>
+</section>
+
+<footer>
+  측정 환경은 CPython 3.14.4, WSL2 (Linux 6.18 microsoft-standard-WSL2), x86_64입니다.
+  모든 수치는 같은 실행에서 나온 것이며, 각 항목은 3회 실행 중 최솟값입니다. 평균 대신 최솟값을 쓴 것은 다른 프로세스의 방해를 덜 타기 때문입니다.
+  입력은 난수 시드를 20260910으로 고정해 만들었으므로 재실행하면 같은 명단이 나옵니다. 단계 4가 인자로 받은 리스트를 제자리에서 정렬하기 때문에, 매 회 사본을 새로 만들어 넘겼습니다.
+  단계 1은 2,000명(무작위)과 1,600명(내림차순)에서 측정을 멈췄습니다. 배가할 때마다 8배가 되어 그 이상은 분 단위로 넘어가기 때문입니다.
+  시행착오 1(86-98행)에는 측정값이 없습니다. <code>TypeError: 'int' object is not subscriptable</code>로 실행되지 않습니다.
+  부록 ③의 도착·조회 시나리오는 <code>03_priority_queue.py</code>에 없는 코드이며, 부록 ②의 결과를 설명하려고 따로 작성해 잰 것입니다.
+  주석에 적혀 있던 <code>O(n!)</code>은 측정 결과 <code>O(n³)</code>이었습니다.
+  측정에 쓴 스크립트는 저장소의 <code>week2/2. advanced/bench_03_priority_queue.py</code>이고, 실행 결과 전문은 같은 폴더의 <code>bench_03_priority_queue_output.txt</code>에 있습니다.
+  원본 <code>03_priority_queue.py</code>는 제출물이므로 수정하지 않았습니다.
+</footer>
+
+</div>
+</body>
+</html>
