@@ -1019,17 +1019,17 @@ const CODE={
         qOut=document.getElementById('qOut'),sOut=document.getElementById('sOut'),
         bPush=document.getElementById('miniPush'),bPop=document.getElementById('miniPop'),
         bRes=document.getElementById('miniReset');
-  function fill(host,arr,cls){
+  function fill(host,arr,cls,pushed){
     host.innerHTML='';host.classList.toggle('empty',arr.length===0);
-    arr.forEach(v=>{const d=document.createElement('span');d.className='chip fresh '+cls;d.textContent=v;host.append(d);});
+    arr.forEach((v,idx)=>{const d=document.createElement('span');d.className='chip '+cls+(pushed&&idx===arr.length-1?' fresh':'');d.textContent=v;host.append(d);});
   }
-  function draw(){
-    fill(qBin,q,'q');fill(sBin,s,'q');
+  function draw(pushed){
+    fill(qBin,q,'q',pushed);fill(sBin,s,'q',pushed);
     bPush.disabled=n>=seq.length;
     bPop.disabled=q.length===0;
   }
   bPush.onclick=()=>{const v=seq[n++];q.push(v);s.push(v);
-    qOut.textContent='넣음 → '+v; sOut.textContent='넣음 → '+v; draw();};
+    qOut.textContent='넣음 → '+v; sOut.textContent='넣음 → '+v; draw(true);};
   bPop.onclick=()=>{const a=q.shift(),b=s.pop();
     qOut.innerHTML='꺼냄 ← <b>'+a+'</b>  (가장 먼저 넣은 것)';
     sOut.innerHTML='꺼냄 ← <b>'+b+'</b>  (가장 나중에 넣은 것)';draw();};
