@@ -3,54 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>응급실 대기줄</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' font-size='19' font-family='monospace' font-weight='700' text-anchor='middle' fill='%23FFFFFF'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://benjohnbill.github.io/assets/site.css">
 <style>
-:root{
-  --bg:#EFF3F3; --surface:#FFFFFF; --surface-2:#E6ECEC; --sunken:#DBE3E3;
-  --ink:#12201F; --ink-2:#3D4E4D; --muted:#6D7D7C; --line:#CDD8D8;
-  --s1:#AF4227; --s1-soft:#F9E6E1; --s1-rail:#D9917E;
-  --s2:#0A7165; --s2-soft:#DDF0EC; --s2-rail:#6FBBB0;
-  --s3:#453AA6; --s3-soft:#E5E3F7; --s3-rail:#9A92DC;
-  --s4:#7E6416; --s4-soft:#F5EEDA; --s4-rail:#C3A85C;
-  --bad:#AF4227; --good:#0A7165;
-}
-@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
-  --bg:#0B1413; --surface:#121C1B; --surface-2:#182322; --sunken:#0E1817;
-  --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
-  --s1:#F09479; --s1-soft:#2B1712; --s1-rail:#7E4030;
-  --s2:#4FC5B3; --s2-soft:#0D2A26; --s2-rail:#2C6B61;
-  --s3:#A398F3; --s3-soft:#1B1836; --s3-rail:#4E4696;
-  --s4:#D8B65E; --s4-soft:#2A2312; --s4-rail:#7A6631;
-  --bad:#F09479; --good:#4FC5B3;
-}}
-:root[data-theme="dark"]{
-  --bg:#0B1413; --surface:#121C1B; --surface-2:#182322; --sunken:#0E1817;
-  --ink:#E0EAE9; --ink-2:#A8B7B6; --muted:#7E8D8C; --line:#243130;
-  --s1:#F09479; --s1-soft:#2B1712; --s1-rail:#7E4030;
-  --s2:#4FC5B3; --s2-soft:#0D2A26; --s2-rail:#2C6B61;
-  --s3:#A398F3; --s3-soft:#1B1836; --s3-rail:#4E4696;
-  --s4:#D8B65E; --s4-soft:#2A2312; --s4-rail:#7A6631;
-  --bad:#F09479; --good:#4FC5B3;
-}
+:root{ --bad:#AF4227; --good:#0A7165; }
+@media (prefers-color-scheme:dark){ :root{ --bad:#F09479; --good:#4FC5B3; }}
 
-*{box-sizing:border-box}
-body{background:var(--bg); color:var(--ink);
-  font-family:"Gowun Dodum",system-ui,-apple-system,sans-serif;
-  font-size:17px; line-height:1.85;}
 .wrap{max-width:1000px; margin:0 auto; padding:44px 22px 90px; display:flex; flex-direction:column; gap:12px}
-.mono,code,pre{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
-code{font-size:0.85em; background:var(--surface-2); padding:0.1em 0.38em; border-radius:3px}
-.dh{font-family:"Do Hyeon","Gowun Dodum",sans-serif; font-weight:400}
+.mono{font-family:var(--font-code)}
 
 /* header */
 header{display:flex; flex-direction:column; gap:16px; padding-bottom:34px; margin-bottom:22px; border-bottom:3px solid var(--ink)}
 h1{margin:0; font-size:clamp(38px,7vw,64px); line-height:1.1; letter-spacing:-0.02em}
 .sub{margin:0; font-size:18px; color:var(--ink-2); max-width:58ch}
 .roadmap{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:6px}
-.rm{padding:16px 16px 18px; border-top:4px solid; background:var(--surface); display:flex; flex-direction:column; gap:5px}
-.rm.a{border-color:var(--s1)} .rm.b{border-color:var(--s2)} .rm.c{border-color:var(--s3)}
+.rm{padding:16px 16px 18px; border:1px solid var(--line); border-top:4px solid; display:flex; flex-direction:column; gap:5px}
+.rm.a{border-top-color:var(--s1)} .rm.b{border-top-color:var(--s2)} .rm.c{border-top-color:var(--s3)}
 .rm .n{font-size:26px; line-height:1}
 .rm.a .n{color:var(--s1)} .rm.b .n{color:var(--s2)} .rm.c .n{color:var(--s3)}
 .rm .t{font-size:17px}
@@ -63,7 +32,7 @@ h1{margin:0; font-size:clamp(38px,7vw,64px); line-height:1.1; letter-spacing:-0.
 .s1 .bignum{color:var(--s1)} .s2 .bignum{color:var(--s2)} .s3 .bignum{color:var(--s3)}
 .stage-title{display:flex; flex-direction:column; gap:5px; flex:1; min-width:260px}
 .stage-title h2{margin:0; font-size:clamp(26px,4vw,36px); line-height:1.2; letter-spacing:-0.02em}
-.file{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted)}
+.file{font-family:var(--font-code); font-size:12.5px; color:var(--muted)}
 .oneline{font-size:18px; color:var(--ink-2)}
 
 .block{display:flex; flex-direction:column; gap:12px}
@@ -81,22 +50,22 @@ figcaption{font-size:15px; color:var(--ink-2); border-top:1px solid var(--line);
 /* cells */
 .rowset{display:flex; flex-direction:column; gap:10px; min-width:max-content}
 .crow{display:flex; align-items:center; gap:14px}
-.crow .lab{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted); width:52px; text-align:right; flex:none}
+.crow .lab{font-family:var(--font-code); font-size:12px; color:var(--muted); width:52px; text-align:right; flex:none}
 .cells{display:flex; gap:5px}
 .cell{width:46px; height:46px; display:grid; place-items:center; position:relative;
   background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink-2);
-  font-family:"IBM Plex Mono",monospace; font-size:16px; flex:none}
+  font-family:var(--font-code); font-size:16px; flex:none}
 .cell.i{background:var(--s1-soft); border-color:var(--s1); color:var(--s1)}
 .cell.j{background:var(--s3-soft); border-color:var(--s3); color:var(--s3)}
 .cell.both{background:var(--s2-soft); border-color:var(--s2); color:var(--s2)}
 .cell .pin{position:absolute; top:-13px; left:50%; transform:translateX(-50%);
-  font-family:"IBM Plex Mono",monospace; font-size:12px; line-height:1}
+  font-family:var(--font-code); font-size:12px; line-height:1}
 .cell.i .pin{color:var(--s1)} .cell.j .pin{color:var(--s3)} .cell.both .pin{color:var(--s2)}
 .crow .out{font-size:14px; color:var(--muted); white-space:nowrap}
 .result{display:inline-flex; align-items:center; gap:9px; padding:10px 15px; font-size:16px; align-self:flex-start}
 .result.bad{background:var(--s1-soft); color:var(--s1); border:1.5px solid var(--s1-rail)}
 .result.good{background:var(--s2-soft); color:var(--s2); border:1.5px solid var(--s2-rail)}
-.result .big{font-family:"IBM Plex Mono",monospace; font-size:19px}
+.result .big{font-family:var(--font-code); font-size:19px}
 
 /* stack figure */
 .stacks{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:28px}
@@ -104,30 +73,30 @@ figcaption{font-size:15px; color:var(--ink-2); border-top:1px solid var(--line);
 .stackcol .cap{font-size:15px; text-align:center}
 .stack{display:flex; flex-direction:column-reverse; gap:3px; align-items:center; width:100%}
 .frame{width:100%; max-width:230px; height:22px; display:grid; place-items:center;
-  font-family:"IBM Plex Mono",monospace; font-size:11px;}
+  font-family:var(--font-code); font-size:11px;}
 .frame.f1{background:var(--s1-soft); border:1px solid var(--s1-rail); color:var(--s1)}
 .frame.f3{background:var(--s3-soft); border:1px solid var(--s3-rail); color:var(--s3)}
 .frame.dots{border:none; background:none; color:var(--muted); height:26px; font-size:16px}
-.stackcol .tally{font-family:"IBM Plex Mono",monospace; font-size:15px; padding:7px 13px}
+.stackcol .tally{font-family:var(--font-code); font-size:15px; padding:7px 13px}
 .tally.bad{background:var(--s1-soft); color:var(--s1)}
 .tally.ok{background:var(--s3-soft); color:var(--s3)}
 
 /* three-value figure */
 .med{display:flex; align-items:center; gap:26px; flex-wrap:wrap}
 .medgroup{display:flex; flex-direction:column; gap:9px; align-items:center}
-.medgroup .who{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted)}
+.medgroup .who{font-family:var(--font-code); font-size:11.5px; color:var(--muted)}
 .medcells{display:flex; gap:6px}
-.medcell{width:56px; height:56px; display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:19px;
+.medcell{width:56px; height:56px; display:grid; place-items:center; font-family:var(--font-code); font-size:19px;
   background:var(--surface-2); border:1.5px solid var(--line); color:var(--ink-2)}
 .medcell.pick{background:var(--s3-soft); border-color:var(--s3); color:var(--s3)}
 .medarrow{font-size:26px; color:var(--muted)}
 .medlabels{display:flex; gap:6px}
-.medlabels span{width:56px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted)}
+.medlabels span{width:56px; text-align:center; font-family:var(--font-code); font-size:11px; color:var(--muted)}
 
 /* code */
 .codebox{border:1px solid var(--line); background:var(--surface); overflow:hidden}
 .codebox .cap{padding:9px 15px; background:var(--surface-2); border-bottom:1px solid var(--line);
-  font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  font-family:var(--font-code); font-size:12.5px; color:var(--ink-2); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
 .codebox pre{margin:0; padding:16px 0; overflow-x:auto; font-size:13.5px; line-height:1.65}
 .codebox pre .ln{display:block; padding:0 18px; white-space:pre}
 .codebox pre .ln.mark{background:var(--s2-soft); box-shadow:inset 3px 0 0 var(--s2-rail)}
@@ -135,13 +104,13 @@ figcaption{font-size:15px; color:var(--ink-2); border-top:1px solid var(--line);
 .codebox pre .ln.mark3{background:var(--s3-soft); box-shadow:inset 3px 0 0 var(--s3-rail)}
 
 /* transition band */
-.bridge{background:var(--sunken); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+.bridge{border-top:1px solid var(--line); border-bottom:1px solid var(--line);
   padding:34px 24px; display:flex; flex-direction:column; gap:22px; margin:14px -22px}
 .bridge h3{font-size:24px}
-.bridge .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.12em; color:var(--muted)}
+.bridge .kicker{font-family:var(--font-code); font-size:12px; letter-spacing:0.12em; color:var(--muted)}
 .hunks{display:flex; flex-direction:column; gap:14px}
 .hunk{background:var(--surface); border:1px solid var(--line); display:grid; grid-template-columns:minmax(280px,1fr) minmax(240px,0.9fr)}
-.hunk .code{border-right:1px solid var(--line); overflow-x:auto; padding:12px 0; font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.6}
+.hunk .code{border-right:1px solid var(--line); overflow-x:auto; padding:12px 0; font-family:var(--font-code); font-size:12.5px; line-height:1.6}
 .hunk .code .l{display:block; padding:0 14px; white-space:pre}
 .hunk .code .l.d{background:var(--s1-soft); color:var(--s1)}
 .hunk .code .l.a{background:var(--s2-soft); color:var(--s2)}
@@ -155,7 +124,7 @@ figcaption{font-size:15px; color:var(--ink-2); border-top:1px solid var(--line);
 .meas{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line)}
 .mcell{background:var(--surface); padding:16px 15px; display:flex; flex-direction:column; gap:5px}
 .mcell .k{font-size:13px; color:var(--muted)}
-.mcell .v{font-family:"IBM Plex Mono",monospace; font-size:25px; line-height:1.15}
+.mcell .v{font-family:var(--font-code); font-size:25px; line-height:1.15}
 .mcell .v.bad{color:var(--bad)} .mcell .v.good{color:var(--good)}
 .mcell .n{font-size:12.5px; color:var(--muted); line-height:1.5}
 
@@ -163,13 +132,13 @@ table{border-collapse:collapse; width:100%; min-width:560px; font-variant-numeri
 .tablewrap{overflow-x:auto; border:1px solid var(--line)}
 th,td{padding:11px 14px; border-bottom:1px solid var(--line); text-align:right; font-size:15px}
 th:first-child,td:first-child{text-align:left}
-thead th{font-size:12.5px; color:var(--muted); font-family:"IBM Plex Mono",monospace; letter-spacing:0.06em; background:var(--surface-2)}
-td.mono{font-family:"IBM Plex Mono",monospace}
+thead th{font-size:12.5px; color:var(--muted); font-family:var(--font-code); letter-spacing:0.06em; background:var(--surface-2)}
+td.mono{font-family:var(--font-code)}
 td.c1{color:var(--s1)} td.c2{color:var(--s2)} td.c3{color:var(--s3)}
 tbody tr:last-child td{border-bottom:none}
 
 /* execution flow */
-.flow{font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; gap:1px; min-width:max-content}
+.flow{font-family:var(--font-code); font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; gap:1px; min-width:max-content}
 .fl{white-space:pre; padding:2px 12px; color:var(--ink-2)}
 .fl.enter{color:var(--s3); background:var(--s3-soft)}
 .fl.back{color:var(--s2); background:var(--s2-soft)}
@@ -181,14 +150,14 @@ tbody tr:last-child td{border-bottom:none}
 .ord.yes{border-color:var(--s2-rail); background:var(--s2-soft)}
 .ord .h{font-size:16px}
 .ord.no .h{color:var(--s1)} .ord.yes .h{color:var(--s2)}
-.ord pre{margin:0; font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.7; white-space:pre; overflow-x:auto}
+.ord pre{margin:0; font-family:var(--font-code); font-size:12.5px; line-height:1.7; white-space:pre; overflow-x:auto}
 .ord .say{font-size:14.5px; line-height:1.7; color:var(--ink-2)}
-.ord .tag{font-family:"IBM Plex Mono",monospace; font-size:12.5px; padding:6px 10px; align-self:flex-start}
+.ord .tag{font-family:var(--font-code); font-size:12.5px; padding:6px 10px; align-self:flex-start}
 .ord.no .tag{background:var(--surface); color:var(--s1); border:1px solid var(--s1-rail)}
 .ord.yes .tag{background:var(--surface); color:var(--s2); border:1px solid var(--s2-rail)}
 /* appendix */
 .appendix{margin-top:44px; padding-top:34px; border-top:3px dashed var(--s4-rail); display:flex; flex-direction:column; gap:26px}
-.appendix .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:0.12em; color:var(--s4)}
+.appendix .kicker{font-family:var(--font-code); font-size:12px; letter-spacing:0.12em; color:var(--s4)}
 .appendix h2{margin:0; font-size:clamp(26px,4vw,36px); letter-spacing:-0.02em}
 .appendix .fig-title{color:var(--s4)}
 .appendix .codebox pre .ln.mark4{background:var(--s4-soft); box-shadow:inset 3px 0 0 var(--s4-rail)}
@@ -196,10 +165,10 @@ tbody tr:last-child td{border-bottom:none}
 .scanrow{display:flex; flex-direction:column; gap:9px; min-width:max-content}
 .scanrow .who{font-size:15px}
 .arrows{display:flex; gap:5px}
-.arrows span{width:46px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); flex:none}
+.arrows span{width:46px; text-align:center; font-family:var(--font-code); font-size:13px; color:var(--muted); flex:none}
 .rangefig{display:flex; flex-direction:column; gap:7px; min-width:max-content}
 .brackets{display:grid; grid-template-columns:repeat(8,46px); gap:5px}
-.br{height:26px; display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:0 4px; text-align:center}
+.br{height:26px; display:grid; place-items:center; font-family:var(--font-code); font-size:11.5px; padding:0 4px; text-align:center}
 .br.left{background:var(--s2-soft); color:var(--s2); border:1px solid var(--s2-rail)}
 .br.right{background:var(--s3-soft); color:var(--s3); border:1px solid var(--s3-rail)}
 .br.skip{background:var(--s4-soft); color:var(--s4); border:1px dashed var(--s4-rail)}
@@ -210,7 +179,7 @@ footer{border-top:1px solid var(--line); margin-top:34px; padding-top:20px; font
 /* --- 이 페이지에서 더한 것 --- */
 .pts{display:flex; gap:5px; flex-wrap:wrap}
 .pt{min-width:56px; padding:6px 8px; display:flex; flex-direction:column; align-items:center; gap:1px;
-  background:var(--surface-2); border:1.5px solid var(--line); font-family:"IBM Plex Mono",monospace; flex:none}
+  background:var(--surface-2); border:1.5px solid var(--line); font-family:var(--font-code); flex:none}
 .pt .nm{font-size:11.5px; color:var(--muted); white-space:nowrap}
 .pt .pr{font-size:17px; line-height:1.15; color:var(--ink-2)}
 .s1 .pt.hi{background:var(--s1-soft); border-color:var(--s1)} .s1 .pt.hi .pr{color:var(--s1)} .s1 .pt.hi .nm{color:var(--s1)}
@@ -224,6 +193,7 @@ thead th{line-height:1.5}
 </head>
 <body>
 <div class="wrap">
+<a class="home" href="https://benjohnbill.github.io/">← 학습 기록</a>
 
 <header>
   <h1 class="dh">응급실 대기줄</h1>

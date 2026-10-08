@@ -1,42 +1,32 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>hello.i에서 hello까지</title><style>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hello.i에서 hello까지</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' font-size='19' font-family='monospace' font-weight='700' text-anchor='middle' fill='%23FFFFFF'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://benjohnbill.github.io/assets/site.css">
+<style>
 :root{
-  --ground:#EAEDF1; --surface:#FFFFFF; --sunk:#DFE4EA;
-  --ink:#141D29; --muted:#5C6B7E; --rule:#C6D0DB;
+  --ground:var(--bg); --sunk:var(--surface-2); --rule:var(--line);
   --blue:#1E5AA8; --blue-soft:#D6E3F5;
   --plum:#A33055; --plum-soft:#F6DDE4;
   --gold:#8A6410; --gold-soft:#F3E6C6;
   --green:#26685A; --green-soft:#D5E7E1;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --ground:#0E131A; --surface:#161E28; --sunk:#1E2733;
-  --ink:#E5EAF0; --muted:#93A1B2; --rule:#2C3745;
+@media (prefers-color-scheme: dark){ :root{
   --blue:#78ADEC; --blue-soft:#1B2C42;
   --plum:#E9819E; --plum-soft:#3A2028;
   --gold:#D8B45E; --gold-soft:#33290F;
   --green:#71C4AF; --green-soft:#152E29;
 }}
-:root[data-theme="dark"]{
-  --ground:#0E131A; --surface:#161E28; --sunk:#1E2733;
-  --ink:#E5EAF0; --muted:#93A1B2; --rule:#2C3745;
-  --blue:#78ADEC; --blue-soft:#1B2C42;
-  --plum:#E9819E; --plum-soft:#3A2028;
-  --gold:#D8B45E; --gold-soft:#33290F;
-  --green:#71C4AF; --green-soft:#152E29;
-}
 
-*{box-sizing:border-box}
-body{
-  margin:0; background:var(--ground); color:var(--ink);
-  font-family:"IBM Plex Sans KR","Malgun Gothic",system-ui,sans-serif;
-  font-weight:400; line-height:1.75; font-size:16px;
-  -webkit-font-smoothing:antialiased;
-}
-img{max-width:100%}
-[hidden]{display:none!important}
+body{font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased}
 .page{max-width:860px;margin:0 auto;padding:0 24px 110px;display:flex;flex-direction:column;gap:76px}
-h1,h2,h3{font-family:"Gowun Batang",serif;font-weight:700;text-wrap:balance;line-height:1.35;margin:0}
+.page > .home{margin:32px 0 -76px}
+h1,h2,h3{font-family:var(--font-head);font-weight:700;text-wrap:balance;line-height:1.35;margin:0}
 p{margin:0;max-width:62ch}
-code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.mono{font-family:var(--font-code)}
 a{color:var(--blue)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 
@@ -47,34 +37,34 @@ a{color:var(--blue)}
 .hero h1 em{font-style:normal;color:var(--blue)}
 .lede{font-size:19px;color:var(--muted)}
 .prev{display:inline-flex;gap:9px;align-items:baseline;font-size:14px;
-      background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+      background:var(--surface);border:1px solid var(--rule);
       padding:12px 16px;text-decoration:none;color:var(--ink);align-self:flex-start}
 .prev b{color:var(--blue);font-weight:600}
 .prev span{color:var(--muted)}
 
 /* 여정 막대 */
 .journey{display:flex;flex-direction:column;gap:0;background:var(--surface);
-         border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+         border:1px solid var(--rule);overflow:hidden}
 .journey .row{display:grid;grid-template-columns:104px 1fr auto;gap:16px;align-items:center;
               padding:13px 18px;border-bottom:1px solid var(--rule);font-size:14px}
 .journey .row:last-child{border-bottom:none}
 .journey .row.past{color:var(--muted)}
 .journey .row.past .nm{color:var(--muted)}
-.journey .nm{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--blue)}
-.journey .sz{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--muted);
+.journey .nm{font-family:var(--font-code);font-weight:600;color:var(--blue)}
+.journey .sz{font-family:var(--font-code);font-size:13px;color:var(--muted);
              font-variant-numeric:tabular-nums;white-space:nowrap}
 .journey .row.here{background:var(--blue-soft)}
 
 /* ── sections ───────────────────────────────────── */
 section{display:flex;flex-direction:column;gap:24px}
-.num{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--blue);letter-spacing:.05em}
+.num{font-family:var(--font-code);font-size:13px;font-weight:600;color:var(--blue);letter-spacing:.05em}
 h2{font-size:clamp(25px,4vw,33px)}
 h3{font-size:19px;margin-top:8px}
 .sub{color:var(--muted);font-size:17px}
 
 /* ── 오해 카드 ─────────────────────────────────── */
 .myth{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);
-      border-radius:4px;overflow:hidden}
+      overflow:hidden}
 @media (max-width:620px){.myth{grid-template-columns:1fr}}
 .myth > div{padding:20px 22px;display:flex;flex-direction:column;gap:9px}
 .myth .wrong{background:var(--plum-soft);border-right:1px solid var(--rule)}
@@ -87,9 +77,9 @@ h3{font-size:19px;margin-top:8px}
 .myth .bd code{font-size:13.5px}
 
 /* ── 코드 / 표 ─────────────────────────────────── */
-.code{background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+.code{background:var(--surface);border:1px solid var(--rule);
       padding:18px 20px;overflow-x:auto}
-.code pre{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.75;white-space:pre}
+.code pre{margin:0;font-family:var(--font-code);font-size:13px;line-height:1.75;white-space:pre}
 .code .cap{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
            font-weight:600;margin-bottom:11px}
 .hl-blue{color:var(--blue);font-weight:600}
@@ -98,23 +88,23 @@ h3{font-size:19px;margin-top:8px}
 .hl-green{color:var(--green);font-weight:600}
 .dim{color:var(--muted)}
 
-.tbl{border:1px solid var(--rule);border-radius:4px;overflow-x:auto;background:var(--surface)}
+.tbl{border:1px solid var(--rule);overflow-x:auto;background:var(--surface)}
 table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:440px}
 th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
 thead th{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
          font-weight:600;background:var(--sunk)}
 tbody tr:last-child td{border-bottom:none}
-td.m,th.m{font-family:"IBM Plex Mono",monospace;font-size:13px;font-variant-numeric:tabular-nums}
+td.m,th.m{font-family:var(--font-code);font-size:13px;font-variant-numeric:tabular-nums}
 tr.yes td{background:var(--green-soft)}
 tr.no td{background:var(--plum-soft)}
 
 .note{background:var(--gold-soft);border:1px solid var(--rule);padding:16px 19px;
-      border-radius:4px;font-size:14.5px;line-height:1.7}
+      font-size:14.5px;line-height:1.7}
 .note b{font-weight:600;color:var(--gold)}
 
 /* ── 바이트 레인 ───────────────────────────────── */
-.bytes{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:24px 22px;overflow-x:auto}
-.bytes .lane{display:flex;gap:6px;font-family:"IBM Plex Mono",monospace;font-size:clamp(15px,3.2vw,21px);
+.bytes{background:var(--surface);border:1px solid var(--rule);padding:24px 22px;overflow-x:auto}
+.bytes .lane{display:flex;gap:6px;font-family:var(--font-code);font-size:clamp(15px,3.2vw,21px);
              font-weight:600;min-width:300px}
 .bytes .b{padding:7px 9px;border-radius:3px;background:var(--sunk);color:var(--muted)}
 .bytes .b.op{background:var(--blue-soft);color:var(--blue)}
@@ -127,20 +117,20 @@ tr.no td{background:var(--plum-soft)}
 /* ── 대조 2열 ──────────────────────────────────── */
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:620px){.pair{grid-template-columns:1fr}}
-.box{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:19px 21px;
+.box{background:var(--surface);border:1px solid var(--rule);padding:19px 21px;
      display:flex;flex-direction:column;gap:9px}
 .box .hd{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.box .big{font-family:"Gowun Batang",serif;font-size:27px;line-height:1.2;font-variant-numeric:tabular-nums}
+.box .big{font-family:var(--font-head);font-size:27px;line-height:1.2;font-variant-numeric:tabular-nums}
 .box p{font-size:14.5px;line-height:1.65}
 
 /* ── 메모리 지도 ───────────────────────────────── */
-.map{border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--surface)}
+.map{border:1px solid var(--rule);overflow:hidden;background:var(--surface)}
 .map .seg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
           padding:14px 18px;border-bottom:1px solid var(--rule);font-size:14.5px}
 .map .seg:last-child{border-bottom:none}
 .map .seg .nm{display:flex;flex-direction:column;gap:2px}
 .map .seg .nm small{color:var(--muted);font-size:13px}
-.map .perm{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+.map .perm{font-family:var(--font-code);font-size:13px;font-weight:600;
            display:flex;gap:4px}
 .map .perm i{font-style:normal;width:22px;height:24px;display:grid;place-items:center;border-radius:3px;
              background:var(--sunk);color:var(--muted)}
@@ -149,12 +139,12 @@ tr.no td{background:var(--plum-soft)}
 .map .seg.kernel{background:var(--sunk);color:var(--muted)}
 
 /* ── 타임라인 ──────────────────────────────────── */
-.tl{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);border-radius:4px;
+.tl{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);
     overflow:hidden;background:var(--surface)}
 .tl .step{display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:center;
           padding:15px 18px;border-bottom:1px solid var(--rule)}
 .tl .step:last-child{border-bottom:none}
-.tl .n{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--muted);
+.tl .n{font-family:var(--font-code);font-size:13px;font-weight:600;color:var(--muted);
        width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--sunk)}
 .tl .step.lock{background:var(--gold-soft)}
 .tl .step.lock .n{background:var(--gold);color:var(--surface)}
@@ -162,21 +152,22 @@ tr.no td{background:var(--plum-soft)}
 .tl .step.risk .n{background:var(--plum);color:var(--surface)}
 .tl .t{font-size:14.5px;line-height:1.6}
 .tl .t b{font-weight:600}
-.tl .w{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+.tl .w{font-family:var(--font-code);font-size:12px;color:var(--muted);white-space:nowrap}
 
 /* ── 마무리 ────────────────────────────────────── */
 .recap{display:flex;flex-direction:column;gap:14px}
 .recap .item{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:baseline;
-             background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:16px 18px}
-.recap .k{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--blue);font-size:14px}
+             background:var(--surface);border:1px solid var(--rule);padding:16px 18px}
+.recap .k{font-family:var(--font-code);font-weight:600;color:var(--blue);font-size:14px}
 .recap .v{font-size:14.5px;line-height:1.65}
 .recap .v b{font-weight:600}
 footer{border-top:1px solid var(--rule);padding-top:24px;color:var(--muted);font-size:13.5px;
        display:flex;flex-direction:column;gap:7px}
-</style></head><body>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-
+</style>
+</head>
+<body>
 <div class="page">
+<a class="home" href="https://benjohnbill.github.io/">← 학습 기록</a>
 
 <header class="hero">
   <div class="eyebrow">Krafton Jungle · W02-03 · 컴파일 파이프라인 (2)</div>
@@ -807,4 +798,5 @@ cat /proc/$(pgrep -n hello)/maps</pre>
 </footer>
 
 </div>
-</body></html>
+</body>
+</html>
