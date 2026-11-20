@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>hello.i 해부도</title>
+<title>hello.i</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' font-size='19' font-family='monospace' font-weight='700' text-anchor='middle' fill='%23FFFFFF'%3EJ%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://benjohnbill.github.io/assets/site.css">
 <style>
@@ -353,6 +353,8 @@ extern FILE *stderr;</pre>
 
     <p>마지막 <b>링크</b> 단계에서야 libc 안에 있는 printf의 진짜 본문이 내 코드와 이어져요. 05번 덩어리에서 본 "본문 없는 약속"이 그때 채워지는 거예요.</p>
   </section>
+
+  <p><a href="compile-hello-s.html">다음 → hello.s · 컴파일러가 한 일과 하지 않은 일</a></p>
 
   <footer>
     측정 환경: gcc 15, x86_64-linux-gnu, glibc 헤더. <code>gcc -E hello.c</code>의 실제 출력을 세어 얻은 숫자예요. 다른 컴퓨터나 다른 gcc 버전에서는 줄 수가 달라져요.

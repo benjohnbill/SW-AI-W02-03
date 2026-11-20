@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hello.o</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' font-size='19' font-family='monospace' font-weight='700' text-anchor='middle' fill='%23FFFFFF'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://benjohnbill.github.io/assets/site.css">
+<style>
+:root{
+  --ground:var(--bg); --sunk:var(--surface-2); --rule:var(--line);
+  --blue:#1E5AA8; --blue-soft:#D6E3F5;
+  --plum:#A33055; --plum-soft:#F6DDE4;
+  --gold:#8A6410; --gold-soft:#F3E6C6;
+  --green:#26685A; --green-soft:#D5E7E1;
+}
+@media (prefers-color-scheme: dark){ :root{
+  --blue:#78ADEC; --blue-soft:#1B2C42;
+  --plum:#E9819E; --plum-soft:#3A2028;
+  --gold:#D8B45E; --gold-soft:#33290F;
+  --green:#71C4AF; --green-soft:#152E29;
+}}
+
+body{font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased}
+.page{max-width:860px;margin:0 auto;padding:0 24px 110px;display:flex;flex-direction:column;gap:76px}
+.page > .home{margin:32px 0 -76px}
+h1,h2,h3{font-family:var(--font-head);font-weight:700;text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0;max-width:62ch}
+.mono{font-family:var(--font-code)}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+/* ── hero ───────────────────────────────────────── */
+.hero{padding:84px 0 0;display:flex;flex-direction:column;gap:26px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.hero h1{font-size:clamp(36px,6.6vw,60px)}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.lede{font-size:19px;color:var(--muted)}
+.prev{display:inline-flex;gap:9px;align-items:baseline;font-size:14px;
+      background:var(--surface);border:1px solid var(--rule);
+      padding:12px 16px;text-decoration:none;color:var(--ink);align-self:flex-start}
+.prev b{color:var(--blue);font-weight:600}
+.prev span{color:var(--muted)}
+
+/* 여정 막대 */
+.journey{display:flex;flex-direction:column;gap:0;background:var(--surface);
+         border:1px solid var(--rule);overflow:hidden}
+.journey .row{display:grid;grid-template-columns:104px 1fr auto;gap:16px;align-items:center;
+              padding:13px 18px;border-bottom:1px solid var(--rule);font-size:14px}
+.journey .row:last-child{border-bottom:none}
+.journey .row.past{color:var(--muted)}
+.journey .row.past .nm{color:var(--muted)}
+.journey .nm{font-family:var(--font-code);font-weight:600;color:var(--blue)}
+.journey .sz{font-family:var(--font-code);font-size:13px;color:var(--muted);
+             font-variant-numeric:tabular-nums;white-space:nowrap}
+.journey .row.here{background:var(--blue-soft)}
+
+/* ── sections ───────────────────────────────────── */
+section{display:flex;flex-direction:column;gap:24px}
+.num{font-family:var(--font-code);font-size:13px;font-weight:600;color:var(--blue);letter-spacing:.05em}
+h2{font-size:clamp(25px,4vw,33px)}
+h3{font-size:19px;margin-top:8px}
+.sub{color:var(--muted);font-size:17px}
+
+/* ── 오해 카드 ─────────────────────────────────── */
+.myth{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);
+      overflow:hidden}
+@media (max-width:620px){.myth{grid-template-columns:1fr}}
+.myth > div{padding:20px 22px;display:flex;flex-direction:column;gap:9px}
+.myth .wrong{background:var(--plum-soft);border-right:1px solid var(--rule)}
+.myth .right{background:var(--green-soft)}
+@media (max-width:620px){.myth .wrong{border-right:none;border-bottom:1px solid var(--rule)}}
+.myth .hd{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}
+.myth .wrong .hd{color:var(--plum)}
+.myth .right .hd{color:var(--green)}
+.myth .bd{font-size:15px;line-height:1.7;color:var(--ink)}
+.myth .bd code{font-size:13.5px}
+
+/* ── 코드 / 표 ─────────────────────────────────── */
+.code{background:var(--surface);border:1px solid var(--rule);
+      padding:18px 20px;overflow-x:auto}
+.code pre{margin:0;font-family:var(--font-code);font-size:13px;line-height:1.75;white-space:pre}
+.code .cap{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+           font-weight:600;margin-bottom:11px}
+.hl-blue{color:var(--blue);font-weight:600}
+.hl-plum{color:var(--plum);font-weight:600}
+.hl-gold{color:var(--gold);font-weight:600}
+.hl-green{color:var(--green);font-weight:600}
+.dim{color:var(--muted)}
+
+.tbl{border:1px solid var(--rule);overflow-x:auto;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:440px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+         font-weight:600;background:var(--sunk)}
+tbody tr:last-child td{border-bottom:none}
+td.m,th.m{font-family:var(--font-code);font-size:13px;font-variant-numeric:tabular-nums}
+tr.yes td{background:var(--green-soft)}
+tr.no td{background:var(--plum-soft)}
+
+.note{background:var(--gold-soft);border:1px solid var(--rule);padding:16px 19px;
+      font-size:14.5px;line-height:1.7}
+.note b{font-weight:600;color:var(--gold)}
+
+/* ── 바이트 레인 ───────────────────────────────── */
+.bytes{background:var(--surface);border:1px solid var(--rule);padding:24px 22px;overflow-x:auto}
+.bytes .lane{display:flex;gap:6px;font-family:var(--font-code);font-size:clamp(15px,3.2vw,21px);
+             font-weight:600;min-width:300px}
+.bytes .b{padding:7px 9px;border-radius:3px;background:var(--sunk);color:var(--muted)}
+.bytes .b.op{background:var(--blue-soft);color:var(--blue)}
+.bytes .b.gap{background:var(--plum-soft);color:var(--plum)}
+.bytes .b.fill{background:var(--green-soft);color:var(--green)}
+.bytes .legend{margin-top:16px;display:flex;flex-direction:column;gap:7px;font-size:14px;min-width:300px}
+.bytes .legend div{display:flex;gap:11px;align-items:baseline}
+.bytes .legend .sw{width:11px;height:11px;border-radius:2px;flex:none;position:relative;top:2px}
+
+/* ── 대조 2열 ──────────────────────────────────── */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:620px){.pair{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);padding:19px 21px;
+     display:flex;flex-direction:column;gap:9px}
+.box .hd{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.box .big{font-family:var(--font-head);font-size:27px;line-height:1.2;font-variant-numeric:tabular-nums}
+.box p{font-size:14.5px;line-height:1.65}
+
+/* ── 메모리 지도 ───────────────────────────────── */
+.map{border:1px solid var(--rule);overflow:hidden;background:var(--surface)}
+.map .seg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+          padding:14px 18px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.map .seg:last-child{border-bottom:none}
+.map .seg .nm{display:flex;flex-direction:column;gap:2px}
+.map .seg .nm small{color:var(--muted);font-size:13px}
+.map .perm{font-family:var(--font-code);font-size:13px;font-weight:600;
+           display:flex;gap:4px}
+.map .perm i{font-style:normal;width:22px;height:24px;display:grid;place-items:center;border-radius:3px;
+             background:var(--sunk);color:var(--muted)}
+.map .perm i.on{background:var(--blue-soft);color:var(--blue)}
+.map .perm i.x{background:var(--plum-soft);color:var(--plum)}
+.map .seg.kernel{background:var(--sunk);color:var(--muted)}
+
+/* ── 타임라인 ──────────────────────────────────── */
+.tl{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);
+    overflow:hidden;background:var(--surface)}
+.tl .step{display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:center;
+          padding:15px 18px;border-bottom:1px solid var(--rule)}
+.tl .step:last-child{border-bottom:none}
+.tl .n{font-family:var(--font-code);font-size:13px;font-weight:600;color:var(--muted);
+       width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--sunk)}
+.tl .step.lock{background:var(--gold-soft)}
+.tl .step.lock .n{background:var(--gold);color:var(--surface)}
+.tl .step.risk{background:var(--plum-soft)}
+.tl .step.risk .n{background:var(--plum);color:var(--surface)}
+.tl .t{font-size:14.5px;line-height:1.6}
+.tl .t b{font-weight:600}
+.tl .w{font-family:var(--font-code);font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* ── 마무리 ────────────────────────────────────── */
+.recap{display:flex;flex-direction:column;gap:14px}
+.recap .item{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:baseline;
+             background:var(--surface);border:1px solid var(--rule);padding:16px 18px}
+.recap .k{font-family:var(--font-code);font-weight:600;color:var(--blue);font-size:14px}
+.recap .v{font-size:14.5px;line-height:1.65}
+.recap .v b{font-weight:600}
+footer{border-top:1px solid var(--rule);padding-top:24px;color:var(--muted);font-size:13.5px;
+       display:flex;flex-direction:column;gap:7px}
+</style>
+</head>
+<body>
+<div class="page">
+<a class="home" href="https://benjohnbill.github.io/">← 학습 기록</a>
+
+<header class="hero">
+  <div class="eyebrow">Krafton Jungle · W02-03 · hello.c - 전처리기부터 실행파일까지 (3/4)</div>
+  <h1><em>hello.s</em>에서 <em>hello.o</em>로</h1>
+  <p class="lede">어셈블러가 어셈블리를 기계어로 옮기며 주소 자리에 0을 적고 쪽지를 남기는 과정입니다.</p>
+
+  <a class="prev" href="compile-hello-s.html">
+    <b>← 이전</b><span>hello.s · 컴파일러가 한 일과 하지 않은 일</span>
+  </a>
+
+  <div class="journey">
+    <div class="row past"><span class="nm">hello.c</span><span>사람이 쓴 소스</span><span class="sz">117 B</span></div>
+    <div class="row past"><span class="nm">hello.i</span><span>전처리 완료</span><span class="sz">20.9 KB</span></div>
+    <div class="row past"><span class="nm">hello.s</span><span>어셈블리</span><span class="sz">661 B</span></div>
+    <div class="row here"><span class="nm">hello.o</span><span>기계어 · 주소는 아직 빈칸 · <b>이 노트</b></span><span class="sz">1.5 KB</span></div>
+    <div class="row"><span class="nm">hello</span><span>실행 파일 · 그래도 아직 반제품</span><span class="sz">15.6 KB</span></div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">00&nbsp;&nbsp;이 노트의 뼈대</div>
+  <h2>헷갈리기 쉬운 것</h2>
+  <p class="sub">서로 다른 두 가지가 이름이나 모양이 비슷해서 하나로 뭉뚱그려지는 지점입니다.
+  이 노트의 장은 아래 지점을 다룹니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>하나로 보기 쉬운 것</th><th>실제로는</th><th>다루는 장</th></tr></thead>
+      <tbody>
+        <tr><td><b>어셈블리</b>와 <b>기계어</b></td>
+            <td>층이 다른 두 단계가 아니라, 같은 명령을 적는 두 표기법입니다.</td>
+            <td class="m">02</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><b>읽는 방법.</b> 각 장은 “이렇게 생각하기 쉽다”로 시작해서 “실제로는 이렇다”로
+  넘어가고, 마지막에 그 자리에서 직접 확인할 수 있는 명령어와 그 출력이 붙습니다.
+  출력은 전부 이 저장소의 <code>hello</code> 파일에서 실제로 뽑은 것입니다.</div>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">02&nbsp;&nbsp;어셈블 · hello.s → hello.o</div>
+  <h2>같은 것을 두 번 적기</h2>
+
+  <div class="myth">
+    <div class="wrong">
+      <div class="hd">이렇게 생각하기 쉬워요</div>
+      <div class="bd">어셈블리와 기계어는 층이 다르다. 어셈블리라는 층에서 실행되는 일이 따로 있고,
+      기계어는 그보다 아래에 있다.</div>
+    </div>
+    <div class="right">
+      <div class="hd">실제로는</div>
+      <div class="bd">같은 명령을 적는 <b>두 가지 표기법</b>입니다. 숫자 <code>255</code>와 글자
+      <code>"이백오십오"</code>의 관계와 같습니다. 실행되는 것은 언제나 기계어 하나뿐이고,
+      어셈블리는 사람이 보려고 옮겨 적은 것입니다.</div>
+    </div>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th class="m">기계어 · CPU가 먹는 것</th><th class="m">어셈블리 · 사람이 읽는 것</th></tr></thead>
+      <tbody>
+        <tr><td class="m">55</td><td class="m">push %rbp</td></tr>
+        <tr><td class="m">48 89 e5</td><td class="m">mov %rsp,%rbp</td></tr>
+        <tr><td class="m">e8 <span class="dim">…</span></td><td class="m">call <span class="dim">…</span></td></tr>
+        <tr><td class="m">c3</td><td class="m">ret</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>그래서 <b>“어셈블리 영역”과 “기계어 영역”이라는 별도의 실행 층은 없습니다.</b>
+  시스템 콜도 마찬가지입니다. <code>syscall</code>은 특별한 층에 사는 것이 아니라
+  <code>0f 05</code>라는 두 바이트짜리 기계어 명령이고, <code>push</code>나 <code>ret</code>과
+  나란히 놓입니다. 다만 그 명령을 만나면 CPU가 권한 등급을 바꿔서 커널로 넘어간다는 점만 다릅니다.</p>
+
+  <h3>어셈블러의 곤란</h3>
+  <p><code>call</code>이라는 기계어 명령은 결국 “어느 주소로 뛰어라”라는 뜻이고, 기계어에는
+  숫자 주소가 박혀 있어야 합니다. 그런데 어셈블러는 <code>hello.s</code>라는 텍스트 파일 하나만
+  보고 있습니다. libc는 열어 본 적도 없습니다. <code>puts</code>의 주소를 알 방법이 없습니다.</p>
+
+  <p>그래서 이렇게 했습니다.</p>
+
+  <div class="bytes">
+    <div class="lane">
+      <span class="b op">e8</span>
+      <span class="b gap">00</span><span class="b gap">00</span><span class="b gap">00</span><span class="b gap">00</span>
+    </div>
+    <div class="legend">
+      <div><span class="sw" style="background:var(--blue)"></span>
+           <span><code>e8</code>: “call” 명령. 이건 지금 알 수 있습니다.</span></div>
+      <div><span class="sw" style="background:var(--plum)"></span>
+           <span>주소가 들어갈 4바이트. <b>전부 0을 적어 놨습니다.</b> 모르니까요.</span></div>
+    </div>
+  </div>
+
+  <p>모르는 것을 아는 척할 수 없으니, 어셈블러가 할 수 있는 선택은 둘뿐이었습니다.
+  에러를 내고 죽거나, <b>일단 0을 적고 쪽지를 남기거나.</b> 후자를 골랐고, 그 쪽지에는
+  <b>재배치 표(relocation table)</b>라는 이름이 붙어 있습니다.</p>
+
+  <div class="code">
+    <div class="cap">readelf -r hello.o</div>
+<pre>Offset        Type              Sym. Name + Addend
+<span class="hl-gold">0x13</span>          R_X86_64_PLT32    <span class="hl-plum">puts</span> - 4</pre>
+  </div>
+
+  <p>읽으면 이런 뜻입니다. <b>“이 파일의 0x13번째 바이트에 4바이트짜리 빈칸이 있다.
+  거기 들어갈 값은 <code>puts</code>라는 이름의 주소다. 나는 그 주소를 모른다. 네가 채워라.”</b></p>
+
+  <div class="note"><b>어셈블이 단순하다는 말의 정확한 범위.</b> 명령을 옮겨 적는 부분은 실제로
+  거의 1:1입니다. 다만 어셈블러도 라벨 주소를 계산하고, 같은 명령을 짧게 넣을지 길게 넣을지 고르고,
+  위와 같은 쪽지를 남깁니다. 그래서 “받아쓰기에 가깝다”는 맞지만 “완전히 기계적이다”는 조금 지나칩니다.</div>
+</section>
+
+<p style="margin-top:-8px"><a class="prev" href="link-hello.html">
+    <b>다음 →</b><span>hello · 링커가 빈칸을 채우고 ELF가 문을 잠그는 과정</span>
+  </a></p>
+
+<footer>
+  <div>Krafton Jungle W02-03 · hello.c - 전처리기부터 실행파일까지 3/4 · 2026-09-10</div>
+  <div>모든 수치와 출력은 Ubuntu / GCC 15.2.0 / x86-64 환경의 <code>~/dev/hello-pipeline</code>에서 실측했습니다.</div>
+</footer>
+
+</div>
+</body>
+</html>

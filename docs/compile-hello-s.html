@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hello.s</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' font-size='19' font-family='monospace' font-weight='700' text-anchor='middle' fill='%23FFFFFF'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://benjohnbill.github.io/assets/site.css">
+<style>
+:root{
+  --ground:var(--bg); --sunk:var(--surface-2); --rule:var(--line);
+  --blue:#1E5AA8; --blue-soft:#D6E3F5;
+  --plum:#A33055; --plum-soft:#F6DDE4;
+  --gold:#8A6410; --gold-soft:#F3E6C6;
+  --green:#26685A; --green-soft:#D5E7E1;
+}
+@media (prefers-color-scheme: dark){ :root{
+  --blue:#78ADEC; --blue-soft:#1B2C42;
+  --plum:#E9819E; --plum-soft:#3A2028;
+  --gold:#D8B45E; --gold-soft:#33290F;
+  --green:#71C4AF; --green-soft:#152E29;
+}}
+
+body{font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased}
+.page{max-width:860px;margin:0 auto;padding:0 24px 110px;display:flex;flex-direction:column;gap:76px}
+.page > .home{margin:32px 0 -76px}
+h1,h2,h3{font-family:var(--font-head);font-weight:700;text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0;max-width:62ch}
+.mono{font-family:var(--font-code)}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+/* ── hero ───────────────────────────────────────── */
+.hero{padding:84px 0 0;display:flex;flex-direction:column;gap:26px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.hero h1{font-size:clamp(36px,6.6vw,60px)}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.lede{font-size:19px;color:var(--muted)}
+.prev{display:inline-flex;gap:9px;align-items:baseline;font-size:14px;
+      background:var(--surface);border:1px solid var(--rule);
+      padding:12px 16px;text-decoration:none;color:var(--ink);align-self:flex-start}
+.prev b{color:var(--blue);font-weight:600}
+.prev span{color:var(--muted)}
+
+/* 여정 막대 */
+.journey{display:flex;flex-direction:column;gap:0;background:var(--surface);
+         border:1px solid var(--rule);overflow:hidden}
+.journey .row{display:grid;grid-template-columns:104px 1fr auto;gap:16px;align-items:center;
+              padding:13px 18px;border-bottom:1px solid var(--rule);font-size:14px}
+.journey .row:last-child{border-bottom:none}
+.journey .row.past{color:var(--muted)}
+.journey .row.past .nm{color:var(--muted)}
+.journey .nm{font-family:var(--font-code);font-weight:600;color:var(--blue)}
+.journey .sz{font-family:var(--font-code);font-size:13px;color:var(--muted);
+             font-variant-numeric:tabular-nums;white-space:nowrap}
+.journey .row.here{background:var(--blue-soft)}
+
+/* ── sections ───────────────────────────────────── */
+section{display:flex;flex-direction:column;gap:24px}
+.num{font-family:var(--font-code);font-size:13px;font-weight:600;color:var(--blue);letter-spacing:.05em}
+h2{font-size:clamp(25px,4vw,33px)}
+h3{font-size:19px;margin-top:8px}
+.sub{color:var(--muted);font-size:17px}
+
+/* ── 오해 카드 ─────────────────────────────────── */
+.myth{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);
+      overflow:hidden}
+@media (max-width:620px){.myth{grid-template-columns:1fr}}
+.myth > div{padding:20px 22px;display:flex;flex-direction:column;gap:9px}
+.myth .wrong{background:var(--plum-soft);border-right:1px solid var(--rule)}
+.myth .right{background:var(--green-soft)}
+@media (max-width:620px){.myth .wrong{border-right:none;border-bottom:1px solid var(--rule)}}
+.myth .hd{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}
+.myth .wrong .hd{color:var(--plum)}
+.myth .right .hd{color:var(--green)}
+.myth .bd{font-size:15px;line-height:1.7;color:var(--ink)}
+.myth .bd code{font-size:13.5px}
+
+/* ── 코드 / 표 ─────────────────────────────────── */
+.code{background:var(--surface);border:1px solid var(--rule);
+      padding:18px 20px;overflow-x:auto}
+.code pre{margin:0;font-family:var(--font-code);font-size:13px;line-height:1.75;white-space:pre}
+.code .cap{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+           font-weight:600;margin-bottom:11px}
+.hl-blue{color:var(--blue);font-weight:600}
+.hl-plum{color:var(--plum);font-weight:600}
+.hl-gold{color:var(--gold);font-weight:600}
+.hl-green{color:var(--green);font-weight:600}
+.dim{color:var(--muted)}
+
+.tbl{border:1px solid var(--rule);overflow-x:auto;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:440px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+         font-weight:600;background:var(--sunk)}
+tbody tr:last-child td{border-bottom:none}
+td.m,th.m{font-family:var(--font-code);font-size:13px;font-variant-numeric:tabular-nums}
+tr.yes td{background:var(--green-soft)}
+tr.no td{background:var(--plum-soft)}
+
+.note{background:var(--gold-soft);border:1px solid var(--rule);padding:16px 19px;
+      font-size:14.5px;line-height:1.7}
+.note b{font-weight:600;color:var(--gold)}
+
+/* ── 바이트 레인 ───────────────────────────────── */
+.bytes{background:var(--surface);border:1px solid var(--rule);padding:24px 22px;overflow-x:auto}
+.bytes .lane{display:flex;gap:6px;font-family:var(--font-code);font-size:clamp(15px,3.2vw,21px);
+             font-weight:600;min-width:300px}
+.bytes .b{padding:7px 9px;border-radius:3px;background:var(--sunk);color:var(--muted)}
+.bytes .b.op{background:var(--blue-soft);color:var(--blue)}
+.bytes .b.gap{background:var(--plum-soft);color:var(--plum)}
+.bytes .b.fill{background:var(--green-soft);color:var(--green)}
+.bytes .legend{margin-top:16px;display:flex;flex-direction:column;gap:7px;font-size:14px;min-width:300px}
+.bytes .legend div{display:flex;gap:11px;align-items:baseline}
+.bytes .legend .sw{width:11px;height:11px;border-radius:2px;flex:none;position:relative;top:2px}
+
+/* ── 대조 2열 ──────────────────────────────────── */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:620px){.pair{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);padding:19px 21px;
+     display:flex;flex-direction:column;gap:9px}
+.box .hd{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.box .big{font-family:var(--font-head);font-size:27px;line-height:1.2;font-variant-numeric:tabular-nums}
+.box p{font-size:14.5px;line-height:1.65}
+
+/* ── 메모리 지도 ───────────────────────────────── */
+.map{border:1px solid var(--rule);overflow:hidden;background:var(--surface)}
+.map .seg{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+          padding:14px 18px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.map .seg:last-child{border-bottom:none}
+.map .seg .nm{display:flex;flex-direction:column;gap:2px}
+.map .seg .nm small{color:var(--muted);font-size:13px}
+.map .perm{font-family:var(--font-code);font-size:13px;font-weight:600;
+           display:flex;gap:4px}
+.map .perm i{font-style:normal;width:22px;height:24px;display:grid;place-items:center;border-radius:3px;
+             background:var(--sunk);color:var(--muted)}
+.map .perm i.on{background:var(--blue-soft);color:var(--blue)}
+.map .perm i.x{background:var(--plum-soft);color:var(--plum)}
+.map .seg.kernel{background:var(--sunk);color:var(--muted)}
+
+/* ── 타임라인 ──────────────────────────────────── */
+.tl{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);
+    overflow:hidden;background:var(--surface)}
+.tl .step{display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:center;
+          padding:15px 18px;border-bottom:1px solid var(--rule)}
+.tl .step:last-child{border-bottom:none}
+.tl .n{font-family:var(--font-code);font-size:13px;font-weight:600;color:var(--muted);
+       width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--sunk)}
+.tl .step.lock{background:var(--gold-soft)}
+.tl .step.lock .n{background:var(--gold);color:var(--surface)}
+.tl .step.risk{background:var(--plum-soft)}
+.tl .step.risk .n{background:var(--plum);color:var(--surface)}
+.tl .t{font-size:14.5px;line-height:1.6}
+.tl .t b{font-weight:600}
+.tl .w{font-family:var(--font-code);font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* ── 마무리 ────────────────────────────────────── */
+.recap{display:flex;flex-direction:column;gap:14px}
+.recap .item{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:baseline;
+             background:var(--surface);border:1px solid var(--rule);padding:16px 18px}
+.recap .k{font-family:var(--font-code);font-weight:600;color:var(--blue);font-size:14px}
+.recap .v{font-size:14.5px;line-height:1.65}
+.recap .v b{font-weight:600}
+footer{border-top:1px solid var(--rule);padding-top:24px;color:var(--muted);font-size:13.5px;
+       display:flex;flex-direction:column;gap:7px}
+</style>
+</head>
+<body>
+<div class="page">
+<a class="home" href="https://benjohnbill.github.io/">← 학습 기록</a>
+
+<header class="hero">
+  <div class="eyebrow">Krafton Jungle · W02-03 · hello.c - 전처리기부터 실행파일까지 (2/4)</div>
+  <h1><em>hello.i</em>에서 <em>hello.s</em>로</h1>
+  <p class="lede">컴파일러가 전처리된 텍스트를 어셈블리로 옮기면서 무엇을 하고 무엇을 하지 않는지 확인한 기록입니다.</p>
+
+  <a class="prev" href="preprocessor-hello-i.html">
+    <b>← 이전</b><span>hello.i · 전처리기가 844줄을 만든 과정</span>
+  </a>
+
+  <div class="journey">
+    <div class="row past"><span class="nm">hello.c</span><span>사람이 쓴 소스</span><span class="sz">117 B</span></div>
+    <div class="row past"><span class="nm">hello.i</span><span>전처리 완료</span><span class="sz">20.9 KB</span></div>
+    <div class="row here"><span class="nm">hello.s</span><span>어셈블리 · <b>이 노트</b></span><span class="sz">661 B</span></div>
+    <div class="row"><span class="nm">hello.o</span><span>기계어 · 주소는 아직 빈칸</span><span class="sz">1.5 KB</span></div>
+    <div class="row"><span class="nm">hello</span><span>실행 파일 · 그래도 아직 반제품</span><span class="sz">15.6 KB</span></div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">00&nbsp;&nbsp;이 노트의 뼈대</div>
+  <h2>헷갈리기 쉬운 것</h2>
+  <p class="sub">서로 다른 두 가지가 이름이나 모양이 비슷해서 하나로 뭉뚱그려지는 지점입니다.
+  이 노트의 장은 아래 지점을 다룹니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>하나로 보기 쉬운 것</th><th>실제로는</th><th>다루는 장</th></tr></thead>
+      <tbody>
+        <tr><td><b>헤더</b>와 <b>라이브러리</b></td>
+            <td>이름만 적힌 약속 / 진짜 코드가 든 이진 파일. 읽는 시점도 읽는 주체도 다릅니다.</td>
+            <td class="m">01 · hello 노트의 03</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><b>읽는 방법.</b> 각 장은 “이렇게 생각하기 쉽다”로 시작해서 “실제로는 이렇다”로
+  넘어가고, 마지막에 그 자리에서 직접 확인할 수 있는 명령어와 그 출력이 붙습니다.
+  출력은 전부 이 저장소의 <code>hello</code> 파일에서 실제로 뽑은 것입니다.</div>
+</section>
+
+<!-- ══════════════════════════════════════════════ -->
+<section>
+  <div class="num">01&nbsp;&nbsp;컴파일 · hello.i → hello.s</div>
+  <h2>쓴 적 없는 함수가 불려요</h2>
+  <p>소스에는 분명 <code>printf</code>를 썼는데, 컴파일 결과인 <code>hello.s</code>에는
+  <code>printf</code>가 한 번도 등장하지 않습니다. 대신 이렇게 되어 있습니다.</p>
+
+  <div class="code">
+    <div class="cap">hello.s · main 안쪽</div>
+<pre>leaq    .LC0(%rip), %rax
+movq    %rax, %rdi
+call    <span class="hl-plum">puts@PLT</span></pre>
+  </div>
+
+  <div class="myth">
+    <div class="wrong">
+      <div class="hd">이렇게 생각하기 쉬워요</div>
+      <div class="bd"><code>printf</code>는 C 언어의 문법이다. 어셈블리로 내려가면 문법이
+      사라지고 하드웨어에 출력을 지시하는 명령으로 바뀌는데, 그게 <code>puts</code>다.</div>
+    </div>
+    <div class="right">
+      <div class="hd">실제로는</div>
+      <div class="bd"><code>printf</code>는 문법이 아니라 <b>평범한 함수</b>입니다. 누군가 C로 짜서
+      libc에 넣어 둔 것이고, 직접 같은 이름으로 만들 수도 있습니다. 문법은
+      <code>if</code>, <code>while</code>, <code>return</code>처럼 컴파일러가 아는 단어입니다.</div>
+    </div>
+  </div>
+
+  <h3>그럼 누가 바꿨을까요</h3>
+  <p>컴파일러입니다. GCC는 <code>printf</code>를 “모르는 남의 함수”로 두지 않고 <b>뜻을 아는 이름</b>으로
+  취급합니다. 그래서 이렇게 추론합니다. 서식이 <code>"%s\n"</code>이고 인자가 문자열 하나뿐이면
+  결과는 “그 문자열 + 줄바꿈”이고, 그건 <code>puts</code>가 하는 일과 정확히 같은데,
+  <code>puts</code>는 서식을 해석하지 않으니 더 빠릅니다.</p>
+
+  <p>다만 <b>결과가 완전히 같다고 증명될 때만</b> 바꿉니다. 조건을 하나씩 무너뜨려 보면 경계가 드러납니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>소스 코드</th><th>옵션</th><th class="m">결과</th></tr></thead>
+      <tbody>
+        <tr class="yes"><td class="m">printf("%s\n", "Hello, world!")</td><td>없음</td><td class="m">call puts</td></tr>
+        <tr class="no"><td class="m">printf("%s\n", "Hello, world!")</td><td class="m">-fno-builtin</td><td class="m">call printf</td></tr>
+        <tr class="yes"><td class="m">printf("Hello, world!\n")</td><td>없음</td><td class="m">call puts</td></tr>
+        <tr class="no"><td class="m">printf("Hello, world!")</td><td>없음</td><td class="m">call printf</td></tr>
+        <tr class="no"><td class="m">printf("%s %d\n", "Hello", 42)</td><td>없음</td><td class="m">call printf</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>아래 두 줄이 경계를 보여 줍니다. 줄바꿈을 빼면 바뀌지 않는데, <code>puts</code>는 줄바꿈을
+  <b>자기가 붙이기 때문에</b> 결과가 달라져 버리기 때문입니다. 인자가 늘어나도 바뀌지 않습니다.
+  그때는 서식을 진짜로 해석해야 하니까요.</p>
+
+  <div class="note"><b>최적화를 껐는데도 일어납니다.</b> 위 실험은 전부 <code>-O0</code>입니다.
+  이런 종류의 치환은 최적화 단계가 아니라 컴파일러가 함수 이름을 인식하는 단계에서 일어나기 때문에,
+  최적화를 껐다는 이유로 막히지 않습니다. 막으려면 <code>-fno-builtin</code>으로 “안다고 나서지 말라”고
+  따로 말해야 합니다.</div>
+
+  <h3>중요한 것은 컴파일러가 <em>하지 않은</em> 일</h3>
+  <p>컴파일러가 만든 것은 <b>이름 네 글자뿐</b>입니다. <code>puts</code>의 몸통은 수십 년 전에 누군가
+  C로 짜서 컴파일해 둔 것이고, 지금 <code>/usr/lib/x86_64-linux-gnu/libc.so.6</code>이라는
+  <b>2,190,608바이트</b>짜리 파일 안에 이진 상태로 들어 있습니다. 컴파일러는 그 파일을 열어 본 적이 없습니다.</p>
+</section>
+
+<p style="margin-top:-8px"><a class="prev" href="assemble-hello-o.html">
+    <b>다음 →</b><span>hello.o · 어셈블러가 주소 자리에 0을 적는 과정</span>
+  </a></p>
+
+<footer>
+  <div>Krafton Jungle W02-03 · hello.c - 전처리기부터 실행파일까지 2/4 · 2026-09-10</div>
+  <div>모든 수치와 출력은 Ubuntu / GCC 15.2.0 / x86-64 환경의 <code>~/dev/hello-pipeline</code>에서 실측했습니다.</div>
+</footer>
+
+</div>
+</body>
+</html>
